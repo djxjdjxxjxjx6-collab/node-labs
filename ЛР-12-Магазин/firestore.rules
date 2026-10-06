@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. СНАЧАЛА ВСЁ ЗАПРЕЩАЕМ
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Проверка данных товара: правильные типы и разумные значения
+    function validProduct(p) {
+      return p.name is string && p.name.size() > 0 && p.name.size() <= 120
+          && p.category is string && p.category.size() > 0 && p.category.size() <= 60
+          && p.price is number && p.price > 0 && p.price <= 10000000
+          && p.quantity is int && p.quantity >= 0 && p.quantity <= 100000
+          && (!('description' in p) || (p.description is string && p.description.size() <= 400))
+          && (!('emoji' in p) || (p.emoji is string && p.emoji.size() <= 8));
+    }
+
+    // 2.1. Товары смотрят все; добавлять/изменять/удалять может только admin
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && validProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // 2.2. Профили — только свои; роль и email сам себе поменять нельзя
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId
+                    && request.resource.data.role == "customer"
+                    && request.resource.data.email == request.auth.token.email;
+      allow update: if signedIn() && request.auth.uid == userId
+                    && request.resource.data.role == resource.data.role
+                    && request.resource.data.email == resource.data.email;
+      allow delete: if false;
+    }
+
+    // 2.3. Заказы: покупатель создаёт и видит свои, admin видит все и меняет статус
+    match /orders/{orderId} {
+      allow read: if isAdmin() ||
+                  (signedIn() && resource.data.userId == request.auth.uid);
+
+      allow create: if signedIn()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.status == "new"
+                    && request.resource.data.items is list
+                    && request.resource.data.items.size() > 0
+                    && request.resource.data.items.size() <= 50
+                    && request.resource.data.total is number
+                    && request.resource.data.total > 0;
+
+      // admin меняет только статус; покупатель может только отменить свой новый заказ
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"])
+                    && request.resource.data.status in ["new", "confirmed", "shipped", "done", "cancelled"]
+                    && (isAdmin() ||
+                        (signedIn() && resource.data.userId == request.auth.uid
+                         && resource.data.status == "new"
+                         && request.resource.data.status == "cancelled"));
+
+      allow delete: if false;
+    }
+  }
+}

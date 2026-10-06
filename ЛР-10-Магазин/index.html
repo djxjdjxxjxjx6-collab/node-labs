@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мой магазин — TechShop</title>
+<link rel="stylesheet" href="shop.css">
+<script>
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+        else if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.dataset.theme = "dark"; } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <a class="logo" href="#"><span class="logo-mark">⚡</span><span>TechShop</span></a>
+    <div class="search"><input id="search" type="search" placeholder="Поиск товаров…" autocomplete="off"></div>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-icon" id="theme-btn" title="Сменить тему">🌙</button>
+      <button class="btn" id="reload-btn" title="Загрузить заново из Firestore">🔄 <span class="hide-sm">Обновить</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>Мой магазин</h1>
+    <p>Каталог товаров загружается из облачной базы Cloud Firestore (коллекция <b>products</b>) через Firebase SDK.</p>
+    <div class="hero-stats">
+      <div><b id="hs-products">—</b><span>товаров</span></div>
+      <div><b id="hs-instock">—</b><span>в наличии</span></div>
+      <div><b id="hs-value">—</b><span>средняя цена</span></div>
+    </div>
+    <div class="hero-emoji">🛒</div>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" id="chips"></div>
+    <label class="toggle"><input type="checkbox" id="only-stock"> Только в наличии</label>
+    <select class="select" id="sort">
+      <option value="name">По названию (А→Я)</option>
+      <option value="price-asc">Сначала дешёвые</option>
+      <option value="price-desc">Сначала дорогие</option>
+      <option value="stock">По наличию</option>
+    </select>
+  </div>
+  <p class="muted" id="count" style="margin:-6px 0 14px;font-size:13px"></p>
+  <div class="grid" id="data"></div>
+
+  <footer class="site">© 2026 TechShop · ЛР-10 · Стариков Юрий, 15 Тис · Firebase + Cloud Firestore</footer>
+</main>
+
+<!-- Firebase SDK (compat) через CDN -->
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Конфигурация проекта Firebase «shop-sy» (веб-приложение MyShop)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCQohgxpyu03NaRbQtV42e6Rty1YizprRg",
+    authDomain: "shop-sy-71ed8.firebaseapp.com",
+    projectId: "shop-sy-71ed8",
+    storageBucket: "shop-sy-71ed8.firebasestorage.app",
+    messagingSenderId: "961143741758",
+    appId: "1:961143741758:web:fb11df84ce14ae5e0a606f"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const $ = (id) => document.getElementById(id);
+  // Экранирование: данные из базы не превращаются в HTML-код (защита от XSS)
+  const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  const money = (v) => Math.round(Number(v) || 0).toLocaleString("ru-RU") + " ₸";
+
+  const CATEGORY = {
+    "Периферия": { emoji: "🖱️", c1: "#e0e7ff", c2: "#c7d2fe" }, "Аудио": { emoji: "🎧", c1: "#fce7f3", c2: "#fbcfe8" },
+    "Мониторы": { emoji: "🖥️", c1: "#dbeafe", c2: "#bae6fd" }, "Комплектующие": { emoji: "🧩", c1: "#dcfce7", c2: "#bbf7d0" },
+    "Аксессуары": { emoji: "🎒", c1: "#fef3c7", c2: "#fde68a" }
+  };
+  const catStyle = (c) => CATEGORY[c] || { emoji: "📦", c1: "#e5e7eb", c2: "#d1d5db" };
+
+  // Индикатор наличия: ✅ В наличии / ❌ Нет в наличии (+ предупреждение, когда мало)
+  function stockPill(q) {
+    if (q <= 0) return '<span class="pill pill-danger">❌ Нет в наличии</span>';
+    if (q <= 5) return `<span class="pill pill-warn">⚠️ Осталось ${q}</span>`;
+    return '<span class="pill pill-ok">✅ В наличии</span>';
+  }
+
+  // Тема
+  const syncTheme = () => $("theme-btn").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
+  $("theme-btn").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    syncTheme();
+  });
+  syncTheme();
+
+  let products = [];
+  const filters = { q: "", cat: "Все", onlyStock: false, sort: "name" };
+
+  function skeleton() {
+    $("data").innerHTML = Array.from({ length: 6 }, () => `
+      <div class="skeleton"><div class="sk" style="aspect-ratio:4/3;border-radius:0"></div>
+        <div style="padding:16px"><div class="sk" style="height:12px;width:40%"></div>
+        <div class="sk" style="height:16px;width:80%;margin-top:10px"></div>
+        <div class="sk" style="height:22px;width:50%;margin-top:18px"></div></div></div>`).join("");
+  }
+
+  // Загрузка коллекции products из Firestore с обработкой ошибок
+  function load() {
+    skeleton();
+    $("count").textContent = "Загрузка...";
+    db.collection("products").get()
+      .then((snapshot) => {
+        products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        render();
+      })
+      .catch((error) => {
+        const text = error.code === "permission-denied" ? "Нет доступа к базе. Проверьте правила Firestore (Rules)." : error.message;
+        $("data").innerHTML = `<div class="error-box" style="grid-column:1/-1">Ошибка загрузки данных: ${esc(text)}</div>`;
+        $("count").textContent = "";
+        console.error("Firestore error:", error);
+      });
+  }
+
+  function render() {
+    // статистика
+    $("hs-products").textContent = products.length;
+    $("hs-instock").textContent = products.filter((p) => p.quantity > 0).length;
+    $("hs-value").textContent = products.length ? money(products.reduce((s, p) => s + p.price, 0) / products.length) : "—";
+
+    // категории
+    const cats = ["Все", ...new Set(products.map((p) => p.category))];
+    $("chips").innerHTML = cats.map((c) => `<button class="chip ${c === filters.cat ? "active" : ""}" data-cat="${esc(c)}">${c === "Все" ? "Все" : catStyle(c).emoji + " " + esc(c)}</button>`).join("");
+
+    // фильтрация и сортировка
+    const by = {
+      "name": (a, b) => a.name.localeCompare(b.name, "ru"),
+      "price-asc": (a, b) => a.price - b.price,
+      "price-desc": (a, b) => b.price - a.price,
+      "stock": (a, b) => b.quantity - a.quantity
+    };
+    const list = products.filter((p) =>
+      (filters.cat === "Все" || p.category === filters.cat) &&
+      (!filters.onlyStock || p.quantity > 0) &&
+      (!filters.q || (p.name + " " + p.category).toLowerCase().includes(filters.q))).sort(by[filters.sort]);
+
+    $("count").textContent = `Найдено: ${list.length} из ${products.length}`;
+    if (!products.length) { $("data").innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">📭</div>В коллекции пока нет товаров.</div>`; return; }
+    if (!list.length) { $("data").innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔎</div>Ничего не найдено.</div>`; return; }
+
+    // HTML собирается целиком и вставляется один раз
+    $("data").innerHTML = list.map((p, i) => {
+      const s = catStyle(p.category);
+      return `
+        <article class="card" style="animation-delay:${i * 40}ms">
+          <div class="card-media" style="--c1:${s.c1};--c2:${s.c2}"><span class="stock-badge">${stockPill(p.quantity)}</span>${esc(p.emoji || s.emoji)}</div>
+          <div class="card-body">
+            <span class="card-cat">${esc(p.category)}</span>
+            <h3 class="card-title">${esc(p.name)}</h3>
+            ${p.description ? `<p class="card-desc">${esc(p.description)}</p>` : ""}
+            <span class="muted" style="font-size:13px">На складе: ${esc(p.quantity)} шт.</span>
+            <div class="card-foot"><span class="price">${money(p.price)}</span></div>
+          </div>
+        </article>`;
+    }).join("");
+  }
+
+  $("chips").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { filters.cat = b.dataset.cat; render(); } });
+  $("search").addEventListener("input", (e) => { filters.q = e.target.value.trim().toLowerCase(); render(); });
+  $("only-stock").addEventListener("change", (e) => { filters.onlyStock = e.target.checked; render(); });
+  $("sort").addEventListener("change", (e) => { filters.sort = e.target.value; render(); });
+  $("reload-btn").addEventListener("click", load);
+
+  load();
+</script>
+</body>
+</html>

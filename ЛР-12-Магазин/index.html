@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechShop — интернет-магазин</title>
+<link rel="stylesheet" href="shop.css">
+<script>
+  // Тема применяется до отрисовки, чтобы не было «мигания»
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+        else if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.dataset.theme = "dark"; } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- ============ ШАПКА ============ -->
+<header class="topbar">
+  <div class="container">
+    <a class="logo" href="#catalog"><span class="logo-mark">⚡</span><span>TechShop</span></a>
+    <div class="search"><input id="search" type="search" placeholder="Поиск товаров…" autocomplete="off"></div>
+    <div class="header-actions" id="auth-panel">
+      <button class="btn btn-ghost btn-icon" id="theme-btn" title="Сменить тему">🌙</button>
+      <button class="btn btn-ghost" id="cart-btn" title="Корзина">🛒 <span class="hide-sm">Корзина</span> <span class="badge-count hidden" id="cart-count">0</span></button>
+      <!-- Гость -->
+      <button class="btn" id="login-btn">Войти</button>
+      <button class="btn btn-primary" id="register-btn">Регистрация</button>
+      <!-- Авторизованный -->
+      <div class="menu-wrap hidden" id="user-wrap">
+        <button class="user-chip" id="user-chip"><span class="mini-avatar" id="mini-avatar">?</span><span id="welcome-text" class="hide-sm"></span></button>
+        <div class="menu hidden" id="user-menu">
+          <div class="menu-head"><div id="menu-email"></div><div id="menu-role"></div></div>
+          <button data-go="profile">👤 Личный кабинет</button>
+          <button data-go="orders">📦 Мои заказы</button>
+          <button data-go="admin" class="hidden" id="menu-admin">🛠 Админ-панель</button>
+          <button id="logout-btn">🚪 Выйти</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ============ КАТАЛОГ ============ -->
+  <section id="view-catalog">
+    <div class="hero">
+      <h1>Техника, которая работает на вас</h1>
+      <p>Периферия, звук, мониторы и комплектующие — с доставкой по всему Казахстану. Данные каталога загружаются из Firestore в реальном времени.</p>
+      <div class="hero-stats">
+        <div><b id="hs-products">—</b><span>товаров</span></div>
+        <div><b id="hs-instock">—</b><span>в наличии</span></div>
+        <div><b id="hs-cats">—</b><span>категорий</span></div>
+      </div>
+      <div class="hero-emoji">🛍️</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="chips" id="chips"></div>
+      <label class="toggle"><input type="checkbox" id="only-stock"> Только в наличии</label>
+      <label class="toggle"><input type="checkbox" id="only-fav"> ❤️ Избранное</label>
+      <select class="select" id="sort">
+        <option value="name">По названию (А→Я)</option>
+        <option value="price-asc">Сначала дешёвые</option>
+        <option value="price-desc">Сначала дорогие</option>
+        <option value="stock">По наличию</option>
+        <option value="new">Сначала новые</option>
+      </select>
+    </div>
+    <p class="muted" id="count" style="margin:-6px 0 14px;font-size:13px"></p>
+    <div class="grid" id="data"></div>
+  </section>
+
+  <!-- ============ ЛИЧНЫЙ КАБИНЕТ ============ -->
+  <section id="view-profile" class="hidden">
+    <div class="section-title"><h2 id="cabinet-title">Личный кабинет</h2><button class="btn btn-sm" data-go="catalog">← В каталог</button></div>
+    <div class="panel" id="cabinet">
+      <div class="profile">
+        <div class="avatar" id="cab-avatar">?</div>
+        <div class="profile-info">
+          <h3 id="cabinet-name">—</h3>
+          <div class="profile-meta">
+            <span>✉️ <span id="cabinet-email"></span></span>
+            <span>📅 С нами с <span id="cabinet-date"></span></span>
+          </div>
+          <div style="margin-top:8px"><span class="pill pill-info" id="cabinet-role-text">Вы вошли как покупатель</span></div>
+        </div>
+      </div>
+      <form id="name-form" style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;max-width:520px">
+        <input class="input" id="name-input" maxlength="60" placeholder="Как к вам обращаться?" style="flex:1;min-width:200px">
+        <button class="btn btn-primary" id="name-save">Сохранить имя</button>
+      </form>
+    </div>
+    <div class="stats" style="margin-top:18px">
+      <div class="stat"><div class="label">Заказов</div><div class="value" id="pf-orders">0</div></div>
+      <div class="stat"><div class="label">Потрачено</div><div class="value" id="pf-spent">0 ₸</div></div>
+      <div class="stat"><div class="label">В избранном</div><div class="value" id="pf-fav">0</div></div>
+      <div class="stat"><div class="label">В корзине</div><div class="value" id="pf-cart">0</div></div>
+    </div>
+  </section>
+
+  <!-- ============ МОИ ЗАКАЗЫ ============ -->
+  <section id="view-orders" class="hidden">
+    <div class="section-title"><h2>Мои заказы</h2><button class="btn btn-sm" data-go="catalog">← В каталог</button></div>
+    <div id="my-orders"></div>
+  </section>
+
+  <!-- ============ АДМИН-ПАНЕЛЬ ============ -->
+  <section id="view-admin" class="hidden">
+    <div class="section-title">
+      <h2>Админ-панель</h2>
+      <div class="tabs"><button class="tab active" data-tab="products">Товары</button><button class="tab" data-tab="orders">Заказы <span class="badge-count hidden" id="new-orders-count"></span></button></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="label">Товаров</div><div class="value" id="st-products">0</div></div>
+      <div class="stat"><div class="label">Единиц на складе</div><div class="value" id="st-units">0</div></div>
+      <div class="stat"><div class="label">Стоимость склада</div><div class="value" id="st-value">0 ₸</div></div>
+      <div class="stat"><div class="label">Выручка</div><div class="value" id="st-revenue">0 ₸</div></div>
+    </div>
+
+    <div id="admin-products">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+          <b>Управление каталогом</b>
+          <button class="btn btn-primary btn-sm" id="add-product-btn">＋ Добавить товар</button>
+        </div>
+        <div class="table-wrap"><table class="tbl">
+          <thead><tr><th></th><th>Товар</th><th>Цена, ₸</th><th>Остаток</th><th>Статус</th><th></th></tr></thead>
+          <tbody id="admin-table"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="admin-orders" class="hidden">
+      <div class="toolbar"><div class="chips" id="order-filter"></div></div>
+      <div id="all-orders"></div>
+    </div>
+  </section>
+
+  <footer class="site">© 2026 TechShop · Стариков Юрий, 15 Тис · Firebase Authentication + Cloud Firestore</footer>
+</main>
+
+<!-- ============ КОРЗИНА (выдвижная панель) ============ -->
+<div class="overlay" id="cart-overlay"></div>
+<aside class="drawer" id="cart-drawer" aria-label="Корзина">
+  <div class="drawer-head"><h2>🛒 Корзина</h2><button class="btn btn-ghost btn-icon" id="cart-close">✕</button></div>
+  <div class="drawer-body" id="cart-items"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Итого</span><span id="cart-total">0 ₸</span></div>
+    <button class="btn btn-primary btn-block" id="checkout-btn">Оформить заказ</button>
+  </div>
+</aside>
+
+<!-- ============ МОДАЛКИ ============ -->
+<div class="overlay" id="login-modal">
+  <form class="modal" id="login-form" novalidate>
+    <h2>С возвращением 👋</h2><p class="sub">Войдите, чтобы оформлять заказы</p>
+    <div class="form-error hidden" id="login-error"></div>
+    <div class="field"><label for="login-email">Email</label><input class="input" type="email" id="login-email" autocomplete="email" required></div>
+    <div class="field"><label for="login-password">Пароль</label><input class="input" type="password" id="login-password" autocomplete="current-password" required></div>
+    <button type="submit" class="btn btn-primary btn-block" id="login-submit">Войти</button>
+    <div class="switch-auth">Нет аккаунта? <button type="button" class="link" data-switch="register-modal">Зарегистрироваться</button></div>
+  </form>
+</div>
+
+<div class="overlay" id="register-modal">
+  <form class="modal" id="register-form" novalidate>
+    <h2>Создать аккаунт</h2><p class="sub">Регистрация занимает 10 секунд</p>
+    <div class="form-error hidden" id="register-error"></div>
+    <div class="field"><label for="register-name">Имя <span class="muted">(необязательно)</span></label><input class="input" id="register-name" maxlength="60" autocomplete="name"></div>
+    <div class="field"><label for="register-email">Email</label><input class="input" type="email" id="register-email" autocomplete="email" required></div>
+    <div class="field"><label for="register-password">Пароль <span class="muted">(минимум 6 символов)</span></label><input class="input" type="password" id="register-password" autocomplete="new-password" required></div>
+    <button type="submit" class="btn btn-primary btn-block" id="register-submit">Зарегистрироваться</button>
+    <div class="switch-auth">Уже есть аккаунт? <button type="button" class="link" data-switch="login-modal">Войти</button></div>
+  </form>
+</div>
+
+<div class="overlay" id="product-modal">
+  <form class="modal modal-lg" id="product-form" novalidate>
+    <h2 id="pm-title">Новый товар</h2><p class="sub">Изменения сразу увидят все покупатели</p>
+    <div class="form-error hidden" id="pm-error"></div>
+    <div class="grid-2">
+      <div class="field"><label for="pm-name">Название</label><input class="input" id="pm-name" maxlength="120" required></div>
+      <div class="field"><label for="pm-category">Категория</label>
+        <select class="select" id="pm-category"><option>Периферия</option><option>Аудио</option><option>Мониторы</option><option>Комплектующие</option><option>Аксессуары</option></select></div>
+      <div class="field"><label for="pm-price">Цена, ₸</label><input class="input" type="number" id="pm-price" min="1" step="1" required></div>
+      <div class="field"><label for="pm-quantity">Остаток, шт.</label><input class="input" type="number" id="pm-quantity" min="0" step="1" required></div>
+    </div>
+    <div class="field"><label for="pm-emoji">Иконка (эмодзи)</label><input class="input" id="pm-emoji" maxlength="4" placeholder="Например: 🖱️ ⌨️ 🎧 🖥️"></div>
+    <div class="field"><label for="pm-desc">Описание</label><textarea class="textarea" id="pm-desc" maxlength="400" placeholder="Коротко о товаре"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button type="submit" class="btn btn-primary" id="pm-submit">Сохранить</button></div>
+  </form>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- Firebase SDK (compat) через CDN -->
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth-compat.js"></script>
+
+<script>
+/* =====================================================================
+   TechShop — ЛР-12 (Стариков Юрий, 15 Тис)
+   Firebase: Authentication (email/пароль) + Cloud Firestore
+   Коллекции: products, users/{uid}, orders
+   ===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCQohgxpyu03NaRbQtV42e6Rty1YizprRg",
+  authDomain: "shop-sy-71ed8.firebaseapp.com",
+  projectId: "shop-sy-71ed8",
+  storageBucket: "shop-sy-71ed8.firebasestorage.app",
+  messagingSenderId: "961143741758",
+  appId: "1:961143741758:web:fb11df84ce14ae5e0a606f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const { FieldValue } = firebase.firestore;
+
+/* ---------- Утилиты ---------- */
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const money = (v) => Math.round(Number(v) || 0).toLocaleString("ru-RU") + " ₸";
+const fmtDate = (v) => !v ? "—" : (v.toDate ? v.toDate() : new Date(v)).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+const fmtDateTime = (v) => !v ? "только что" : (v.toDate ? v.toDate() : new Date(v)).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+const CATEGORY = {
+  "Периферия":     { emoji: "🖱️", c1: "#e0e7ff", c2: "#c7d2fe" },
+  "Аудио":         { emoji: "🎧", c1: "#fce7f3", c2: "#fbcfe8" },
+  "Мониторы":      { emoji: "🖥️", c1: "#dbeafe", c2: "#bae6fd" },
+  "Комплектующие": { emoji: "🧩", c1: "#dcfce7", c2: "#bbf7d0" },
+  "Аксессуары":    { emoji: "🎒", c1: "#fef3c7", c2: "#fde68a" }
+};
+const catStyle = (c) => CATEGORY[c] || { emoji: "📦", c1: "#e5e7eb", c2: "#d1d5db" };
+const iconOf = (p) => p.emoji || catStyle(p.category).emoji;
+const LOW_STOCK = 5;
+
+function stockPill(q) {
+  if (q <= 0) return '<span class="pill pill-danger">❌ Нет в наличии</span>';
+  if (q <= LOW_STOCK) return `<span class="pill pill-warn">⚠️ Осталось ${q}</span>`;
+  return '<span class="pill pill-ok">✅ В наличии</span>';
+}
+
+const ORDER_STATUS = {
+  new:       { text: "Новый",        cls: "pill-info" },
+  confirmed: { text: "Подтверждён",  cls: "pill-warn" },
+  shipped:   { text: "Отправлен",    cls: "pill-warn" },
+  done:      { text: "Доставлен",    cls: "pill-ok" },
+  cancelled: { text: "Отменён",      cls: "pill-danger" }
+};
+
+function errorText(e) {
+  const m = {
+    "auth/invalid-email": "Некорректный email", "auth/missing-email": "Введите email", "auth/missing-password": "Введите пароль",
+    "auth/email-already-in-use": "Этот email уже зарегистрирован", "auth/weak-password": "Пароль должен быть не короче 6 символов",
+    "auth/invalid-credential": "Неверный email или пароль", "auth/invalid-login-credentials": "Неверный email или пароль",
+    "auth/wrong-password": "Неверный email или пароль", "auth/user-not-found": "Пользователь не найден",
+    "auth/too-many-requests": "Слишком много попыток, попробуйте позже", "auth/network-request-failed": "Нет соединения с интернетом",
+    "permission-denied": "Нет доступа (правила Firestore)", "failed-precondition": "Недостаточно товара на складе"
+  };
+  return m[e.code] || e.message;
+}
+
+function toast(text, isErr = false) {
+  const el = document.createElement("div");
+  el.className = "toast" + (isErr ? " err" : "");
+  el.textContent = text;
+  $("toasts").appendChild(el);
+  setTimeout(() => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 2600);
+}
+const showErr = (box, t) => { box.textContent = t; box.classList.remove("hidden"); };
+const hideErr = (box) => box.classList.add("hidden");
+
+/* ---------- Тема ---------- */
+function syncThemeIcon() { $("theme-btn").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙"; }
+$("theme-btn").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("theme", next); } catch (e) {}
+  syncThemeIcon();
+});
+syncThemeIcon();
+
+/* ---------- Модальные окна ---------- */
+function openModal(id) {
+  const m = $(id); m.classList.add("open");
+  m.querySelectorAll(".form-error").forEach(hideErr);
+  setTimeout(() => m.querySelector("input")?.focus(), 50);
+}
+function closeModal(m) { m.classList.remove("open"); m.querySelector("form")?.reset(); }
+document.querySelectorAll(".overlay").forEach((o) => {
+  if (o.id === "cart-overlay") return;
+  o.addEventListener("click", (e) => { if (e.target === o || e.target.hasAttribute("data-close")) closeModal(o); });
+});
+document.querySelectorAll("[data-switch]").forEach((b) => b.addEventListener("click", () => {
+  closeModal(b.closest(".overlay")); openModal(b.dataset.switch);
+}));
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  document.querySelectorAll(".overlay.open").forEach((o) => o.id === "cart-overlay" ? closeCart() : closeModal(o));
+  $("user-menu").classList.add("hidden");
+});
+$("login-btn").addEventListener("click", () => openModal("login-modal"));
+$("register-btn").addEventListener("click", () => openModal("register-modal"));
+
+/* ---------- Навигация между разделами ---------- */
+const VIEWS = ["catalog", "profile", "orders", "admin"];
+function go(view) {
+  if (!VIEWS.includes(view)) view = "catalog";
+  if (view !== "catalog" && !currentUser) { openModal("login-modal"); view = "catalog"; }
+  if (view === "admin" && currentRole !== "admin") view = "catalog";
+  VIEWS.forEach((v) => $("view-" + v).classList.toggle("hidden", v !== view));
+  if (location.hash !== "#" + view) history.replaceState(null, "", "#" + view);
+  $("user-menu").classList.add("hidden");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.addEventListener("click", (e) => { const t = e.target.closest("[data-go]"); if (t) { e.preventDefault(); go(t.dataset.go); } });
+window.addEventListener("hashchange", () => go(location.hash.slice(1)));
+$("user-chip").addEventListener("click", (e) => { e.stopPropagation(); $("user-menu").classList.toggle("hidden"); });
+document.addEventListener("click", (e) => { if (!e.target.closest("#user-wrap")) $("user-menu").classList.add("hidden"); });
+
+/* =====================================================================
+   АВТОРИЗАЦИЯ
+   ===================================================================== */
+$("register-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = $("register-name").value.trim();
+  const email = $("register-email").value.trim();
+  const password = $("register-password").value;
+  const box = $("register-error"); hideErr(box);
+  if (password.length < 6) return showErr(box, "Пароль должен быть не короче 6 символов");
+  $("register-submit").disabled = true;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    await db.collection("users").doc(cred.user.uid).set({
+      email, displayName: name, createdAt: FieldValue.serverTimestamp(), role: "customer"
+    });
+    closeModal($("register-modal"));
+    toast("🎉 Аккаунт создан, добро пожаловать!");
+  } catch (err) { showErr(box, errorText(err)); }
+  finally { $("register-submit").disabled = false; }
+});
+
+$("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const box = $("login-error"); hideErr(box);
+  $("login-submit").disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword($("login-email").value.trim(), $("login-password").value);
+    closeModal($("login-modal"));
+    toast("👋 Вы вошли в аккаунт");
+  } catch (err) { showErr(box, errorText(err)); }
+  finally { $("login-submit").disabled = false; }
+});
+
+$("logout-btn").addEventListener("click", async () => { await auth.signOut(); go("catalog"); toast("Вы вышли из аккаунта"); });
+
+$("name-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!currentUser) return;
+  $("name-save").disabled = true;
+  try {
+    await db.collection("users").doc(currentUser.uid).update({ displayName: $("name-input").value.trim() });
+    $("name-input").value = "";
+    toast("✅ Имя сохранено");
+  } catch (err) { toast("Ошибка: " + errorText(err), true); }
+  finally { $("name-save").disabled = false; }
+});
+
+let currentUser = null, currentRole = null, profile = null;
+let unsubProfile = null, unsubMyOrders = null, unsubAllOrders = null;
+let myOrders = [], allOrders = [];
+
+auth.onAuthStateChanged((user) => {
+  currentUser = user;
+  [unsubProfile, unsubMyOrders, unsubAllOrders].forEach((u) => u && u());
+  unsubProfile = unsubMyOrders = unsubAllOrders = null;
+  myOrders = []; allOrders = [];
+
+  $("login-btn").classList.toggle("hidden", !!user);
+  $("register-btn").classList.toggle("hidden", !!user);
+  $("user-wrap").classList.toggle("hidden", !user);
+
+  if (!user) {
+    currentRole = null; profile = null; pendingView = null;
+    $("menu-admin").classList.add("hidden");
+    if (!$("view-catalog").offsetParent) go("catalog");
+    renderAll();
+    return;
+  }
+
+  // Профиль — подписка в реальном времени (роль, назначенная в консоли, применяется сразу)
+  unsubProfile = db.collection("users").doc(user.uid).onSnapshot((doc) => {
+    if (!doc.exists) return; // сразу после регистрации документа ещё нет — дождёмся
+    profile = doc.data();
+    const wasAdmin = currentRole === "admin";
+    currentRole = profile.role;
+    renderProfile();
+    if (currentRole === "admin" && !wasAdmin) subscribeAllOrders();
+    if (currentRole !== "admin" && unsubAllOrders) { unsubAllOrders(); unsubAllOrders = null; allOrders = []; }
+    if (pendingView) { const v = pendingView; pendingView = null; go(v); }
+    renderAll();
+  }, (err) => console.error("Профиль:", err));
+
+  // Мои заказы (фильтр по userId, сортировка на клиенте — без составного индекса)
+  unsubMyOrders = db.collection("orders").where("userId", "==", user.uid).onSnapshot((snap) => {
+    myOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.toMillis?.() ?? Date.now()) - (a.createdAt?.toMillis?.() ?? Date.now()));
+    renderMyOrders(); renderProfileStats();
+  }, (err) => console.error("Заказы:", err));
+});
+
+function subscribeAllOrders() {
+  unsubAllOrders = db.collection("orders").orderBy("createdAt", "desc").limit(200).onSnapshot((snap) => {
+    allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    renderAdminOrders(); renderAdminStats();
+  }, (err) => console.error("Все заказы:", err));
+}
+
+function renderProfile() {
+  if (!profile) return;
+  const isAdmin = currentRole === "admin";
+  const display = profile.displayName || profile.email;
+  const letter = (profile.displayName || profile.email || "?").trim()[0].toUpperCase();
+  $("welcome-text").textContent = "Привет, " + display + "!";
+  $("mini-avatar").textContent = letter;
+  $("cab-avatar").textContent = letter;
+  $("menu-email").textContent = profile.email;
+  $("menu-role").textContent = isAdmin ? "Администратор" : "Покупатель";
+  $("menu-admin").classList.toggle("hidden", !isAdmin);
+  $("cabinet-title").textContent = isAdmin ? "Личный кабинет администратора" : "Личный кабинет покупателя";
+  $("cabinet-name").textContent = profile.displayName || "Имя не указано";
+  $("cabinet-email").textContent = profile.email;
+  $("cabinet-date").textContent = fmtDate(profile.createdAt);
+  $("cabinet-role-text").textContent = isAdmin ? "🛠 Вы вошли как администратор" : "🛍 Вы вошли как покупатель";
+  $("cabinet-role-text").className = "pill " + (isAdmin ? "pill-danger" : "pill-info");
+}
+function renderProfileStats() {
+  const active = myOrders.filter((o) => o.status !== "cancelled");
+  $("pf-orders").textContent = myOrders.length;
+  $("pf-spent").textContent = money(active.reduce((s, o) => s + (o.total || 0), 0));
+  $("pf-fav").textContent = favs().length;
+  $("pf-cart").textContent = cartCount();
+}
+
+/* =====================================================================
+   КАТАЛОГ (onSnapshot — изменения видны сразу во всех вкладках)
+   ===================================================================== */
+let products = [];
+let loaded = false;
+const filters = { q: "", cat: "Все", onlyStock: false, onlyFav: false, sort: "name" };
+
+function skeleton() {
+  $("data").innerHTML = Array.from({ length: 6 }, () => `
+    <div class="skeleton"><div class="sk" style="aspect-ratio:4/3;border-radius:0"></div>
+      <div style="padding:16px"><div class="sk" style="height:12px;width:40%"></div>
+      <div class="sk" style="height:16px;width:80%;margin-top:10px"></div>
+      <div class="sk" style="height:22px;width:50%;margin-top:18px"></div></div></div>`).join("");
+}
+skeleton();
+
+db.collection("products").onSnapshot((snap) => {
+  products = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  loaded = true;
+  renderAll();
+}, (err) => {
+  $("data").innerHTML = `<div class="error-box">Ошибка загрузки каталога: ${esc(errorText(err))}</div>`;
+  console.error(err);
+});
+
+function renderChips() {
+  const cats = ["Все", ...new Set(products.map((p) => p.category).filter(Boolean))];
+  if (!cats.includes(filters.cat)) filters.cat = "Все";
+  $("chips").innerHTML = cats.map((c) => {
+    const n = c === "Все" ? products.length : products.filter((p) => p.category === c).length;
+    return `<button class="chip ${c === filters.cat ? "active" : ""}" data-cat="${esc(c)}">${c === "Все" ? "Все" : catStyle(c).emoji + " " + esc(c)} · ${n}</button>`;
+  }).join("");
+}
+$("chips").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { filters.cat = b.dataset.cat; renderCatalog(); renderChips(); } });
+$("search").addEventListener("input", (e) => { filters.q = e.target.value.trim().toLowerCase(); go("catalog"); renderCatalog(); });
+$("only-stock").addEventListener("change", (e) => { filters.onlyStock = e.target.checked; renderCatalog(); });
+$("only-fav").addEventListener("change", (e) => { filters.onlyFav = e.target.checked; renderCatalog(); });
+$("sort").addEventListener("change", (e) => { filters.sort = e.target.value; renderCatalog(); });
+
+function visibleProducts() {
+  const fav = favs();
+  let list = products.filter((p) =>
+    (filters.cat === "Все" || p.category === filters.cat) &&
+    (!filters.onlyStock || p.quantity > 0) &&
+    (!filters.onlyFav || fav.includes(p.id)) &&
+    (!filters.q || (p.name + " " + p.category + " " + (p.description || "")).toLowerCase().includes(filters.q)));
+  const by = {
+    "name": (a, b) => a.name.localeCompare(b.name, "ru"),
+    "price-asc": (a, b) => a.price - b.price,
+    "price-desc": (a, b) => b.price - a.price,
+    "stock": (a, b) => (b.quantity > 0) - (a.quantity > 0) || b.quantity - a.quantity,
+    "new": (a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)
+  };
+  return list.sort(by[filters.sort]);
+}
+
+function renderCatalog() {
+  if (!loaded) return;
+  const list = visibleProducts();
+  $("count").textContent = `Найдено: ${list.length} из ${products.length}`;
+  if (!list.length) {
+    $("data").innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔎</div>Ничего не найдено. Попробуйте изменить фильтры.</div>`;
+    return;
+  }
+  const fav = favs(), cart = getCart();
+  $("data").innerHTML = list.map((p, i) => {
+    const s = catStyle(p.category), inCart = cart[p.id] || 0;
+    const buy = p.quantity <= 0
+      ? `<button class="btn btn-sm" disabled>Нет в наличии</button>`
+      : inCart
+        ? `<div class="stepper"><button data-dec="${p.id}">−</button><span>${inCart}</span><button data-inc="${p.id}" ${inCart >= p.quantity ? "disabled" : ""}>+</button></div>`
+        : `<button class="btn btn-primary btn-sm" data-add="${p.id}">В корзину</button>`;
+    return `
+      <article class="card" style="animation-delay:${Math.min(i, 12) * 30}ms">
+        <div class="card-media" style="--c1:${s.c1};--c2:${s.c2}">
+          <span class="stock-badge">${stockPill(p.quantity)}</span>
+          <button class="btn btn-ghost btn-icon btn-sm fav" data-fav="${p.id}" title="В избранное">${fav.includes(p.id) ? "❤️" : "🤍"}</button>
+          ${esc(iconOf(p))}
+        </div>
+        <div class="card-body">
+          <span class="card-cat">${esc(p.category)}</span>
+          <h3 class="card-title">${esc(p.name)}</h3>
+          ${p.description ? `<p class="card-desc">${esc(p.description)}</p>` : ""}
+          <span class="muted" style="font-size:13px">На складе: ${esc(p.quantity)} шт.</span>
+          <div class="card-foot"><span class="price">${money(p.price)}</span>${buy}</div>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+$("data").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.add) { changeCart(b.dataset.add, 1); toast("🛒 Добавлено в корзину"); }
+  else if (b.dataset.inc) changeCart(b.dataset.inc, 1);
+  else if (b.dataset.dec) changeCart(b.dataset.dec, -1);
+  else if (b.dataset.fav) toggleFav(b.dataset.fav);
+});
+
+function renderHero() {
+  $("hs-products").textContent = products.length;
+  $("hs-instock").textContent = products.filter((p) => p.quantity > 0).length;
+  $("hs-cats").textContent = new Set(products.map((p) => p.category)).size;
+}
+
+/* ---------- Избранное (localStorage, отдельно для каждого пользователя) ---------- */
+const favKey = () => "fav:" + (currentUser?.uid || "guest");
+const favs = () => store.get(favKey(), []);
+function toggleFav(id) {
+  const f = favs(); const i = f.indexOf(id);
+  i >= 0 ? f.splice(i, 1) : f.push(id);
+  store.set(favKey(), f);
+  toast(i >= 0 ? "Удалено из избранного" : "❤️ Добавлено в избранное");
+  renderCatalog(); renderProfileStats();
+}
+
+/* =====================================================================
+   КОРЗИНА (localStorage) и ОФОРМЛЕНИЕ ЗАКАЗА (Firestore: orders)
+   ===================================================================== */
+const getCart = () => store.get("cart", {});
+const setCart = (c) => { store.set("cart", c); renderCart(); renderCatalog(); renderProfileStats(); };
+const cartCount = () => Object.values(getCart()).reduce((s, n) => s + n, 0);
+
+function changeCart(id, delta) {
+  const c = getCart(); const p = products.find((x) => x.id === id);
+  const next = Math.max(0, (c[id] || 0) + delta);
+  if (p && next > p.quantity) return toast(`На складе только ${p.quantity} шт.`, true);
+  next ? (c[id] = next) : delete c[id];
+  setCart(c);
+}
+
+function cartLines() {
+  const c = getCart();
+  return Object.entries(c).map(([id, qty]) => ({ p: products.find((x) => x.id === id), id, qty })).filter((l) => l.p);
+}
+
+function renderCart() {
+  const n = cartCount();
+  $("cart-count").textContent = n;
+  $("cart-count").classList.toggle("hidden", !n);
+  const lines = cartLines();
+  const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
+  $("cart-total").textContent = money(total);
+  $("checkout-btn").disabled = !lines.length;
+  if (!lines.length) { $("cart-items").innerHTML = `<div class="empty"><div class="big">🛒</div>Корзина пуста</div>`; return; }
+  $("cart-items").innerHTML = lines.map(({ p, qty }) => {
+    const s = catStyle(p.category);
+    return `<div class="cart-item">
+      <div class="cart-thumb" style="--c1:${s.c1};--c2:${s.c2}">${esc(iconOf(p))}</div>
+      <div class="cart-info"><b>${esc(p.name)}</b><span class="muted" style="font-size:13px">${money(p.price)} × ${qty} = <b style="display:inline;color:var(--text)">${money(p.price * qty)}</b></span>
+        ${qty > p.quantity ? `<div style="color:var(--danger);font-size:12px">Доступно только ${p.quantity} шт.</div>` : ""}</div>
+      <div class="stepper"><button data-dec="${p.id}">−</button><span>${qty}</span><button data-inc="${p.id}" ${qty >= p.quantity ? "disabled" : ""}>+</button></div>
+    </div>`;
+  }).join("");
+}
+$("cart-items").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.inc) changeCart(b.dataset.inc, 1);
+  if (b.dataset.dec) changeCart(b.dataset.dec, -1);
+});
+
+function openCart() { $("cart-overlay").classList.add("open"); $("cart-drawer").classList.add("open"); }
+function closeCart() { $("cart-overlay").classList.remove("open"); $("cart-drawer").classList.remove("open"); }
+$("cart-btn").addEventListener("click", openCart);
+$("cart-close").addEventListener("click", closeCart);
+$("cart-overlay").addEventListener("click", closeCart);
+
+$("checkout-btn").addEventListener("click", async () => {
+  if (!currentUser) { closeCart(); openModal("login-modal"); return toast("Войдите, чтобы оформить заказ"); }
+  const lines = cartLines();
+  const bad = lines.find((l) => l.qty > l.p.quantity);
+  if (bad) return toast(`«${bad.p.name}»: доступно только ${bad.p.quantity} шт.`, true);
+  const items = lines.map(({ p, qty }) => ({ productId: p.id, name: p.name, price: p.price, qty }));
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  $("checkout-btn").disabled = true;
+  try {
+    await db.collection("orders").add({
+      userId: currentUser.uid, email: currentUser.email, items, total,
+      status: "new", createdAt: FieldValue.serverTimestamp()
+    });
+    setCart({}); closeCart(); go("orders");
+    toast("✅ Заказ оформлен! Ожидайте подтверждения");
+  } catch (err) { toast("Ошибка: " + errorText(err), true); }
+  finally { $("checkout-btn").disabled = !cartLines().length; }
+});
+
+/* ---------- Мои заказы ---------- */
+function orderCard(o, adminMode) {
+  const st = ORDER_STATUS[o.status] || { text: o.status, cls: "pill-muted" };
+  let actions = "";
+  if (adminMode) {
+    const next = { new: [["confirmed", "Подтвердить"], ["cancelled", "Отменить"]], confirmed: [["shipped", "Отправить"], ["cancelled", "Отменить"]], shipped: [["done", "Доставлен"]] }[o.status] || [];
+    actions = next.map(([s, t]) => `<button class="btn btn-sm ${s === "cancelled" ? "btn-danger" : "btn-primary"}" data-status="${s}" data-order="${o.id}">${t}</button>`).join("");
+  } else if (o.status === "new") {
+    actions = `<button class="btn btn-sm btn-danger" data-cancel="${o.id}">Отменить заказ</button>`;
+  }
+  return `<div class="order">
+    <div class="order-head">
+      <div><b>Заказ №${esc(o.id.slice(0, 6).toUpperCase())}</b> <span class="muted" style="font-size:13px">· ${fmtDateTime(o.createdAt)}${adminMode ? " · " + esc(o.email) : ""}</span></div>
+      <span class="pill ${st.cls}">${st.text}</span>
+    </div>
+    <ul class="order-items">${(o.items || []).map((i) => `<li><span>${esc(i.name)} × ${esc(i.qty)}</span><span>${money(i.price * i.qty)}</span></li>`).join("")}</ul>
+    <div class="order-foot"><b>Итого: ${money(o.total)}</b><div class="row-actions" style="display:flex;gap:6px">${actions}</div></div>
+  </div>`;
+}
+function renderMyOrders() {
+  $("my-orders").innerHTML = myOrders.length ? myOrders.map((o) => orderCard(o, false)).join("")
+    : `<div class="empty"><div class="big">📦</div>Заказов пока нет<br><br><button class="btn btn-primary" data-go="catalog">Перейти в каталог</button></div>`;
+}
+$("my-orders").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-cancel]"); if (!b) return;
+  if (!confirm("Отменить этот заказ?")) return;
+  try { await db.collection("orders").doc(b.dataset.cancel).update({ status: "cancelled" }); toast("Заказ отменён"); }
+  catch (err) { toast("Ошибка: " + errorText(err), true); }
+});
+
+/* =====================================================================
+   АДМИН-ПАНЕЛЬ (доступна только role === "admin"; на сервере — правила)
+   ===================================================================== */
+document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x === t));
+  $("admin-products").classList.toggle("hidden", t.dataset.tab !== "products");
+  $("admin-orders").classList.toggle("hidden", t.dataset.tab !== "orders");
+}));
+
+function renderAdminStats() {
+  if (currentRole !== "admin") return;
+  $("st-products").textContent = products.length;
+  $("st-units").textContent = products.reduce((s, p) => s + (p.quantity || 0), 0).toLocaleString("ru-RU");
+  $("st-value").textContent = money(products.reduce((s, p) => s + (p.quantity || 0) * (p.price || 0), 0));
+  $("st-revenue").textContent = money(allOrders.filter((o) => ["confirmed", "shipped", "done"].includes(o.status)).reduce((s, o) => s + o.total, 0));
+  const fresh = allOrders.filter((o) => o.status === "new").length;
+  $("new-orders-count").textContent = fresh;
+  $("new-orders-count").classList.toggle("hidden", !fresh);
+}
+
+function renderAdminTable() {
+  if (currentRole !== "admin") return;
+  const list = [...products].sort((a, b) => a.name.localeCompare(b.name, "ru"));
+  $("admin-table").innerHTML = list.map((p) => `
+    <tr>
+      <td style="font-size:26px;width:44px">${esc(iconOf(p))}</td>
+      <td><b>${esc(p.name)}</b><div class="muted" style="font-size:12px">${esc(p.category)}</div></td>
+      <td><input class="input" type="number" min="1" value="${esc(p.price)}" data-price="${p.id}"></td>
+      <td><div class="stepper"><button data-qd="${p.id}" ${p.quantity <= 0 ? "disabled" : ""}>−</button><span>${esc(p.quantity)}</span><button data-qi="${p.id}">+</button></div></td>
+      <td>${stockPill(p.quantity)}</td>
+      <td><div class="row-actions"><button class="btn btn-sm" data-edit="${p.id}">✏️</button><button class="btn btn-sm btn-danger" data-delete="${p.id}">🗑</button></div></td>
+    </tr>`).join("") || `<tr><td colspan="6" class="muted">Товаров нет</td></tr>`;
+}
+
+$("admin-table").addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  try {
+    if (b.dataset.qi || b.dataset.qd) {
+      b.disabled = true;
+      await db.collection("products").doc(b.dataset.qi || b.dataset.qd).update({ quantity: FieldValue.increment(b.dataset.qi ? 1 : -1) });
+    } else if (b.dataset.delete) {
+      const p = products.find((x) => x.id === b.dataset.delete);
+      if (!confirm(`Удалить «${p?.name}»?`)) return;
+      await db.collection("products").doc(b.dataset.delete).delete();
+      toast("🗑 Товар удалён");
+    } else if (b.dataset.edit) openProductModal(b.dataset.edit);
+  } catch (err) { toast("Ошибка: " + errorText(err), true); b.disabled = false; }
+});
+// Цена меняется прямо в таблице (сохранение по Enter или при уходе с поля)
+$("admin-table").addEventListener("change", async (e) => {
+  const id = e.target.dataset.price; if (!id) return;
+  const price = Math.round(Number(e.target.value));
+  if (!(price > 0) || price > 10000000) { toast("Цена — от 1 до 10 000 000 ₸", true); return renderAdminTable(); }
+  try { await db.collection("products").doc(id).update({ price }); toast("💾 Цена обновлена"); }
+  catch (err) { toast("Ошибка: " + errorText(err), true); }
+});
+
+let editingId = null;
+function openProductModal(id = null) {
+  editingId = id;
+  openModal("product-modal");
+  $("pm-title").textContent = id ? "Редактировать товар" : "Новый товар";
+  if (id) {
+    const p = products.find((x) => x.id === id);
+    $("pm-name").value = p.name; $("pm-category").value = p.category; $("pm-price").value = p.price;
+    $("pm-quantity").value = p.quantity; $("pm-emoji").value = p.emoji || ""; $("pm-desc").value = p.description || "";
+  }
+}
+$("add-product-btn").addEventListener("click", () => openProductModal());
+
+$("product-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const box = $("pm-error"); hideErr(box);
+  const data = {
+    name: $("pm-name").value.trim(),
+    category: $("pm-category").value,
+    price: Math.round(Number($("pm-price").value)),
+    quantity: Number($("pm-quantity").value),
+    emoji: $("pm-emoji").value.trim(),
+    description: $("pm-desc").value.trim()
+  };
+  if (!data.name || !$("pm-price").value || $("pm-quantity").value === "") return showErr(box, "Заполните название, цену и остаток");
+  if (!(data.price > 0) || data.price > 10000000) return showErr(box, "Цена — от 1 до 10 000 000 ₸");
+  if (!Number.isInteger(data.quantity) || data.quantity < 0 || data.quantity > 100000) return showErr(box, "Остаток — целое число от 0 до 100 000");
+  $("pm-submit").disabled = true;
+  try {
+    if (editingId) { await db.collection("products").doc(editingId).update(data); toast("💾 Товар обновлён"); }
+    else { await db.collection("products").add({ ...data, createdAt: FieldValue.serverTimestamp() }); toast("✨ Товар добавлен"); }
+    closeModal($("product-modal"));
+  } catch (err) { showErr(box, errorText(err)); }
+  finally { $("pm-submit").disabled = false; }
+});
+
+/* ---------- Заказы (админ) ---------- */
+let orderFilter = "all";
+function renderAdminOrders() {
+  if (currentRole !== "admin") return;
+  const counts = { all: allOrders.length };
+  allOrders.forEach((o) => counts[o.status] = (counts[o.status] || 0) + 1);
+  $("order-filter").innerHTML = [["all", "Все"], ...Object.entries(ORDER_STATUS).map(([k, v]) => [k, v.text])]
+    .map(([k, t]) => `<button class="chip ${k === orderFilter ? "active" : ""}" data-of="${k}">${t} · ${counts[k] || 0}</button>`).join("");
+  const list = allOrders.filter((o) => orderFilter === "all" || o.status === orderFilter);
+  $("all-orders").innerHTML = list.length ? list.map((o) => orderCard(o, true)).join("") : `<div class="empty"><div class="big">📭</div>Заказов нет</div>`;
+}
+$("order-filter").addEventListener("click", (e) => { const b = e.target.closest("[data-of]"); if (b) { orderFilter = b.dataset.of; renderAdminOrders(); } });
+
+// Смена статуса. При подтверждении — транзакция: проверяем и списываем остатки атомарно
+$("all-orders").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-status]"); if (!b) return;
+  const order = allOrders.find((o) => o.id === b.dataset.order);
+  const status = b.dataset.status;
+  b.disabled = true;
+  try {
+    if (status === "confirmed") {
+      await db.runTransaction(async (tx) => {
+        const refs = order.items.map((i) => db.collection("products").doc(i.productId));
+        const snaps = await Promise.all(refs.map((r) => tx.get(r)));
+        snaps.forEach((s, k) => {
+          const it = order.items[k];
+          if (!s.exists || s.data().quantity < it.qty) {
+            const err = new Error(`Недостаточно «${it.name}» на складе`); err.code = "failed-precondition"; throw err;
+          }
+        });
+        snaps.forEach((s, k) => tx.update(refs[k], { quantity: s.data().quantity - order.items[k].qty }));
+        tx.update(db.collection("orders").doc(order.id), { status });
+      });
+      toast("✅ Заказ подтверждён, остатки списаны");
+    } else {
+      await db.collection("orders").doc(order.id).update({ status });
+      toast("Статус: " + ORDER_STATUS[status].text);
+    }
+  } catch (err) { toast(err.message.startsWith("Недостаточно") ? err.message : "Ошибка: " + errorText(err), true); b.disabled = false; }
+});
+
+/* ---------- Общая перерисовка ---------- */
+function renderAll() {
+  renderHero(); renderChips(); renderCatalog(); renderCart();
+  renderAdminTable(); renderAdminStats(); renderAdminOrders(); renderProfileStats();
+}
+// При загрузке показываем каталог; если в адресе был #orders/#admin/#profile —
+// откроем этот раздел, когда Firebase восстановит сессию и загрузит профиль
+let pendingView = VIEWS.includes(location.hash.slice(1)) && location.hash !== "#catalog" ? location.hash.slice(1) : null;
+VIEWS.forEach((v) => $("view-" + v).classList.toggle("hidden", v !== "catalog"));
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. СНАЧАЛА ВСЁ ЗАПРЕЩАЕМ
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Теперь разрешаем по-немногу:
+
+    // 2.1. Товары могут смотреть ВСЕ (даже неавторизованные)
+    match /products/{productId} {
+      allow read: if true;   // Чтение всем
+      allow write: if false; // Пока никто не может писать
+    }
+
+    // 2.2. Профили покупателей - только свои
+    match /users/{userId} {
+      allow read, write: if
+        // Должен быть авторизован
+        request.auth != null &&
+        // И может работать только со своим профилем
+        request.auth.uid == userId;
+    }
+  }
+}

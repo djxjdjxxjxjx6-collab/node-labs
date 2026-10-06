@@ -1,0 +1,13 @@
+{
+  "name": "lr-02-modules",
+  "version": "1.0.0",
+  "description": "ЛР-2: модули в Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "colors": "node colors.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}

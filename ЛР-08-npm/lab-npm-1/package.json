@@ -1,0 +1,19 @@
+{
+  "name": "lab-npm-1",
+  "version": "0.1.0",
+  "description": "ЛР-8: организация рабочего окружения",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "Стариков Юрий",
+  "license": "ISC",
+  "dependencies": {
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

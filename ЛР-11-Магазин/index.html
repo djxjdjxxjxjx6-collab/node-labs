@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Интернет-магазин — TechShop</title>
+<link rel="stylesheet" href="shop.css">
+<script>
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+        else if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.dataset.theme = "dark"; } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <a class="logo" href="#catalog"><span class="logo-mark">⚡</span><span>TechShop</span></a>
+    <div class="search"><input id="search" type="search" placeholder="Поиск товаров…" autocomplete="off"></div>
+    <div class="header-actions" id="auth-panel">
+      <button class="btn btn-ghost btn-icon" id="theme-btn" title="Сменить тему">🌙</button>
+      <!-- Для гостя: -->
+      <button class="btn" id="login-btn">Войти</button>
+      <button class="btn btn-primary" id="register-btn">Зарегистрироваться</button>
+      <!-- Для авторизованного: -->
+      <div class="menu-wrap hidden" id="user-wrap">
+        <button class="user-chip" id="user-chip"><span class="mini-avatar" id="mini-avatar">?</span><span id="welcome-text" class="hide-sm"></span></button>
+        <div class="menu hidden" id="user-menu">
+          <div class="menu-head"><div id="menu-email"></div><div>Покупатель</div></div>
+          <button data-go="profile">👤 Личный кабинет</button>
+          <button data-go="catalog">🛍 Каталог</button>
+          <button id="logout-btn">🚪 Выйти</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section id="view-catalog">
+    <div class="hero">
+      <h1 id="hero-title">Добро пожаловать в TechShop</h1>
+      <p id="hero-text">Зарегистрируйтесь, чтобы получить личный кабинет покупателя. Каталог доступен всем — даже без входа.</p>
+      <div class="hero-stats">
+        <div><b id="hs-products">—</b><span>товаров</span></div>
+        <div><b id="hs-instock">—</b><span>в наличии</span></div>
+      </div>
+      <div class="hero-emoji">🔐</div>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="chips"></div>
+      <select class="select" id="sort">
+        <option value="name">По названию (А→Я)</option>
+        <option value="price-asc">Сначала дешёвые</option>
+        <option value="price-desc">Сначала дорогие</option>
+      </select>
+    </div>
+    <div class="grid" id="data"></div>
+  </section>
+
+  <!-- Личный кабинет — только для авторизованных -->
+  <section id="view-profile" class="hidden">
+    <div class="section-title"><h2>Личный кабинет покупателя</h2><button class="btn btn-sm" data-go="catalog">← В каталог</button></div>
+    <div class="panel" id="cabinet">
+      <div class="profile">
+        <div class="avatar" id="cab-avatar">?</div>
+        <div class="profile-info">
+          <h3 id="cabinet-name">—</h3>
+          <div class="profile-meta">
+            <span>✉️ <span id="cabinet-email"></span></span>
+            <span>📅 Дата регистрации: <span id="cabinet-date"></span></span>
+          </div>
+          <div style="margin-top:8px"><span class="pill pill-info">🛍 Вы вошли как покупатель</span></div>
+        </div>
+      </div>
+      <form id="name-form" style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;max-width:520px">
+        <input class="input" id="name-input" maxlength="60" placeholder="Изменить имя" style="flex:1;min-width:200px">
+        <button class="btn btn-primary" id="name-save">Сохранить</button>
+      </form>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <b>🔒 Безопасность данных</b>
+      <p class="muted" style="margin:6px 0 0;font-size:14px">Ваш профиль хранится в Firestore в документе <code>users/{ваш uid}</code>. Правила безопасности разрешают читать и изменять его только вам. Каталог товаров доступен всем только для чтения.</p>
+    </div>
+  </section>
+
+  <footer class="site">© 2026 TechShop · ЛР-11 · Стариков Юрий, 15 Тис · Firebase Authentication + Cloud Firestore</footer>
+</main>
+
+<!-- Вход -->
+<div class="overlay" id="login-modal">
+  <form class="modal" id="login-form" novalidate>
+    <h2>Вход</h2><p class="sub">Войдите в аккаунт покупателя</p>
+    <div class="form-error hidden" id="login-error"></div>
+    <div class="field"><label for="login-email">Email</label><input class="input" type="email" id="login-email" autocomplete="email" required></div>
+    <div class="field"><label for="login-password">Пароль</label><input class="input" type="password" id="login-password" autocomplete="current-password" required></div>
+    <button type="submit" class="btn btn-primary btn-block" id="login-submit">Войти</button>
+    <div class="switch-auth">Нет аккаунта? <button type="button" class="link" data-switch="register-modal">Зарегистрироваться</button></div>
+  </form>
+</div>
+
+<!-- Регистрация -->
+<div class="overlay" id="register-modal">
+  <form class="modal" id="register-form" novalidate>
+    <h2>Регистрация</h2><p class="sub">Создайте аккаунт покупателя</p>
+    <div class="form-error hidden" id="register-error"></div>
+    <div class="field"><label for="register-name">Имя <span class="muted">(необязательно)</span></label><input class="input" id="register-name" maxlength="60" autocomplete="name"></div>
+    <div class="field"><label for="register-email">Email</label><input class="input" type="email" id="register-email" autocomplete="email" required></div>
+    <div class="field"><label for="register-password">Пароль <span class="muted">(минимум 6 символов)</span></label><input class="input" type="password" id="register-password" autocomplete="new-password" required></div>
+    <button type="submit" class="btn btn-primary btn-block" id="register-submit">Зарегистрироваться</button>
+    <div class="switch-auth">Уже есть аккаунт? <button type="button" class="link" data-switch="login-modal">Войти</button></div>
+  </form>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- Firebase SDK (compat) через CDN -->
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth-compat.js"></script>
+
+<script>
+  // Конфигурация проекта Firebase «shop-sy» (тот же проект, что в ЛР-10)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCQohgxpyu03NaRbQtV42e6Rty1YizprRg",
+    authDomain: "shop-sy-71ed8.firebaseapp.com",
+    projectId: "shop-sy-71ed8",
+    storageBucket: "shop-sy-71ed8.firebasestorage.app",
+    messagingSenderId: "961143741758",
+    appId: "1:961143741758:web:fb11df84ce14ae5e0a606f"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  const money = (v) => Math.round(Number(v) || 0).toLocaleString("ru-RU") + " ₸";
+  const fmtDate = (v) => !v ? "—" : (v.toDate ? v.toDate() : new Date(v)).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  const CATEGORY = {
+    "Периферия": { emoji: "🖱️", c1: "#e0e7ff", c2: "#c7d2fe" }, "Аудио": { emoji: "🎧", c1: "#fce7f3", c2: "#fbcfe8" },
+    "Мониторы": { emoji: "🖥️", c1: "#dbeafe", c2: "#bae6fd" }, "Комплектующие": { emoji: "🧩", c1: "#dcfce7", c2: "#bbf7d0" },
+    "Аксессуары": { emoji: "🎒", c1: "#fef3c7", c2: "#fde68a" }
+  };
+  const catStyle = (c) => CATEGORY[c] || { emoji: "📦", c1: "#e5e7eb", c2: "#d1d5db" };
+
+  // Понятные сообщения об ошибках Firebase на русском
+  function errorText(error) {
+    const m = {
+      "auth/invalid-email": "Некорректный email", "auth/missing-email": "Введите email", "auth/missing-password": "Введите пароль",
+      "auth/email-already-in-use": "Этот email уже зарегистрирован", "auth/weak-password": "Пароль должен быть не короче 6 символов",
+      "auth/invalid-credential": "Неверный email или пароль", "auth/invalid-login-credentials": "Неверный email или пароль",
+      "auth/wrong-password": "Неверный email или пароль", "auth/user-not-found": "Пользователь не найден",
+      "auth/too-many-requests": "Слишком много попыток, попробуйте позже", "auth/network-request-failed": "Нет соединения с интернетом",
+      "permission-denied": "Нет доступа (проверьте правила Firestore)"
+    };
+    return m[error.code] || error.message;
+  }
+  function toast(text, isErr = false) {
+    const el = document.createElement("div"); el.className = "toast" + (isErr ? " err" : ""); el.textContent = text;
+    $("toasts").appendChild(el); setTimeout(() => el.remove(), 2800);
+  }
+  const showErr = (box, t) => { box.textContent = t; box.classList.remove("hidden"); };
+  const hideErr = (box) => box.classList.add("hidden");
+
+  // ---------- Тема ----------
+  const syncTheme = () => $("theme-btn").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
+  $("theme-btn").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next; try { localStorage.setItem("theme", next); } catch (e) {} syncTheme();
+  });
+  syncTheme();
+
+  // ---------- Модальные окна ----------
+  function openModal(id) { const m = $(id); m.classList.add("open"); m.querySelectorAll(".form-error").forEach(hideErr); setTimeout(() => m.querySelector("input").focus(), 50); }
+  function closeModal(m) { m.classList.remove("open"); m.querySelector("form").reset(); }
+  document.querySelectorAll(".overlay").forEach((o) => o.addEventListener("click", (e) => { if (e.target === o) closeModal(o); }));
+  document.querySelectorAll("[data-switch]").forEach((b) => b.addEventListener("click", () => { closeModal(b.closest(".overlay")); openModal(b.dataset.switch); }));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { document.querySelectorAll(".overlay.open").forEach(closeModal); $("user-menu").classList.add("hidden"); } });
+  $("login-btn").addEventListener("click", () => openModal("login-modal"));
+  $("register-btn").addEventListener("click", () => openModal("register-modal"));
+
+  // ---------- Разделы ----------
+  let currentUser = null;
+  function go(view) {
+    if (view === "profile" && !currentUser) { openModal("login-modal"); view = "catalog"; }
+    if (view !== "profile") view = "catalog";
+    $("view-catalog").classList.toggle("hidden", view !== "catalog");
+    $("view-profile").classList.toggle("hidden", view !== "profile");
+    history.replaceState(null, "", "#" + view);
+    $("user-menu").classList.add("hidden");
+  }
+  document.addEventListener("click", (e) => { const t = e.target.closest("[data-go]"); if (t) { e.preventDefault(); go(t.dataset.go); } });
+  $("user-chip").addEventListener("click", (e) => { e.stopPropagation(); $("user-menu").classList.toggle("hidden"); });
+  document.addEventListener("click", (e) => { if (!e.target.closest("#user-wrap")) $("user-menu").classList.add("hidden"); });
+
+  // ---------- Регистрация ----------
+  $("register-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = $("register-name").value.trim(), email = $("register-email").value.trim(), password = $("register-password").value;
+    const box = $("register-error"); hideErr(box);
+    if (password.length < 6) return showErr(box, "Пароль должен быть не короче 6 символов");
+    $("register-submit").disabled = true;
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      // Профиль покупателя в Firestore: users/{uid}
+      await db.collection("users").doc(cred.user.uid).set({
+        email, displayName: name, createdAt: firebase.firestore.FieldValue.serverTimestamp(), role: "customer"
+      });
+      closeModal($("register-modal")); go("profile"); toast("🎉 Аккаунт создан!");
+    } catch (err) { showErr(box, errorText(err)); }
+    finally { $("register-submit").disabled = false; }
+  });
+
+  // ---------- Вход / выход ----------
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const box = $("login-error"); hideErr(box); $("login-submit").disabled = true;
+    try { await auth.signInWithEmailAndPassword($("login-email").value.trim(), $("login-password").value); closeModal($("login-modal")); toast("👋 Вы вошли"); }
+    catch (err) { showErr(box, errorText(err)); }
+    finally { $("login-submit").disabled = false; }
+  });
+  $("logout-btn").addEventListener("click", async () => { await auth.signOut(); go("catalog"); toast("Вы вышли из аккаунта"); });
+
+  // ---------- Изменение имени ----------
+  $("name-form").addEventListener("submit", async (e) => {
+    e.preventDefault(); if (!currentUser) return;
+    $("name-save").disabled = true;
+    try { await db.collection("users").doc(currentUser.uid).update({ displayName: $("name-input").value.trim() }); $("name-input").value = ""; toast("✅ Имя сохранено"); }
+    catch (err) { toast("Ошибка: " + errorText(err), true); }
+    finally { $("name-save").disabled = false; }
+  });
+
+  // ---------- Отслеживание состояния авторизации ----------
+  let unsubProfile = null;
+  const startView = location.hash.slice(1);
+  auth.onAuthStateChanged((user) => {
+    currentUser = user;
+    if (unsubProfile) { unsubProfile(); unsubProfile = null; }
+    $("login-btn").classList.toggle("hidden", !!user);
+    $("register-btn").classList.toggle("hidden", !!user);
+    $("user-wrap").classList.toggle("hidden", !user);
+    if (!user) {
+      $("hero-title").textContent = "Добро пожаловать в TechShop";
+      $("hero-text").textContent = "Зарегистрируйтесь, чтобы получить личный кабинет покупателя. Каталог доступен всем — даже без входа.";
+      go("catalog"); return;
+    }
+    if (startView === "profile") go("profile");
+    // onSnapshot: сразу после регистрации документа ещё нет — подписка дождётся его
+    unsubProfile = db.collection("users").doc(user.uid).onSnapshot((doc) => {
+      if (!doc.exists) return;
+      const p = doc.data();
+      const display = p.displayName || p.email;
+      const letter = display.trim()[0].toUpperCase();
+      $("welcome-text").textContent = "Привет, " + display + "!";
+      $("mini-avatar").textContent = letter; $("cab-avatar").textContent = letter;
+      $("menu-email").textContent = p.email;
+      $("cabinet-name").textContent = p.displayName || "Имя не указано";
+      $("cabinet-email").textContent = p.email;
+      $("cabinet-date").textContent = fmtDate(p.createdAt);
+      $("hero-title").textContent = "Привет, " + display + "! 👋";
+      $("hero-text").textContent = "Вы вошли как покупатель. Откройте личный кабинет через меню справа вверху.";
+    }, (err) => console.error("Профиль:", err));
+  });
+
+  // ---------- Каталог (читать могут все) ----------
+  let products = [];
+  const filters = { q: "", cat: "Все", sort: "name" };
+  $("data").innerHTML = '<div class="empty" style="grid-column:1/-1">Загрузка...</div>';
+  db.collection("products").get().then((snap) => {
+    products = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    renderCatalog();
+  }).catch((err) => { $("data").innerHTML = `<div class="error-box" style="grid-column:1/-1">Ошибка загрузки данных: ${esc(errorText(err))}</div>`; });
+
+  function renderCatalog() {
+    $("hs-products").textContent = products.length;
+    $("hs-instock").textContent = products.filter((p) => p.quantity > 0).length;
+    const cats = ["Все", ...new Set(products.map((p) => p.category))];
+    $("chips").innerHTML = cats.map((c) => `<button class="chip ${c === filters.cat ? "active" : ""}" data-cat="${esc(c)}">${c === "Все" ? "Все" : catStyle(c).emoji + " " + esc(c)}</button>`).join("");
+    const by = { "name": (a, b) => a.name.localeCompare(b.name, "ru"), "price-asc": (a, b) => a.price - b.price, "price-desc": (a, b) => b.price - a.price };
+    const list = products.filter((p) => (filters.cat === "Все" || p.category === filters.cat) &&
+      (!filters.q || (p.name + " " + p.category).toLowerCase().includes(filters.q))).sort(by[filters.sort]);
+    if (!list.length) { $("data").innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔎</div>Ничего не найдено</div>`; return; }
+    $("data").innerHTML = list.map((p, i) => {
+      const s = catStyle(p.category), ok = p.quantity > 0;
+      return `<article class="card" style="animation-delay:${i * 40}ms">
+        <div class="card-media" style="--c1:${s.c1};--c2:${s.c2}"><span class="stock-badge"><span class="pill ${ok ? "pill-ok" : "pill-danger"}">${ok ? "✅ В наличии" : "❌ Нет в наличии"}</span></span>${esc(p.emoji || s.emoji)}</div>
+        <div class="card-body"><span class="card-cat">${esc(p.category)}</span><h3 class="card-title">${esc(p.name)}</h3>
+          <span class="muted" style="font-size:13px">На складе: ${esc(p.quantity)} шт.</span>
+          <div class="card-foot"><span class="price">${money(p.price)}</span></div></div>
+      </article>`;
+    }).join("");
+  }
+  $("chips").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) { filters.cat = b.dataset.cat; renderCatalog(); } });
+  $("search").addEventListener("input", (e) => { filters.q = e.target.value.trim().toLowerCase(); go("catalog"); renderCatalog(); });
+  $("sort").addEventListener("change", (e) => { filters.sort = e.target.value; renderCatalog(); });
+</script>
+</body>
+</html>
