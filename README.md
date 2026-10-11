@@ -15,6 +15,16 @@ Firebase-powered online store.
 
 | Project | Type | Live demo |
 |---------|------|-----------|
+| Aurelia Resort | Hotel booking — date-range calendar, live room pricing | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/hotel/) |
+| Volt Aero | Car configurator — live SVG preview, financing calculator | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/ev/) |
+| Gobble | Food delivery app — menus, cart, live order tracking | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/delivery/) |
+| Nimbus | Project management app — kanban drag & drop, task editor | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/tasks/) |
+| Orbit Markets | Crypto dashboard — live CoinGecko API, watchlist | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/crypto/) |
+| Ledger | Finance tracker — budgets, charts, CSV export | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/finance/) |
+| Billable | Invoice generator — live A4 preview, PDF export | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/invoice/) |
+| Nova Studio | Creative agency website — kinetic typography | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/agency/) |
+| Wayfarer | Travel agency — tour filters, interactive map | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/travel/) |
+| Codeway | Online course — in-browser code editor, quizzes | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/course/) |
 | Flowbase | SaaS landing page — drag & drop board, pricing toggle | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/saas/) |
 | BrightSmile Dental | Clinic website — online booking with time slots | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/dental/) |
 | Saffron & Oak | Restaurant landing page — reservation form | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/bistro/) |

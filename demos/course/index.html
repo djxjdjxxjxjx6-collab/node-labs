@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codeway — Online Course Platform</title>
+<meta name="description" content="Demo e-learning platform by Yurii Starikov — course page, lesson player with progress, live code editor, quizzes and a certificate.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fffdf6;--ink:#161513;--ink2:#55524a;--mut:#9b978b;--line:#ebe6d6;--y:#ffd23f;--y2:#fff3c4;--g:#2fb36d;--r:#e5484d;--blue:#2f6bff;--code:#1b1a17;
+  --fd:"Bricolage Grotesque",system-ui,sans-serif;--fm:"IBM Plex Mono",ui-monospace,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fd);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:22px}
+h1,h2,h3{letter-spacing:-.03em;line-height:1.02;font-weight:800}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border:0;border-radius:12px;padding:14px 22px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:4px 4px 0 var(--y)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--y)}
+.btn.y{background:var(--y);color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.btn.y:hover{box-shadow:6px 6px 0 var(--ink)}
+.btn:disabled{opacity:.4;pointer-events:none}
+header{border-bottom:2px solid var(--ink);background:var(--bg);position:sticky;top:0;z-index:30}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:68px;gap:16px}
+.logo{font-weight:800;font-size:1.35rem;display:flex;gap:8px;align-items:center}
+.logo i{width:32px;height:32px;background:var(--y);border:2px solid var(--ink);border-radius:9px;display:grid;place-items:center;font-style:normal;font-family:var(--fm);font-size:.85rem}
+.hp{display:flex;gap:12px;align-items:center;font-weight:600}
+.ring{width:42px;height:42px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:.7rem}
+/* landing */
+.hero{padding:60px 0 70px;display:grid;grid-template-columns:1.2fr 1fr;gap:50px;align-items:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.tag{display:inline-block;background:var(--y2);border:1.5px solid var(--ink);border-radius:99px;padding:4px 12px;font-weight:700;font-size:.85rem}
+.hero h1{font-size:clamp(2.8rem,6.5vw,5.4rem);margin:18px 0}
+.hero h1 mark{background:var(--y);padding:0 .12em;border-radius:8px}
+.hero p{font-size:1.15rem;color:var(--ink2);max-width:520px}
+.meta{display:flex;gap:22px;margin:26px 0 30px;flex-wrap:wrap;font-weight:600}
+.meta span{display:flex;gap:8px;align-items:center}
+.preview{background:var(--code);border-radius:18px;border:2px solid var(--ink);box-shadow:10px 10px 0 var(--y);overflow:hidden;color:#e9e6dc;font-family:var(--fm);font-size:.9rem}
+.preview .bar{display:flex;gap:6px;padding:12px 14px;border-bottom:1px solid #33312b}
+.preview .bar i{width:11px;height:11px;border-radius:50%;background:#4a4740}
+.preview pre{padding:18px;line-height:1.7;white-space:pre-wrap}
+.k{color:#ff8c6b}.s{color:#9be28f}.c{color:#7c786c}.f{color:#ffd23f}.n{color:#8ab4ff}
+.out{border-top:1px solid #33312b;padding:12px 18px;color:#9be28f}
+.cur{display:inline-block;width:8px;height:1.1em;background:#ffd23f;vertical-align:middle;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.learn{background:var(--ink);color:#fff;padding:70px 0}
+.learn h2{font-size:clamp(2rem,4vw,3rem)}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+@media(max-width:820px){.lg{grid-template-columns:1fr}}
+.lg div{border:1.5px solid #3a3833;border-radius:16px;padding:22px}
+.lg b{display:block;font-size:1.2rem;margin:10px 0 6px}
+.lg p{color:#b9b5a8}
+.lg .ic{width:44px;height:44px;border-radius:12px;background:var(--y);color:var(--ink);display:grid;place-items:center}
+.curr{padding:70px 0}
+.curr h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:24px}
+.mod{border:2px solid var(--ink);border-radius:16px;margin-bottom:12px;overflow:hidden;background:#fff}
+.mod>button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border:0;background:none;cursor:pointer;text-align:left;font-weight:700;font-size:1.1rem}
+.mod>button small{font-weight:500;color:var(--mut);font-size:.88rem}
+.mod .ls{display:none;border-top:1.5px solid var(--line)}
+.mod.open .ls{display:block}
+.mod .ls div{display:flex;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);color:var(--ink2)}
+.mod .ls div:last-child{border:0}
+.inst{display:flex;gap:16px;align-items:center;background:var(--y2);border:2px solid var(--ink);border-radius:16px;padding:22px;margin-top:30px}
+.inst i{width:64px;height:64px;border-radius:50%;background:var(--y);border:2px solid var(--ink);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:1.3rem;flex:none}
+/* player */
+.player{display:none;grid-template-columns:300px 1fr;min-height:calc(100vh - 68px)}
+.player.on{display:grid}
+@media(max-width:900px){.player{grid-template-columns:1fr}.side{position:static!important;max-height:none!important}}
+.side{border-right:2px solid var(--ink);background:#fff;position:sticky;top:68px;max-height:calc(100vh - 68px);overflow:auto}
+.side h4{padding:16px 18px 6px;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
+.side button{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;padding:11px 18px;text-align:left;cursor:pointer;font-weight:600;font-size:.95rem;color:var(--ink2)}
+.side button:hover{background:var(--y2)}
+.side button.on{background:var(--y);color:var(--ink)}
+.side button .st{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.7rem;flex:none;background:#fff}
+.side button.done .st{background:var(--g);border-color:var(--g);color:#fff}
+.side button.lock{opacity:.45}
+.lesson{padding:36px clamp(20px,4vw,56px) 60px;max-width:860px;width:100%}
+.crumb{color:var(--mut);font-weight:600;font-size:.9rem}
+.lesson h2{font-size:clamp(2rem,4vw,2.8rem);margin:8px 0 18px}
+.lesson p{color:var(--ink2);font-size:1.08rem;margin-bottom:14px}
+.lesson code{font-family:var(--fm);background:var(--y2);padding:1px 6px;border-radius:6px;font-size:.92em}
+.ed{border:2px solid var(--ink);border-radius:14px;overflow:hidden;margin:20px 0;background:var(--code)}
+.ed .eb{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 8px 14px;background:#24221d;color:#b9b5a8;font-family:var(--fm);font-size:.8rem}
+.ed .eb button{background:var(--y);border:0;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-family:var(--fd);color:var(--ink)}
+.ed textarea{width:100%;min-height:160px;background:var(--code);color:#e9e6dc;border:0;outline:0;padding:14px;font-family:var(--fm);font-size:.9rem;line-height:1.7;resize:vertical;tab-size:2}
+.ed .con{border-top:1px solid #33312b;padding:10px 14px;font-family:var(--fm);font-size:.86rem;color:#9be28f;min-height:42px;white-space:pre-wrap}
+.ed .con .e{color:#ff8c6b}
+.task{background:var(--y2);border:2px dashed var(--ink);border-radius:14px;padding:14px 16px;font-weight:600;margin:16px 0}
+.task.ok{background:#e3f6ea;border-style:solid;border-color:var(--g)}
+.quiz{border:2px solid var(--ink);border-radius:16px;padding:22px;margin:26px 0;background:#fff}
+.quiz h3{font-size:1.3rem;margin-bottom:12px}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;margin-top:8px;cursor:pointer;font-weight:600;font-family:var(--fm);font-size:.92rem;transition:.15s}
+.opt:hover{border-color:var(--ink)}
+.opt.right{border-color:var(--g);background:#e3f6ea}
+.opt.wrong{border-color:var(--r);background:#fdeaea}
+.fb{margin-top:12px;font-weight:600;min-height:1.5em}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:30px;padding-top:24px;border-top:2px solid var(--line);flex-wrap:wrap}
+.cert{border:3px solid var(--ink);border-radius:18px;padding:40px;text-align:center;background:linear-gradient(135deg,var(--y2),#fff);box-shadow:10px 10px 0 var(--y);margin-top:20px}
+.cert h3{font-size:2.4rem;margin:10px 0}
+.cert input{border:0;border-bottom:2px solid var(--ink);background:none;text-align:center;font-size:1.5rem;font-weight:700;outline:0;padding:6px;width:min(360px,100%);font-family:var(--fd)}
+footer{border-top:2px solid var(--ink);padding:26px 0;color:var(--mut);font-size:.88rem}
+footer a{color:var(--ink)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="#" class="logo" id="home" style="text-decoration:none;color:inherit"><i>{ }</i>Codeway</a>
+  <div class="hp"><span id="hpTxt">JavaScript Basics</span><div class="ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--line)" stroke-width="4"/><circle id="ringC" cx="18" cy="18" r="15.9" fill="none" stroke="var(--g)" stroke-width="4" stroke-dasharray="0 100" stroke-linecap="round"/></svg><b id="ringT">0%</b></div></div>
+</div></header>
+
+<div id="landing">
+  <section class="wrap hero">
+    <div><span class="tag">⚡ Free beginner course · 2 hours</span>
+      <h1>Learn <mark>JavaScript</mark> by actually writing it.</h1>
+      <p>Short lessons, a live code editor right in your browser and quick quizzes after each topic. No setup, no videos to sit through, just practice.</p>
+      <div class="meta"><span><svg class="i" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/></svg>6 lessons</span><span><svg class="i" viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>5 coding tasks</span><span><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.2 13.9 7 22l5-3 5 3-1.2-8.1"/></svg>Certificate</span></div>
+      <button class="btn y" id="start">Start learning for free →</button></div>
+    <div class="preview"><div class="bar"><i></i><i></i><i></i></div>
+      <pre><span class="c">// Lesson 4: Functions</span>
+<span class="k">function</span> <span class="f">greet</span>(name) {
+  <span class="k">return</span> <span class="s">`Hello, ${name}!`</span>;
+}
+
+console.<span class="f">log</span>(<span class="f">greet</span>(<span class="s">"World"</span>));<span class="cur"></span></pre>
+      <div class="out">› Hello, World!</div></div>
+  </section>
+  <section class="learn"><div class="wrap"><h2>What you'll learn</h2><div class="lg">
+    <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></span><b>Variables & types</b><p>Store and work with text, numbers and true/false values.</p></div>
+    <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></span><b>Conditions & loops</b><p>Make decisions in code and repeat actions without copy-paste.</p></div>
+    <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></span><b>Functions & arrays</b><p>Write reusable code and work with lists of data like a pro.</p></div></div></div></section>
+  <section class="wrap curr"><h2>Course curriculum</h2><div id="curr"></div>
+    <div class="inst"><i>YS</i><div><b style="font-size:1.15rem">Taught by Yurii Starikov</b><p style="color:var(--ink2)">Web developer. This course is a demo of an interactive learning platform built with plain HTML, CSS and JavaScript.</p></div></div></section>
+</div>
+
+<div class="player" id="player"><nav class="side" id="side"></nav><main class="lesson" id="lesson"></main></div>
+<footer><div class="wrap">Demo project · Progress is saved in your browser · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a></div></footer>
+<canvas class="confetti" id="conf"></canvas>
+
+<script>
+const $=s=>document.querySelector(s);
+const L=[
+ {m:'Getting started',t:'Hello, JavaScript',min:8,body:`<p>JavaScript is the language of the web. Every interactive website, from online stores to maps, uses it. Let's run your first line of code.</p><p>The command <code>console.log()</code> prints a message. Press <b>Run</b> to see the result below the editor.</p>`,code:`console.log("Hello, JavaScript!");`,task:'Change the text so the program prints your own name.',check:o=>o.length&&!o.includes('Hello, JavaScript!'),quiz:['What does console.log() do?',['Deletes a file','Prints a message to the console','Opens a new page'],1]},
+ {m:'Getting started',t:'Variables',min:10,body:`<p>A <b>variable</b> is a named box for a value. Use <code>let</code> when the value can change and <code>const</code> when it stays the same.</p>`,code:`const name = "Anna";\nlet age = 25;\nage = age + 1;\nconsole.log(name, "is", age);`,task:'Create a variable called city and print it.',check:(o,c)=>/(let|const)\s+city\s*=/.test(c)&&o.length,quiz:['Which keyword creates a value that should not change?',['let','const','var'],1]},
+ {m:'Logic',t:'Conditions',min:12,body:`<p>Use <code>if</code> and <code>else</code> to run different code depending on a condition.</p>`,code:`const temperature = 28;\n\nif (temperature > 25) {\n  console.log("It's hot, take water!");\n} else {\n  console.log("Nice weather.");\n}`,task:'Change the temperature so the program prints "Nice weather."',check:o=>o.includes('Nice weather.'),quiz:['What will 5 > 3 return?',['true','false','"5"'],0]},
+ {m:'Logic',t:'Functions',min:12,body:`<p>A <b>function</b> is reusable code with a name. It can take inputs (parameters) and give back a result with <code>return</code>.</p>`,code:`function greet(name) {\n  return \`Hello, \${name}!\`;\n}\n\nconsole.log(greet("World"));`,task:'Call greet() with two different names.',check:o=>o.split('\n').filter(x=>x.startsWith('Hello')).length>=2,quiz:['What keyword sends a value back from a function?',['send','return','output'],1]},
+ {m:'Working with data',t:'Arrays',min:14,body:`<p>An <b>array</b> is an ordered list. Methods like <code>map</code> and <code>filter</code> let you transform lists in one line.</p>`,code:`const prices = [12, 45, 7, 30];\n\nconst cheap = prices.filter(p => p < 20);\nconsole.log("Cheap:", cheap);\n\nconst total = prices.reduce((a, b) => a + b, 0);\nconsole.log("Total:", total);`,task:'Use map() to print every price doubled.',check:(o,c)=>/\.map\(/.test(c)&&/\[?24/.test(o),quiz:['Which method keeps only some items?',['map','filter','push'],1]},
+ {m:'Working with data',t:'Final project: shopping cart',min:20,body:`<p>Let's combine everything. Write a function <code>cartTotal(items)</code> that returns the total price of all items in a cart.</p>`,code:`const cart = [\n  { name: "T-shirt", price: 20, qty: 2 },\n  { name: "Cap", price: 15, qty: 1 },\n];\n\nfunction cartTotal(items) {\n  // your code here\n}\n\nconsole.log(cartTotal(cart));`,task:'Make the program print 55.',check:o=>o.trim().split('\n').pop()==='55',quiz:null}
+];
+let P={done:[],code:{}};try{P=JSON.parse(localStorage.getItem('codeway'))||P}catch(e){}
+const save=()=>{try{localStorage.setItem('codeway',JSON.stringify(P))}catch(e){}};
+let cur=0;
+function ring(){const p=Math.round(P.done.length/L.length*100);$('#ringC').setAttribute('stroke-dasharray',`${p} 100`);$('#ringT').textContent=p+'%'}
+$('#curr').innerHTML=[...new Set(L.map(l=>l.m))].map((m,i)=>{const ls=L.map((l,k)=>({...l,k})).filter(l=>l.m===m);return `<div class="mod${i?'':' open'}"><button>${i+1}. ${m} <small>${ls.length} lessons · ${ls.reduce((a,l)=>a+l.min,0)} min</small></button><div class="ls">${ls.map(l=>`<div><span>${l.t}</span><span>${l.min} min</span></div>`).join('')}</div></div>`}).join('');
+$('#curr').onclick=e=>{const b=e.target.closest('.mod>button');if(b)b.parentElement.classList.toggle('open')};
+function side(){let m='';$('#side').innerHTML=L.map((l,i)=>{const h=l.m!==m?`<h4>${m=l.m}</h4>`:'',lock=i>0&&!P.done.includes(i-1)&&!P.done.includes(i);
+  return h+`<button data-i="${i}" class="${i===cur?'on':''}${P.done.includes(i)?' done':''}${lock?' lock':''}"><span class="st">${P.done.includes(i)?'✓':i+1}</span>${l.t}</button>`}).join('')+(P.done.length===L.length?`<h4>Finish</h4><button data-i="cert" class="${cur==='cert'?'on':''}"><span class="st">🏆</span>Certificate</button>`:'')}
+function open(i){cur=i;$('#landing').style.display='none';$('#player').classList.add('on');side();scrollTo(0,0);
+  if(i==='cert'){$('#lesson').innerHTML=`<span class="crumb">Course complete</span><div class="cert"><div style="font-size:3rem">🏆</div><span class="tag">Certificate of completion</span><h3>JavaScript Basics</h3><p style="color:var(--ink2);margin-bottom:18px">This certifies that</p><input id="cn" value="${P.name||''}" placeholder="Type your name" aria-label="Your name"><p style="color:var(--ink2);margin-top:18px">completed 6 lessons and 5 coding tasks on Codeway · ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p></div>
+    <div class="nav"><button class="btn" id="restart">Restart course</button></div>`;$('#cn').oninput=e=>{P.name=e.target.value;save()};$('#restart').onclick=()=>{P={done:[],code:{}};save();ring();open(0)};confetti();return}
+  const l=L[i],code=P.code[i]??l.code;
+  $('#lesson').innerHTML=`<span class="crumb">${l.m} · Lesson ${i+1} of ${L.length} · ${l.min} min</span><h2>${l.t}</h2>${l.body}
+   <div class="ed"><div class="eb"><span>script.js</span><span style="display:flex;gap:6px"><button id="rs" style="background:#3a3833;color:#e9e6dc">Reset</button><button id="run">▶ Run</button></span></div><textarea id="code" spellcheck="false" aria-label="Code editor">${code.replace(/</g,'&lt;')}</textarea><div class="con" id="con"><span style="color:#7c786c">› Output will appear here</span></div></div>
+   <div class="task${P.done.includes(i)?' ok':''}" id="task">🎯 Task: ${l.task}</div>
+   ${l.quiz?`<div class="quiz"><h3>Quick check</h3><p style="font-size:1rem;margin-bottom:4px">${l.quiz[0]}</p>${l.quiz[1].map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}<div class="fb" id="fb"></div></div>`:''}
+   <div class="nav"><button class="btn" id="prev" ${i?'':'disabled'}>← Previous</button><button class="btn y" id="nextB">${i===L.length-1?'Finish course 🏆':'Next lesson →'}</button></div>`;
+  const ta=$('#code');ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart;ta.setRangeText('  ',s,ta.selectionEnd,'end')}if((e.metaKey||e.ctrlKey)&&e.key==='Enter')run()});
+  ta.oninput=()=>{P.code[i]=ta.value;save()};$('#run').onclick=run;$('#rs').onclick=()=>{ta.value=l.code;delete P.code[i];save()};
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const ok=+b.dataset.k===l.quiz[2];document.querySelectorAll('.opt').forEach(x=>x.classList.remove('right','wrong'));b.classList.add(ok?'right':'wrong');$('#fb').textContent=ok?'✓ Correct!':'Not quite, try another answer.';$('#fb').style.color=ok?'var(--g)':'var(--r)';if(ok)l.qok=true});
+  $('#prev').onclick=()=>open(i-1);$('#nextB').onclick=()=>{if(!P.done.includes(i)){P.done.push(i);save();ring()}open(i===L.length-1?'cert':i+1)}}
+function run(){const c=$('#code').value,out=[],con=$('#con');const fmt=v=>typeof v==='string'?v:JSON.stringify(v);
+  const fake={log:(...a)=>out.push(a.map(fmt).join(' ')),error:(...a)=>out.push('Error: '+a.map(fmt).join(' ')),warn:(...a)=>out.push(a.map(fmt).join(' '))};
+  try{new Function('console',c)(fake);con.innerHTML=out.length?out.map(x=>'› '+x.replace(/</g,'&lt;')).join('\n'):'<span style="color:#7c786c">› (no output, did you call console.log?)</span>';
+    const l=L[cur],o=out.join('\n');if(l.check(o,c)){$('#task').classList.add('ok');$('#task').textContent='✅ Task complete! Great job.';if(!P.done.includes(cur)){P.done.push(cur);save();ring();side()}}}
+  catch(err){con.innerHTML=`<span class="e">✖ ${err.name}: ${err.message.replace(/</g,'&lt;')}</span>`}}
+$('#side').onclick=e=>{const b=e.target.closest('button');if(!b||b.classList.contains('lock'))return;open(b.dataset.i==='cert'?'cert':+b.dataset.i)};
+$('#start').onclick=()=>open(P.done.length&&P.done.length<L.length?Math.min(L.length-1,Math.max(...P.done)+1):0);
+$('#home').onclick=e=>{e.preventDefault();$('#player').classList.remove('on');$('#landing').style.display=''};
+function confetti(){const c=$('#conf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const ps=Array.from({length:160},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-4,r:Math.random()*6+3,c:['#ffd23f','#2fb36d','#2f6bff','#e5484d','#161513'][Math.floor(Math.random()*5)],a:Math.random()*6}));let f=0;
+  (function step(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);x.restore()});if(++f<160)requestAnimationFrame(step);else x.clearRect(0,0,c.width,c.height)})()}
+ring();
+</script>
+</body>
+</html>

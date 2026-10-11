@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volt Aero — Electric Car Configurator</title>
+<meta name="description" content="Demo car configurator by Yurii Starikov — live SVG car preview, trims, colors, wheels, options, financing calculator and reservation flow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f4f2;--card:#fff;--ink:#0f1012;--ink2:#56585e;--mut:#9a9ca3;--line:#e2e2df;--acc:#0f1012;--paint:#c8102e;--fd:"Archivo",system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fd);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;position:relative;z-index:5}
+.logo{font-weight:800;font-stretch:125%;letter-spacing:.2em;font-size:1.05rem}
+nav{display:flex;gap:28px;font-size:.88rem;color:var(--ink2)}
+@media(max-width:800px){nav{display:none}}
+.app{display:grid;grid-template-columns:1fr 420px;min-height:calc(100vh - 62px)}
+@media(max-width:1000px){.app{grid-template-columns:1fr}}
+.stage{position:relative;display:flex;flex-direction:column;justify-content:center;padding:20px 28px 30px;overflow:hidden;min-height:520px}
+.stage .name{position:absolute;top:10px;left:28px}
+.stage .name h1{font-size:clamp(2.4rem,5vw,4.2rem);font-weight:800;font-stretch:120%;letter-spacing:-.02em;line-height:1}
+.stage .name p{color:var(--ink2);margin-top:6px}
+.bigword{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-weight:900;font-stretch:125%;font-size:clamp(6rem,17vw,16rem);color:#e8e8e4;letter-spacing:-.02em;white-space:nowrap;pointer-events:none;user-select:none;transition:color .6s}
+.car{position:relative;width:100%;max-width:980px;margin:60px auto 0;animation:drive 1.4s cubic-bezier(.2,.8,.2,1)}
+@keyframes drive{from{transform:translateX(-60%);opacity:0}}
+.car svg{width:100%;height:auto;display:block;overflow:visible}
+.car .body{transition:fill .6s}
+.wheel{transform-box:fill-box;transform-origin:center}
+.car.spin .wheel{animation:sp 1.4s cubic-bezier(.2,.8,.2,1)}
+@keyframes sp{from{transform:rotate(-720deg)}}
+.specs{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;gap:clamp(20px,6vw,80px);margin-top:26px;text-align:center}
+.specs b{display:block;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700;font-stretch:110%;font-variant-numeric:tabular-nums;transition:.3s}
+.specs span{color:var(--ink2);font-size:.84rem}
+.views{position:absolute;right:28px;top:20px;display:flex;gap:6px}
+.views button{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 14px;cursor:pointer;font-size:.8rem}
+.views button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+@media(max-width:700px){.views{display:none}}
+.panel{background:var(--card);border-left:1px solid var(--line);padding:26px 28px 120px;overflow:auto;max-height:calc(100vh - 62px);position:sticky;top:0}
+@media(max-width:1000px){.panel{max-height:none;position:static;border-left:0;border-top:1px solid var(--line)}}
+.sec{padding:20px 0;border-bottom:1px solid var(--line)}
+.sec:first-child{padding-top:0}
+.sec h3{font-size:.76rem;text-transform:uppercase;letter-spacing:.14em;color:var(--mut);font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between}
+.sec h3 em{font-style:normal;color:var(--ink);letter-spacing:0;text-transform:none;font-size:.9rem;font-weight:600}
+.trims{display:grid;gap:8px}
+.trim{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;background:none;transition:.2s}
+.trim:hover{border-color:#bdbdb8}
+.trim.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.trim b{font-weight:700}
+.trim .p{font-variant-numeric:tabular-nums}
+.trim small{color:var(--ink2);grid-column:1/-1;font-size:.8rem}
+.sw{display:flex;gap:12px;flex-wrap:wrap}
+.sw button{width:46px;height:46px;border-radius:50%;border:0;cursor:pointer;position:relative;box-shadow:inset 0 -6px 12px rgba(0,0,0,.25),inset 0 4px 8px rgba(255,255,255,.35)}
+.sw button::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid transparent;transition:.2s}
+.sw button.on::after{border-color:var(--ink)}
+.wh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wh button{border:1.5px solid var(--line);border-radius:14px;background:none;padding:10px 6px;cursor:pointer;display:grid;justify-items:center;gap:4px;font-size:.78rem}
+.wh button svg{width:56px;height:56px}
+.wh button.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.wh small{color:var(--ink2)}
+.opts{display:grid;gap:8px}
+.opts label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer}
+.opts label:has(input:checked){border-color:var(--ink)}
+.opts input{accent-color:var(--ink);width:18px;height:18px;margin-top:2px}
+.opts div{flex:1}
+.opts small{display:block;color:var(--ink2);font-size:.8rem}
+.opts span{font-variant-numeric:tabular-nums;font-weight:600}
+.pay{display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg);border-radius:12px;padding:4px}
+.pay button{border:0;background:none;padding:9px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--ink2)}
+.pay button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.fin{display:grid;gap:12px;margin-top:14px}
+.fin label{display:grid;gap:6px;font-size:.82rem;color:var(--ink2)}
+.fin label span{display:flex;justify-content:space-between}
+.fin label b{color:var(--ink);font-variant-numeric:tabular-nums}
+.fin input[type=range]{accent-color:var(--ink);width:100%}
+.fin select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.sumbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(15,16,18,.94);backdrop-filter:blur(10px);color:#fff;display:flex;align-items:center;gap:24px;padding:14px 28px;flex-wrap:wrap}
+.sumbar .tt{flex:1;min-width:0}
+.sumbar small{color:#a3a4aa;display:block;font-size:.8rem}
+.sumbar b{font-size:1.5rem;font-weight:700;font-stretch:110%;font-variant-numeric:tabular-nums}
+.sumbar .mo{text-align:right}
+.sumbar button{background:#fff;color:var(--ink);border:0;border-radius:99px;padding:14px 26px;font-weight:700;cursor:pointer}
+.sumbar button:hover{background:#e8e8e4}
+@media(max-width:600px){.sumbar .mo{display:none}.sumbar button{width:100%}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.open{display:flex}
+.mb{background:var(--card);border-radius:24px;width:min(560px,100%);max-height:92vh;overflow:auto;padding:28px;animation:pp .3s}
+@keyframes pp{from{opacity:0;transform:translateY(12px)}}
+.mb h2{font-size:1.8rem;font-stretch:115%;font-weight:800}
+.mb .ln{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.mb .ln span:last-child{font-variant-numeric:tabular-nums}
+.mb .ln.t{font-weight:700;border:0;font-size:1.05rem}
+.mb .mini{background:var(--bg);border-radius:16px;margin:14px 0;padding:6px 10px}
+.f{display:grid;gap:5px;margin-top:10px}.f label{font-size:.8rem;color:var(--ink2)}
+.f input{border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:0}.f input:focus{border-color:var(--ink)}
+.f.bad input{border-color:#c8102e}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:10px;margin-top:20px}
+.acts button{flex:1;border-radius:99px;padding:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--ink);background:none}
+.acts .p{background:var(--ink);color:#fff}
+.demo{position:fixed;left:28px;bottom:82px;font-size:.74rem;color:var(--mut);z-index:3}
+.demo a{color:var(--ink2)}
+@media(max-width:1000px){.demo{position:static;text-align:center;padding:10px 0 100px}}
+</style>
+</head>
+<body>
+<header><div class="logo">VOLT</div><nav><a>Models</a><a>Charging</a><a>Test drive</a><a>Support</a></nav><div style="font-size:.85rem;color:var(--ink2)">Configure your Aero</div></header>
+<div class="app">
+  <section class="stage">
+    <div class="name"><h1>Aero</h1><p id="tagline"></p></div>
+    <div class="views" id="views"><button class="on" data-v="day">Studio</button><button data-v="night">Night</button></div>
+    <div class="bigword" id="bigword">AERO</div>
+    <div class="car" id="car"><svg viewBox="0 0 820 320" id="carSvg"></svg></div>
+    <div class="specs"><div><b id="sRange"></b><span>Range (EPA est.)</span></div><div><b id="sAcc"></b><span>0–60 mph</span></div><div><b id="sTop"></b><span>Top speed</span></div></div>
+  </section>
+  <aside class="panel" id="panel">
+    <div class="sec"><h3>Trim</h3><div class="trims" id="trims"></div></div>
+    <div class="sec"><h3>Paint <em id="paintName"></em></h3><div class="sw" id="paints"></div></div>
+    <div class="sec"><h3>Wheels <em id="wheelName"></em></h3><div class="wh" id="wheels"></div></div>
+    <div class="sec"><h3>Interior <em id="intName"></em></h3><div class="sw" id="ints"></div></div>
+    <div class="sec"><h3>Options</h3><div class="opts" id="opts"></div></div>
+    <div class="sec"><h3>Payment</h3><div class="pay" id="pay"><button class="on" data-p="cash">Cash</button><button data-p="loan">Loan</button><button data-p="lease">Lease</button></div><div class="fin" id="fin"></div></div>
+  </aside>
+</div>
+<p class="demo">Demo project by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · fictional brand</p>
+<div class="sumbar"><div class="tt"><small id="sumCfg"></small><b id="sumPrice"></b></div><div class="mo"><small id="moLbl"></small><b id="sumMo"></b></div><button id="order">Reserve for $250</button></div>
+<div class="modal" id="modal"><div class="mb" id="mb"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const TRIMS=[{id:'rwd',n:'Aero RWD',p:39990,r:310,a:5.8,t:125,d:'Rear-wheel drive · everyday efficiency'},{id:'lr',n:'Aero Long Range',p:47990,r:405,a:4.4,t:135,d:'Dual motor all-wheel drive · best range'},{id:'perf',n:'Aero Performance',p:54990,r:345,a:3.1,t:162,d:'Dual motor · track mode · sport brakes'}];
+const PAINTS=[['Glacier White','#eceeef',0],['Midnight Silver','#5c6066',1200],['Deep Ocean','#1d3f73',1200],['Ultra Red','#c8102e',2000],['Stealth Black','#17181a',1500],['Solar Gold','#c79a3c',2500]];
+const WHEELS=[{id:'aero',n:'19" Aero',p:0,r:1,d:'Best range'},{id:'sport',n:'20" Sport',p:1500,r:.96,d:'Sharper handling'},{id:'turbine',n:'21" Turbine',p:3000,r:.93,d:'Performance look'}];
+const INTS=[['Black','#1c1c1e',0],['Cream','#e8dcc6',1000],['Cognac','#8a4b2a',1500]];
+const OPTS=[['fsd','Autopilot Plus','Lane changes, auto-park and summon',4000],['tow','Tow hitch','Up to 3,500 lb towing',1000],['charger','Home wall charger','Installed, 11.5 kW',650],['ppf','Paint protection film','Full front, self-healing',2200]];
+let cfg={trim:'lr',paint:3,wheel:'sport',int:0,opts:new Set(['charger']),pay:'loan',down:8000,term:60,apr:5.4,miles:12000};
+try{const s=JSON.parse(localStorage.getItem('volt-cfg'));if(s){Object.assign(cfg,s);cfg.opts=new Set(s.opts)}}catch(e){}
+const save=()=>{try{localStorage.setItem('volt-cfg',JSON.stringify({...cfg,opts:[...cfg.opts]}))}catch(e){}};
+const usd=n=>'$'+Math.round(n).toLocaleString('en-US');
+function rim(id,s=1){ // returns rim svg group at origin
+  if(id==='aero')return `<circle r="${27*s}" fill="#c9ccd1"/><circle r="${24*s}" fill="#e7e9ec"/>${[0,72,144,216,288].map(a=>`<path d="M0 0 L${4*s} ${-22*s} L${-4*s} ${-22*s}Z" fill="#b5b8be" transform="rotate(${a})"/>`).join('')}<circle r="${6*s}" fill="#9a9da3"/>`;
+  if(id==='sport')return `<circle r="${28*s}" fill="#2a2c30"/>${[0,72,144,216,288].map(a=>`<g transform="rotate(${a})"><path d="M${-3*s} ${-5*s} L${-6*s} ${-26*s} L${6*s} ${-26*s} L${3*s} ${-5*s}Z" fill="#8e9298"/></g>`).join('')}<circle r="${7*s}" fill="#55585e"/><circle r="${2.5*s}" fill="#ccc"/>`;
+  return `<circle r="${29*s}" fill="#121315"/>${[...Array(10)].map((_,i)=>`<path d="M0 ${-6*s} Q${9*s} ${-16*s} ${4*s} ${-28*s} L${-1*s} ${-28*s} Q${5*s} ${-16*s} ${-2*s} ${-6*s}Z" fill="#6e7178" transform="rotate(${i*36})"/>`).join('')}<circle r="${6*s}" fill="#2a2c30"/><circle r="${2*s}" fill="#c8102e"/>`;
+}
+function wheel(x,id){return `<g transform="translate(${x} 248)"><circle r="44" fill="#0b0b0c"/><circle r="41" fill="#1b1c1f"/><g class="wheel">${rim(id)}</g></g>`}
+function drawCar(){const P=PAINTS[cfg.paint][1],I=INTS[cfg.int][1],perf=cfg.trim==='perf',dark=cfg.paint===4;
+  $('#carSvg').innerHTML=`<defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+   <linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c3540"/><stop offset=".55" stop-color="#11161c"/><stop offset="1" stop-color="#3b4652"/></linearGradient>
+   <radialGradient id="sh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".38"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="410" cy="292" rx="370" ry="22" fill="url(#sh)"/><circle cx="206" cy="252" r="54" fill="#1a1b1e"/><circle cx="632" cy="252" r="54" fill="#1a1b1e"/>
+   <path class="body" fill="${P}" d="M62 236 L60 214 Q62 192 104 184 L236 166 Q300 116 404 104 Q508 96 584 132 L652 168 Q734 178 754 200 Q764 214 762 232 L758 244 Q756 252 744 252 L688 252 A56 56 0 0 0 576 252 L262 252 A56 56 0 0 0 150 252 L80 252 Q64 252 62 236Z"/>
+   <path fill="url(#bg1)" d="M62 236 L60 214 Q62 192 104 184 L236 166 Q300 116 404 104 Q508 96 584 132 L652 168 Q734 178 754 200 Q764 214 762 232 L758 244 Q756 252 744 252 L688 252 A56 56 0 0 0 576 252 L262 252 A56 56 0 0 0 150 252 L80 252 Q64 252 62 236Z"/>
+   <path d="M258 164 Q314 124 398 114 L404 164Z" fill="url(#gl)"/><path d="M416 114 Q500 110 566 140 L598 164 L416 164Z" fill="url(#gl)"/>
+   <path d="M404 112 L410 166" stroke="${dark?'#333':'#111'}" stroke-width="6"/>
+   <path d="M300 160 Q330 136 372 130" stroke="#fff" stroke-opacity=".22" stroke-width="3" fill="none"/>
+   <path d="M290 182 L292 238 M520 180 L520 238" stroke="#000" stroke-opacity=".18" stroke-width="1.6" fill="none"/>
+   <rect x="330" y="186" width="34" height="5" rx="2.5" fill="#000" opacity=".25"/><rect x="548" y="186" width="34" height="5" rx="2.5" fill="#000" opacity=".25"/>
+   <path d="M90 232 L740 232" stroke="#000" stroke-opacity=".14" stroke-width="2"/>
+   <path d="M64 200 Q70 190 98 186 L100 198 Q80 200 64 206Z" fill="#c8102e" opacity=".95"/>
+   <path d="M712 182 Q742 186 754 200 L726 200 Q716 192 702 188Z" fill="#f4f6f8"/><path d="M706 186 L748 196" stroke="#9fe0ff" stroke-width="1.5" opacity=".8"/>
+   <path d="M254 166 Q236 172 232 178 L270 176Z" fill="${I}" opacity=".9"/>
+   ${perf?'<path d="M64 186 L120 180 L118 186 L62 192Z" fill="#111"/><rect x="600" y="240" width="40" height="4" fill="#c8102e"/>':''}
+   ${wheel(206,cfg.wheel)}${wheel(632,cfg.wheel)}
+   <path d="M0 294 L820 294" stroke="#000" stroke-opacity=".08"/>`;
+}
+function price(){const t=TRIMS.find(x=>x.id===cfg.trim),w=WHEELS.find(x=>x.id===cfg.wheel);return t.p+PAINTS[cfg.paint][2]+w.p+INTS[cfg.int][2]+[...cfg.opts].reduce((s,k)=>s+OPTS.find(o=>o[0]===k)[3],0)+1390}
+function monthly(){const P=price();if(cfg.pay==='cash')return null;
+  if(cfg.pay==='loan'){const L=Math.max(0,P-cfg.down),r=cfg.apr/1200,n=cfg.term;return r?L*r/(1-Math.pow(1+r,-n)):L/n}
+  const resid=P*(cfg.term===36?.58:.5)*(cfg.miles>12000?.96:1),mf=cfg.apr/2400;return (P-cfg.down-resid)/cfg.term+(P+resid)*mf}
+function render(spin){
+  const t=TRIMS.find(x=>x.id===cfg.trim),w=WHEELS.find(x=>x.id===cfg.wheel);
+  $('#trims').innerHTML=TRIMS.map(x=>`<button class="trim${x.id===cfg.trim?' on':''}" data-t="${x.id}"><b>${x.n}</b><span class="p">${usd(x.p)}</span><small>${x.d} · ${x.r} mi · ${x.a}s</small></button>`).join('');
+  $('#paints').innerHTML=PAINTS.map((p,i)=>`<button class="${i===cfg.paint?'on':''}" data-p="${i}" style="background:${p[1]}" title="${p[0]}" aria-label="${p[0]}"></button>`).join('');
+  $('#paintName').textContent=`${PAINTS[cfg.paint][0]} · ${PAINTS[cfg.paint][2]?usd(PAINTS[cfg.paint][2]):'Included'}`;
+  $('#wheels').innerHTML=WHEELS.map(x=>`<button class="${x.id===cfg.wheel?'on':''}" data-w="${x.id}"><svg viewBox="-32 -32 64 64"><circle r="31" fill="#1b1c1f"/>${rim(x.id,.95)}</svg>${x.n}<small>${x.p?'+'+usd(x.p):'Included'}</small></button>`).join('');
+  $('#wheelName').textContent=w.d;
+  $('#ints').innerHTML=INTS.map((p,i)=>`<button class="${i===cfg.int?'on':''}" data-i="${i}" style="background:${p[1]}" title="${p[0]}" aria-label="${p[0]} interior"></button>`).join('');
+  $('#intName').textContent=`${INTS[cfg.int][0]} · ${INTS[cfg.int][2]?usd(INTS[cfg.int][2]):'Included'}`;
+  $('#opts').innerHTML=OPTS.map(([k,n,d,p])=>`<label><input type="checkbox" data-o="${k}" ${cfg.opts.has(k)?'checked':''}><div><b>${n}</b><small>${d}</small></div><span>${usd(p)}</span></label>`).join('');
+  const P=price();
+  $('#fin').innerHTML=cfg.pay==='cash'?`<p style="color:var(--ink2);font-size:.86rem">Pay the full price at delivery. Includes $1,390 destination fee. Federal tax credit may apply.</p>`:
+   `<label><span>Down payment <b>${usd(cfg.down)}</b></span><input type="range" id="down" min="0" max="${Math.round(P*.5/500)*500}" step="500" value="${cfg.down}"></label>
+    <label><span>Term</span><select id="term">${(cfg.pay==='loan'?[36,48,60,72]:[24,36]).map(m=>`<option value="${m}" ${m===cfg.term?'selected':''}>${m} months</option>`).join('')}</select></label>
+    <label><span>${cfg.pay==='loan'?'APR':'Money factor (as APR)'} <b>${cfg.apr.toFixed(1)}%</b></span><input type="range" id="apr" min="0" max="12" step="0.1" value="${cfg.apr}"></label>
+    ${cfg.pay==='lease'?`<label><span>Miles per year</span><select id="miles">${[10000,12000,15000].map(m=>`<option value="${m}" ${m===cfg.miles?'selected':''}>${m.toLocaleString()} mi</option>`).join('')}</select></label>`:''}`;
+  const rng=Math.round(t.r*w.r);
+  $('#sRange').textContent=rng+' mi';$('#sAcc').textContent=t.a+'s';$('#sTop').textContent=t.t+' mph';
+  $('#tagline').textContent=`${t.n} · ${PAINTS[cfg.paint][0]}`;
+  $('#sumCfg').textContent=`${t.n} · ${PAINTS[cfg.paint][0]} · ${w.n} · ${INTS[cfg.int][0]} interior`;$('#sumPrice').textContent=usd(P);
+  const m=monthly();$('#moLbl').textContent=m?`${cfg.pay==='loan'?'Loan':'Lease'} · ${cfg.term} mo`:'Est. savings on fuel';$('#sumMo').textContent=m?usd(m)+'/mo':'$1,200/yr';
+  drawCar();if(spin){const c=$('#car');c.classList.remove('spin');void c.offsetWidth;c.classList.add('spin')}
+  $('#bigword').style.color=cfg.view==='night'?'#1c1d21':'#e8e8e4';save();
+}
+$('#panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.t){cfg.trim=b.dataset.t;if(cfg.trim==='perf'&&cfg.wheel==='aero')cfg.wheel='turbine';render(true)}
+  else if(b.dataset.p&&b.closest('#paints')){cfg.paint=+b.dataset.p;render()}
+  else if(b.dataset.w){cfg.wheel=b.dataset.w;render(true)}
+  else if(b.dataset.i){cfg.int=+b.dataset.i;render()}
+  else if(b.closest('#pay')){cfg.pay=b.dataset.p;cfg.term=cfg.pay==='lease'?36:60;$('#pay').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));render()}});
+$('#panel').addEventListener('change',e=>{const o=e.target.dataset.o;if(o){e.target.checked?cfg.opts.add(o):cfg.opts.delete(o);render()}
+  if(e.target.id==='term'){cfg.term=+e.target.value;render()}if(e.target.id==='miles'){cfg.miles=+e.target.value;render()}});
+$('#panel').addEventListener('input',e=>{if(e.target.id==='down'){cfg.down=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=usd(cfg.down);updSum()}
+  if(e.target.id==='apr'){cfg.apr=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent=cfg.apr.toFixed(1)+'%';updSum()}});
+function updSum(){const m=monthly();$('#sumMo').textContent=m?usd(m)+'/mo':'';save()}
+$('#views').onclick=e=>{const b=e.target.closest('button');if(!b)return;cfg.view=b.dataset.v;$('#views').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  const n=cfg.view==='night';document.querySelector('.stage').style.background=n?'radial-gradient(ellipse at 50% 70%,#2a2d35,#0d0e11 70%)':'';document.querySelector('.stage .name').style.color=n?'#fff':'';document.querySelector('.specs').style.color=n?'#fff':'';render()};
+$('#order').onclick=()=>{const t=TRIMS.find(x=>x.id===cfg.trim),w=WHEELS.find(x=>x.id===cfg.wheel),P=price(),m=monthly();
+  $('#mb').innerHTML=`<h2>Your Aero</h2><div class="mini"><svg viewBox="0 0 820 320" style="width:100%">${$('#carSvg').innerHTML}</svg></div>
+   <div class="ln"><span>${t.n}</span><span>${usd(t.p)}</span></div><div class="ln"><span>${PAINTS[cfg.paint][0]}</span><span>${PAINTS[cfg.paint][2]?usd(PAINTS[cfg.paint][2]):'Included'}</span></div>
+   <div class="ln"><span>${w.n} wheels</span><span>${w.p?usd(w.p):'Included'}</span></div><div class="ln"><span>${INTS[cfg.int][0]} interior</span><span>${INTS[cfg.int][2]?usd(INTS[cfg.int][2]):'Included'}</span></div>
+   ${[...cfg.opts].map(k=>{const o=OPTS.find(x=>x[0]===k);return `<div class="ln"><span>${o[1]}</span><span>${usd(o[3])}</span></div>`}).join('')}
+   <div class="ln"><span>Destination fee</span><span>$1,390</span></div><div class="ln t"><span>Total</span><span>${usd(P)}${m?` · ${usd(m)}/mo`:''}</span></div>
+   <form id="rf" novalidate><div class="two"><div class="f"><label>Full name</label><input id="rn"></div><div class="f"><label>ZIP code</label><input id="rz" inputmode="numeric"></div></div><div class="f"><label>Email</label><input id="re" type="email"></div>
+   <div class="acts"><button type="button" id="rc">Keep editing</button><button class="p">Reserve · $250 refundable</button></div></form>`;
+  $('#modal').classList.add('open');$('#rc').onclick=()=>$('#modal').classList.remove('open');
+  $('#rf').onsubmit=e=>{e.preventDefault();const ok={rn:$('#rn').value.trim().length>1,rz:/^\d{5}$/.test($('#rz').value.trim()),re:/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('#re').value.trim())};let a=true;
+    for(const k in ok){$('#'+k).parentElement.classList.toggle('bad',!ok[k]);if(!ok[k])a=false}if(!a)return;
+    const wk=new Date(Date.now()+42*864e5).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+    $('#mb').innerHTML=`<h2>Reservation confirmed</h2><p style="color:var(--ink2);margin:10px 0 16px">Thanks, ${$('#rn').value.trim().split(' ')[0]}. Your ${t.n} in ${PAINTS[cfg.paint][0]} is reserved. Estimated delivery: <b>${wk}</b> near ${$('#rz').value.trim()}.</p><div class="mini"><svg viewBox="0 0 820 320" style="width:100%">${$('#carSvg').innerHTML}</svg></div><p style="color:var(--mut);font-size:.84rem">Demo only — no payment was taken.</p><div class="acts"><button class="p" type="button" id="cl">Done</button></div>`;
+    $('#cl').onclick=()=>$('#modal').classList.remove('open')}};
+$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('open')};addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('open')});
+document.querySelectorAll('#pay button').forEach(x=>x.classList.toggle('on',x.dataset.p===cfg.pay));
+render(true);
+</script>
+</body>
+</html>
