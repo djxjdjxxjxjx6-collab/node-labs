@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haven Estates — Real Estate Listings</title>
+<meta name="description" content="Demo real estate website by Yurii Starikov — live property search, filters, favorites and a mortgage calculator in vanilla JavaScript.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f4ee;--paper:#fff;--ink:#1c2a26;--ink2:#56645f;--mut:#8b968f;--line:#e6e0d4;
+  --green:#1f4d40;--green2:#2c6a58;--terra:#c8643b;--sand:#efe7d8;--maxw:1240px;
+  --fd:"Lora",Georgia,serif;--fb:"Inter",system-ui,sans-serif;--sh:0 20px 50px -24px rgba(28,42,38,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--fd);font-weight:600;line-height:1.15;letter-spacing:-.01em}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+header{position:sticky;top:0;z-index:30;background:rgba(247,244,238,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+.logo{font-family:var(--fd);font-size:1.45rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--green)}
+.logo svg{width:28px;height:28px}
+nav{display:flex;gap:28px;font-size:.92rem;color:var(--ink2);align-items:center}
+nav a:hover{color:var(--green)}
+.favbtn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);padding:9px 14px;border-radius:99px;cursor:pointer;font-weight:500;font-size:.88rem}
+.favbtn b{background:var(--terra);color:#fff;border-radius:99px;font-size:.72rem;padding:1px 8px}
+@media(max-width:820px){nav a{display:none}}
+
+.hero{position:relative;padding:70px 0 120px;overflow:hidden;background:linear-gradient(180deg,#e9e2d3 0%,var(--bg) 100%)}
+.hero .wrap{position:relative;z-index:2}
+.hero h1{font-size:clamp(2.4rem,5.4vw,4.4rem);max-width:780px}
+.hero h1 i{color:var(--terra)}
+.hero p{color:var(--ink2);font-size:1.1rem;max-width:520px;margin-top:18px}
+.skyline{position:absolute;right:-40px;bottom:0;width:min(760px,70vw);opacity:.95;z-index:1}
+@media(max-width:820px){.skyline{opacity:.25}}
+.search{margin-top:40px;background:var(--paper);border-radius:20px;box-shadow:var(--sh);padding:10px;display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:6px;max-width:900px}
+.search label{display:grid;padding:10px 16px;border-radius:12px;gap:2px;cursor:text}
+.search label:hover{background:var(--bg)}
+.search label+label{border-left:1px solid var(--line)}
+.search span{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+.search input,.search select{border:0;outline:0;background:transparent;font-size:.98rem;font-weight:500;width:100%;padding:0;appearance:none;cursor:pointer}
+.search input{cursor:text}
+.search button{background:var(--green);color:#fff;border:0;border-radius:14px;padding:0 28px;font-weight:600;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.2s}
+.search button:hover{background:var(--green2)}
+@media(max-width:820px){.search{grid-template-columns:1fr}.search label+label{border-left:0;border-top:1px solid var(--line)}.search button{padding:14px}}
+.stats{display:flex;gap:44px;margin-top:40px;flex-wrap:wrap}
+.stats b{font-family:var(--fd);font-size:1.8rem;display:block;color:var(--green)}
+.stats span{font-size:.85rem;color:var(--mut)}
+
+/* listing */
+.listing{padding:60px 0 90px}
+.bar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.bar h2{font-size:clamp(1.7rem,3vw,2.3rem)}
+.bar p{color:var(--mut);font-size:.92rem;margin-top:4px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);padding:4px;border-radius:99px}
+.chips button{border:0;background:transparent;padding:8px 16px;border-radius:99px;cursor:pointer;font-size:.88rem;font-weight:500;color:var(--ink2);transition:.2s}
+.chips button.on{background:var(--green);color:#fff}
+.sel{background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:9px 16px;font-size:.88rem;cursor:pointer;outline:0}
+.range{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-size:.85rem;color:var(--ink2)}
+.range input{accent-color:var(--green);width:130px}
+.range b{color:var(--ink);min-width:62px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:34px}
+@media(max-width:1000px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--paper);border-radius:20px;overflow:hidden;border:1px solid var(--line);cursor:pointer;transition:.3s;animation:pop .45s both}
+.card:hover{transform:translateY(-5px);box-shadow:var(--sh)}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}}
+.pic{position:relative;aspect-ratio:4/3;overflow:hidden}
+.pic svg.scene{width:100%;height:100%;display:block;transition:transform .6s}
+.card:hover .pic svg.scene{transform:scale(1.05)}
+.badge{position:absolute;left:14px;top:14px;background:rgba(255,255,255,.92);font-size:.74rem;font-weight:600;padding:5px 11px;border-radius:99px}
+.badge.new{background:var(--terra);color:#fff}
+.heart{position:absolute;right:14px;top:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);border:0;display:grid;place-items:center;cursor:pointer;transition:.2s;color:var(--ink)}
+.heart:hover{transform:scale(1.1)}
+.heart.on{color:var(--terra)}.heart.on svg{fill:var(--terra)}
+.info{padding:20px 22px 22px}
+.price{font-family:var(--fd);font-size:1.5rem;font-weight:700;color:var(--green)}
+.price small{font-family:var(--fb);font-size:.82rem;color:var(--mut);font-weight:500}
+.info h3{font-family:var(--fb);font-size:1rem;font-weight:600;margin:4px 0 2px}
+.addr{color:var(--mut);font-size:.86rem;display:flex;gap:6px;align-items:center}
+.feat{display:flex;gap:18px;border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-size:.85rem;color:var(--ink2)}
+.feat span{display:flex;gap:6px;align-items:center}
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--mut);background:var(--paper);border-radius:20px;border:1px dashed var(--line)}
+.empty button{margin-top:14px;background:var(--green);color:#fff;border:0;border-radius:99px;padding:10px 20px;cursor:pointer}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(20,28,26,.55);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.sheet{background:var(--paper);border-radius:24px;max-width:980px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1.1fr 1fr;animation:up .35s ease}
+@keyframes up{from{opacity:0;transform:translateY(30px)}}
+@media(max-width:820px){.sheet{grid-template-columns:1fr}}
+.sheet .pic{aspect-ratio:auto;min-height:320px}
+.sheet .det{padding:30px;position:relative}
+.close{position:absolute;right:18px;top:18px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--paper);cursor:pointer;font-size:1.2rem}
+.det h3{font-size:1.6rem;margin:6px 0}
+.det p.d{color:var(--ink2);font-size:.94rem;margin:14px 0}
+.calc{background:var(--bg);border-radius:16px;padding:20px;margin-top:18px}
+.calc h4{font-size:.95rem;margin-bottom:12px}
+.calc .r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calc label{font-size:.75rem;color:var(--mut);font-weight:600;display:grid;gap:4px}
+.calc input,.calc select{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;outline:0;font-size:.92rem}
+.calc input:focus{border-color:var(--green)}
+.monthly{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.monthly b{font-family:var(--fd);font-size:1.7rem;color:var(--green)}
+.agent{display:flex;gap:12px;align-items:center;margin-top:18px}
+.agent .av{width:46px;height:46px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:600}
+.agent small{color:var(--mut);display:block}
+.cta{display:block;text-align:center;width:100%;margin-top:16px;background:var(--terra);color:#fff;border:0;border-radius:14px;padding:14px;font-weight:600;cursor:pointer}
+.cta:hover{filter:brightness(1.07)}
+
+.why{background:var(--green);color:#e7efe9;padding:90px 0}
+.why .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.why h3{color:#fff;font-size:1.3rem;margin:14px 0 8px}
+.why p{color:#b7cbc2;font-size:.94rem}
+.why .ic{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.1);display:grid;place-items:center}
+.why .ic svg{width:24px;height:24px}
+@media(max-width:820px){.why .wrap{grid-template-columns:1fr}}
+.sell{padding:90px 0}
+.sell .box{background:var(--sand);border-radius:28px;padding:clamp(30px,5vw,60px);display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
+.sell h2{font-size:clamp(1.8rem,3.4vw,2.6rem);max-width:560px}
+.sell p{color:var(--ink2);margin-top:10px}
+.sell a{background:var(--green);color:#fff;padding:15px 28px;border-radius:99px;font-weight:600}
+footer{border-top:1px solid var(--line);padding:36px 0;color:var(--mut);font-size:.88rem}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.demo{text-align:center;font-size:.8rem;color:var(--mut);padding:12px;background:var(--sand)}
+.demo a{color:var(--green);text-decoration:underline}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,100px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-size:.88rem;transition:.35s;opacity:0;z-index:80}
+.toast.show{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <a href="#" class="logo"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 15 16 5l12 10v12H4z"/><path d="M12 27v-8h8v8"/></svg>Haven Estates</a>
+  <nav>
+    <a href="#listings">Buy</a><a href="#listings">Rent</a><a href="#why">Why Haven</a><a href="#sell">Sell</a>
+    <button class="favbtn" id="favOnly"><svg class="i" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.6 1-1.1a5.5 5.5 0 0 0 0-7.7z"/></svg>Saved <b id="favCount">0</b></button>
+  </nav>
+</div></header>
+
+<section class="hero">
+  <svg class="skyline" viewBox="0 0 760 330" aria-hidden="true">
+    <defs><linearGradient id="hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d9b8"/><stop offset="1" stop-color="#e9e2d3" stop-opacity="0"/></linearGradient></defs>
+    <circle cx="560" cy="110" r="70" fill="#f1c48f" opacity=".7"/>
+    <g fill="#c9bfa9" opacity=".55"><rect x="40" y="120" width="70" height="210"/><rect x="120" y="70" width="60" height="260"/><rect x="600" y="90" width="80" height="240"/><rect x="690" y="150" width="70" height="180"/></g>
+    <g fill="#2c6a58"><rect x="180" y="150" width="120" height="180" rx="4"/><path d="M330 330V180l90-70 90 70v150z"/><rect x="520" y="200" width="110" height="130" rx="4"/></g>
+    <g fill="#f7f4ee" opacity=".85">
+      <rect x="198" y="170" width="22" height="26" rx="2"/><rect x="230" y="170" width="22" height="26" rx="2"/><rect x="262" y="170" width="22" height="26" rx="2"/>
+      <rect x="198" y="210" width="22" height="26" rx="2"/><rect x="230" y="210" width="22" height="26" rx="2"/><rect x="262" y="210" width="22" height="26" rx="2"/>
+      <rect x="198" y="250" width="22" height="26" rx="2"/><rect x="262" y="250" width="22" height="26" rx="2"/>
+      <rect x="360" y="200" width="34" height="38" rx="3"/><rect x="446" y="200" width="34" height="38" rx="3"/><rect x="400" y="262" width="40" height="68" rx="3"/>
+      <rect x="540" y="220" width="70" height="30" rx="3"/><rect x="540" y="265" width="70" height="30" rx="3"/>
+    </g>
+    <path d="M405 150a15 15 0 0 1 30 0" fill="none" stroke="#f7f4ee" stroke-width="5"/>
+    <g fill="#1f4d40"><circle cx="160" cy="300" r="26"/><circle cx="510" cy="306" r="20"/><circle cx="650" cy="300" r="28"/></g>
+    <rect y="326" width="760" height="4" fill="#1f4d40"/>
+  </svg>
+  <div class="wrap">
+    <h1>Find a home that <i>feels like you</i></h1>
+    <p>Hand-picked homes, condos and villas across California — with honest prices and agents who actually pick up the phone.</p>
+    <form class="search" id="search">
+      <label><span>Location</span><input id="q" placeholder="City, neighborhood or street"></label>
+      <label><span>Property type</span><select id="typeSel"><option value="all">Any type</option><option value="house">House</option><option value="condo">Condo</option><option value="villa">Villa</option></select></label>
+      <label><span>Bedrooms</span><select id="bedsSel"><option value="0">Any</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select></label>
+      <button type="submit"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
+    </form>
+    <div class="stats"><div><b>1,240+</b><span>homes listed</span></div><div><b>98%</b><span>client satisfaction</span></div><div><b>$2.1B</b><span>in homes sold</span></div></div>
+  </div>
+</section>
+
+<section class="listing" id="listings"><div class="wrap">
+  <div class="bar">
+    <div><h2>Featured properties</h2><p id="countTxt"></p></div>
+    <div class="controls">
+      <div class="chips" id="chips"><button class="on" data-t="all">All</button><button data-t="house">Houses</button><button data-t="condo">Condos</button><button data-t="villa">Villas</button></div>
+      <div class="range">Max <input type="range" id="maxP" min="300000" max="3000000" step="50000" value="3000000"><b id="maxTxt"></b></div>
+      <select class="sel" id="sort"><option value="new">Newest</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="size">Largest</option></select>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section class="why" id="why"><div class="wrap">
+  <div><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Verified listings only</h3><p>Every home is visited and photographed by our team. No fake listings, no surprises at the viewing.</p></div>
+  <div><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>Transparent pricing</h3><p>See price history, taxes and estimated monthly costs before you book a tour.</p></div>
+  <div><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><h3>Local expert agents</h3><p>Our agents live in the neighborhoods they sell and answer within one hour.</p></div>
+</div></section>
+
+<section class="sell" id="sell"><div class="wrap"><div class="box">
+  <div><h2>Thinking of selling? Get a free home valuation in 24 hours.</h2><p>Homes listed with Haven sell 18 days faster on average.</p></div>
+  <a href="#listings">Get my valuation</a>
+</div></div></section>
+
+<footer><div class="wrap"><span class="logo" style="font-size:1.1rem">Haven Estates</span><span>© <span id="yr"></span> Haven Estates. Licensed real estate brokerage.</span></div></footer>
+<div class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const homes=[
+ {id:1,t:'villa',name:'Oceanview Modern Villa',addr:'Malibu, CA',price:2850000,beds:5,baths:4,sqft:4200,isNew:true,pal:['#9fd3e6','#f6d6a8','#ffffff','#2d3b45'],d:'Floor-to-ceiling glass, an infinity pool and panoramic Pacific views from every room.'},
+ {id:2,t:'house',name:'Craftsman Family Home',addr:'Pasadena, CA',price:1190000,beds:4,baths:3,sqft:2600,pal:['#cfe3d0','#f3e3c5','#c8643b','#5b3b2e'],d:'Classic craftsman details, a big backyard with lemon trees and top-rated schools nearby.'},
+ {id:3,t:'condo',name:'Skyline Loft Apartment',addr:'Downtown LA, CA',price:640000,beds:1,baths:1,sqft:880,isNew:true,pal:['#f2c3a7','#f7e6d6','#3f5b6b','#e9eef0'],d:'Industrial loft with 14 ft ceilings, a rooftop pool and a 2-minute walk to the metro.'},
+ {id:4,t:'house',name:'Sunny Ranch Bungalow',addr:'San Diego, CA',price:875000,beds:3,baths:2,sqft:1750,pal:['#bde0f0','#fbe7c6','#e9d9b9','#1f4d40'],d:'Single-level living with a renovated kitchen, solar panels and a two-car garage.'},
+ {id:5,t:'condo',name:'Garden Terrace Condo',addr:'Santa Monica, CA',price:980000,beds:2,baths:2,sqft:1150,pal:['#cde6dc','#f1ead9','#1f4d40','#f5f1e6'],d:'Bright corner unit with a private terrace, six blocks from the beach.'},
+ {id:6,t:'villa',name:'Hillside Mediterranean Villa',addr:'Beverly Hills, CA',price:2450000,beds:6,baths:5,sqft:5100,pal:['#f4cfa8','#fbeedd','#f3e1c3','#b5532d'],d:'Terracotta roof, olive grove, guest house and sweeping canyon views.'},
+ {id:7,t:'house',name:'Modern Farmhouse',addr:'Napa, CA',price:1520000,beds:4,baths:3,sqft:3100,isNew:true,pal:['#d6e8c8','#f6efdc','#ffffff','#2b2b2b'],d:'Board-and-batten exterior, chef\'s kitchen and an acre of vineyard views.'},
+ {id:8,t:'condo',name:'Harbor Studio Residence',addr:'Long Beach, CA',price:420000,beds:1,baths:1,sqft:620,pal:['#a9d6e5','#eaf4f7','#c8643b','#f4ede2'],d:'Efficient studio with harbor views, gym and 24/7 concierge. Great first home or rental.'},
+ {id:9,t:'house',name:'Lakeside Cottage',addr:'Lake Tahoe, CA',price:760000,beds:2,baths:2,sqft:1300,pal:['#c4d9ee','#e8f0f5','#6b4f3a','#1f4d40'],d:'Cozy wood cottage with a stone fireplace, a private dock and mountain trails out the door.'}
+];
+/* illustrated property scenes */
+function scene(h){
+  const [sky,sky2,wall,accent]=h.pal,g='g'+h.id;
+  let b='';
+  if(h.t==='condo'){
+    b=`<rect x="110" y="40" width="180" height="230" rx="4" fill="${wall}"/>`;
+    for(let r=0;r<6;r++)for(let c=0;c<4;c++)b+=`<rect x="${126+c*42}" y="${56+r*34}" width="30" height="22" rx="2" fill="${(r+c+h.id)%4?accent:'#ffe7a3'}" opacity="${(r+c+h.id)%4?.85:1}"/>`;
+    b+=`<rect x="180" y="240" width="40" height="30" fill="${accent}"/><rect x="60" y="150" width="50" height="120" fill="${accent}" opacity=".35"/><rect x="290" y="120" width="60" height="150" fill="${accent}" opacity=".25"/>`;
+  }else if(h.t==='villa'){
+    b=`<rect x="70" y="150" width="260" height="120" fill="${wall}"/><rect x="150" y="100" width="150" height="60" fill="${wall}"/>
+       <rect x="60" y="142" width="280" height="10" fill="${accent}"/><rect x="140" y="92" width="170" height="10" fill="${accent}"/>
+       <rect x="165" y="112" width="120" height="34" fill="#9cc7d8" opacity=".9"/><rect x="90" y="170" width="90" height="70" fill="#9cc7d8" opacity=".9"/>
+       <rect x="200" y="170" width="110" height="70" fill="#9cc7d8" opacity=".9"/><path d="M90 170h90M245 170v70M135 170v70" stroke="${wall}" stroke-width="3"/>
+       <rect x="40" y="262" width="320" height="16" rx="3" fill="#7cc6dc"/>`;
+  }else{
+    b=`<rect x="110" y="140" width="180" height="130" fill="${wall}"/><path d="M95 145 200 70l105 75z" fill="${accent}"/>
+       <rect x="182" y="205" width="36" height="65" rx="2" fill="${accent}"/><rect x="128" y="165" width="38" height="34" rx="2" fill="#ffe7a3"/>
+       <rect x="234" y="165" width="38" height="34" rx="2" fill="#ffe7a3"/><path d="M147 165v34M253 165v34M128 182h38M234 182h38" stroke="${wall}" stroke-width="3"/>
+       <rect x="250" y="88" width="16" height="36" fill="${accent}"/>`;
+  }
+  return `<svg class="scene" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky}"/><stop offset="1" stop-color="${sky2}"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#${g})"/><circle cx="${300+h.id*7%60}" cy="70" r="30" fill="#fff6dc" opacity=".9"/>
+    <path d="M0 230 Q100 190 200 220 T400 210 V300H0z" fill="${accent}" opacity=".12"/>${b}
+    <rect y="270" width="400" height="30" fill="#7da57a"/><circle cx="70" cy="258" r="22" fill="#4f7d55"/><circle cx="335" cy="255" r="26" fill="#4f7d55"/><circle cx="352" cy="264" r="16" fill="#5f8f63"/></svg>`;
+}
+const money=n=>'$'+n.toLocaleString('en-US');
+const short=n=>n>=1e6?'$'+(n/1e6).toFixed(n%1e6?2:0).replace(/0$/,'')+'M':'$'+Math.round(n/1e3)+'K';
+let favs=[];try{favs=JSON.parse(localStorage.getItem('haven-favs'))||[]}catch(e){}
+const state={type:'all',q:'',beds:0,max:3000000,sort:'new',favOnly:false};
+const ico={bed:'<path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8M2 16h20M6 10V6h12v4"/>',bath:'<path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V5a2 2 0 0 1 4 0"/>',area:'<path d="M3 3h18v18H3zM3 9h18M9 3v18"/>',pin:'<path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/>',heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.6 1-1.1a5.5 5.5 0 0 0 0-7.7z"/>'};
+const I=(k,s='')=>`<svg class="i" viewBox="0 0 24 24" ${s}>${ico[k]}</svg>`;
+
+function render(){
+  let list=homes.filter(h=>(state.type==='all'||h.t===state.type)&&h.beds>=state.beds&&h.price<=state.max&&
+    (!state.q||(h.name+' '+h.addr).toLowerCase().includes(state.q))&&(!state.favOnly||favs.includes(h.id)));
+  const s={new:(a,b)=>(b.isNew|0)-(a.isNew|0)||b.id-a.id,low:(a,b)=>a.price-b.price,high:(a,b)=>b.price-a.price,size:(a,b)=>b.sqft-a.sqft}[state.sort];
+  list.sort(s);
+  $('#countTxt').textContent=`${list.length} ${list.length===1?'home':'homes'} ${state.favOnly?'saved':'available'}`;
+  $('#grid').innerHTML=list.length?list.map((h,i)=>`<article class="card" data-id="${h.id}" style="animation-delay:${i*60}ms">
+    <div class="pic">${scene(h)}<span class="badge${h.isNew?' new':''}">${h.isNew?'New listing':h.t[0].toUpperCase()+h.t.slice(1)}</span>
+    <button class="heart${favs.includes(h.id)?' on':''}" data-fav="${h.id}" aria-label="Save">${I('heart')}</button></div>
+    <div class="info"><div class="price">${money(h.price)}</div><h3>${h.name}</h3><div class="addr">${I('pin','style="width:14px;height:14px"')}${h.addr}</div>
+    <div class="feat"><span>${I('bed')}${h.beds} bd</span><span>${I('bath')}${h.baths} ba</span><span>${I('area')}${h.sqft.toLocaleString()} sqft</span></div></div></article>`).join('')
+    :`<div class="empty"><h3>No homes match your filters</h3><p>Try a different area, a higher budget or fewer bedrooms.</p><button id="reset">Reset filters</button></div>`;
+  $('#maxTxt').textContent=short(state.max);
+  $('#favCount').textContent=favs.length;
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2200)}
+function toggleFav(id){favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];try{localStorage.setItem('haven-favs',JSON.stringify(favs))}catch(e){}
+  toast(favs.includes(id)?'♥ Saved to your favorites':'Removed from favorites');render()}
+
+$('#grid').addEventListener('click',e=>{
+  if(e.target.closest('#reset')){Object.assign(state,{type:'all',q:'',beds:0,max:3000000,favOnly:false});$('#q').value='';$('#typeSel').value='all';$('#bedsSel').value='0';$('#maxP').value=3000000;syncChips();$('#favOnly').style.borderColor='';render();return}
+  const f=e.target.closest('[data-fav]');if(f){e.stopPropagation();toggleFav(+f.dataset.fav);return}
+  const c=e.target.closest('.card');if(c)openModal(+c.dataset.id)});
+function syncChips(){$('#chips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===state.type))}
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.type=b.dataset.t;$('#typeSel').value=b.dataset.t;syncChips();render()});
+$('#maxP').addEventListener('input',e=>{state.max=+e.target.value;render()});
+$('#sort').addEventListener('change',e=>{state.sort=e.target.value;render()});
+$('#search').addEventListener('submit',e=>{e.preventDefault();state.q=$('#q').value.trim().toLowerCase();state.type=$('#typeSel').value;state.beds=+$('#bedsSel').value;syncChips();render();$('#listings').scrollIntoView({behavior:'smooth'})});
+$('#q').addEventListener('input',e=>{state.q=e.target.value.trim().toLowerCase();render()});
+$('#favOnly').addEventListener('click',e=>{state.favOnly=!state.favOnly;e.currentTarget.style.borderColor=state.favOnly?'var(--terra)':'';render();$('#listings').scrollIntoView({behavior:'smooth'})});
+
+/* modal + mortgage calculator */
+function openModal(id){
+  const h=homes.find(x=>x.id===id);
+  $('#sheet').innerHTML=`<div class="pic">${scene(h)}</div><div class="det"><button class="close" id="close" aria-label="Close">×</button>
+   <span class="badge" style="position:static;background:var(--sand)">${h.t[0].toUpperCase()+h.t.slice(1)}</span>
+   <h3>${h.name}</h3><div class="addr">${I('pin','style="width:14px;height:14px"')}${h.addr}</div>
+   <div class="price" style="margin-top:10px">${money(h.price)}</div>
+   <div class="feat"><span>${I('bed')}${h.beds} beds</span><span>${I('bath')}${h.baths} baths</span><span>${I('area')}${h.sqft.toLocaleString()} sqft</span></div>
+   <p class="d">${h.d}</p>
+   <div class="calc"><h4>Mortgage calculator</h4><div class="r">
+     <label>Down payment (%)<input type="number" id="dp" value="20" min="0" max="90"></label>
+     <label>Interest rate (%)<input type="number" id="rate" value="6.5" step="0.1" min="0"></label>
+     <label>Loan term<select id="term"><option value="30">30 years</option><option value="20">20 years</option><option value="15">15 years</option></select></label>
+     <label>Loan amount<input id="loan" disabled></label></div>
+     <div class="monthly"><span>Estimated monthly payment</span><b id="pay"></b></div></div>
+   <div class="agent"><div class="av">AM</div><div><b>Alex Morgan</b><small>Listing agent · replies in ~1 hour</small></div></div>
+   <button class="cta" id="tour">Schedule a tour</button></div>`;
+  const calc=()=>{const dp=Math.min(Math.max(+$('#dp').value||0,0),90),r=(+$('#rate').value||0)/1200,n=+$('#term').value*12,P=h.price*(1-dp/100);
+    const m=r?P*r/(1-Math.pow(1+r,-n)):P/n;$('#loan').value=money(Math.round(P));$('#pay').textContent=money(Math.round(m))+'/mo'};
+  ['dp','rate','term'].forEach(k=>$('#'+k).addEventListener('input',calc));calc();
+  $('#close').onclick=closeModal;$('#tour').onclick=()=>{closeModal();toast('✓ Tour request sent — Alex will contact you soon')};
+  $('#modal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeModal(){$('#modal').classList.remove('open');document.body.style.overflow=''}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+$('#yr').textContent=new Date().getFullYear();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowbase — SaaS Product Landing Page</title>
+<meta name="description" content="Demo SaaS landing page by Yurii Starikov — pricing toggle, tabs, FAQ and an interactive product preview.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070d;--bg2:#0e0e18;--card:#12121e;--line:#22223a;--txt:#ecebf7;--mut:#9897b3;--dim:#62617d;
+  --v:#7c5cff;--v2:#a48bff;--p:#ff5cb8;--c:#3ee0d0;--maxw:1200px;
+  --grad:linear-gradient(100deg,#a48bff 0%,#ff7ac6 50%,#ffb36b 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"Inter",system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px}
+h1,h2,h3{letter-spacing:-.035em;line-height:1.08;font-weight:700}
+section{padding-block:clamp(70px,10vw,120px);position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.03);font-size:.84rem;color:var(--mut)}
+.eyebrow b{background:var(--v);color:#fff;font-size:.72rem;padding:3px 9px;border-radius:99px;font-weight:600}
+.kicker{color:var(--v2);font-weight:600;font-size:.88rem;letter-spacing:.02em}
+.h2{font-size:clamp(2rem,4.2vw,3.2rem);margin:12px 0 16px}
+.sub{color:var(--mut);font-size:1.06rem;max-width:600px}
+.center{text-align:center}.center .sub{margin-inline:auto}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:600;font-size:.95rem;border:1px solid transparent;cursor:pointer;transition:.2s;font-family:inherit}
+.btn.pri{background:#fff;color:#0b0b14}
+.btn.pri:hover{background:#e6e3ff;transform:translateY(-1px)}
+.btn.sec{border-color:var(--line);color:var(--txt);background:rgba(255,255,255,.03)}
+.btn.sec:hover{border-color:var(--v)}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+header{position:fixed;inset:0 0 auto;z-index:50;transition:.3s}
+header.s{background:rgba(7,7,13,.75);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;letter-spacing:-.03em}
+.logo i{width:30px;height:30px;border-radius:9px;background:conic-gradient(from 200deg,var(--v),var(--p),#ffb36b,var(--v));display:block;position:relative}
+.logo i::after{content:"";position:absolute;inset:8px;border-radius:4px;background:var(--bg)}
+nav{display:flex;gap:32px;font-size:.92rem;color:var(--mut)}
+nav a:hover{color:var(--txt)}
+.hdr-cta{display:flex;gap:10px;align-items:center}
+.hdr-cta .btn{padding:9px 16px;font-size:.88rem}
+@media(max-width:860px){nav,.hdr-cta .sec{display:none}}
+
+/* hero */
+.hero .wrap{position:relative}
+.hero{padding-top:150px;padding-bottom:40px;text-align:center;overflow:hidden}
+.glow{position:absolute;width:900px;height:600px;left:50%;top:-180px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(124,92,255,.42),transparent),radial-gradient(closest-side at 70% 60%,rgba(255,92,184,.25),transparent);filter:blur(30px);pointer-events:none}
+.gridbg{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 70% 55% at 50% 20%,#000 30%,transparent 75%);opacity:.45;pointer-events:none}
+.hero h1{font-size:clamp(2.6rem,7vw,5.2rem);margin:26px auto 22px;max-width:960px;position:relative}
+.hero .sub{margin:0 auto;font-size:1.15rem;position:relative}
+.signup{display:flex;gap:10px;justify-content:center;margin:34px auto 14px;max-width:460px;position:relative}
+.signup input{flex:1;min-width:0;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:13px 16px;color:var(--txt);font:inherit;outline:none}
+.signup input:focus{border-color:var(--v)}
+.signup input.bad{border-color:#ff5c7a}
+.note{font-size:.82rem;color:var(--dim);position:relative;min-height:1.3em}
+.note.ok{color:var(--c)}
+
+/* app mockup */
+.app{position:relative;margin:64px auto 0;max-width:1080px;border-radius:18px;padding:1px;background:linear-gradient(180deg,rgba(164,139,255,.6),rgba(34,34,58,.4) 40%);box-shadow:0 40px 120px -30px rgba(124,92,255,.5)}
+.app-in{background:var(--bg2);border-radius:17px;overflow:hidden;text-align:left}
+.bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.bar span{width:11px;height:11px;border-radius:50%;background:#2b2b44}
+.bar em{margin-left:14px;font-style:normal;font-size:.78rem;color:var(--dim);background:#17172a;padding:4px 12px;border-radius:7px}
+.body{display:grid;grid-template-columns:210px 1fr;min-height:420px}
+.side{border-right:1px solid var(--line);padding:18px 14px;font-size:.84rem;color:var(--mut);display:grid;align-content:start;gap:4px}
+.side div{padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:10px}
+.side div.on{background:#1b1b2e;color:var(--txt)}
+.side small{color:var(--dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;margin:14px 10px 6px}
+.dot{width:8px;height:8px;border-radius:3px;display:inline-block}
+.board{padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.col h4{font-size:.8rem;color:var(--mut);font-weight:600;display:flex;justify-content:space-between;margin-bottom:10px}
+.col h4 span{background:#1b1b2e;border-radius:6px;padding:0 7px}
+.col .list{display:grid;gap:10px;min-height:300px;border-radius:12px;transition:.2s;align-content:start}
+.col .list.over{background:rgba(124,92,255,.08);outline:1px dashed var(--v)}
+.task{touch-action:none;user-select:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.84rem;cursor:grab;transition:transform .2s,border-color .2s}
+.task:hover{border-color:#3a3a5e}
+.task.drag{opacity:.4}
+.task .lbl{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:8px}
+.task .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--dim);font-size:.74rem}
+.av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:.62rem;font-weight:700;color:#0b0b14}
+.hint{position:absolute;right:20px;bottom:-14px;background:var(--v);color:#fff;font-size:.76rem;font-weight:600;padding:6px 12px;border-radius:99px;box-shadow:0 10px 30px -8px var(--v)}
+@media(max-width:860px){.body{grid-template-columns:1fr}.side{display:none}.board{grid-template-columns:1fr 1fr}.board .col:last-child{display:none}}
+
+.logos{padding-block:56px 20px;text-align:center;color:var(--dim);font-size:.86rem}
+.logos .row{display:flex;justify-content:center;gap:clamp(24px,5vw,64px);flex-wrap:wrap;margin-top:22px;font-weight:700;font-size:1.25rem;color:#5c5b78;letter-spacing:-.02em}
+
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:56px}
+.b{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;overflow:hidden;position:relative;transition:.3s}
+.b:hover{border-color:#34345a}
+.b h3{font-size:1.2rem;margin:16px 0 8px}
+.b p{color:var(--mut);font-size:.94rem}
+.b .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(124,92,255,.14);color:var(--v2)}
+.b1{grid-column:span 4}.b2{grid-column:span 2}.b3,.b4,.b5{grid-column:span 2}
+@media(max-width:900px){.bento{grid-template-columns:1fr}.b1,.b2,.b3,.b4,.b5{grid-column:auto}}
+.chart{display:flex;align-items:flex-end;gap:10px;height:130px;margin-top:26px}
+.chart i{flex:1;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--v2),rgba(124,92,255,.15));transform-origin:bottom;transform:scaleY(0);transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.in .chart i{transform:scaleY(1)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.pills span{font-size:.78rem;padding:6px 12px;border:1px solid var(--line);border-radius:99px;color:var(--mut);background:#16162a}
+.ring{width:110px;height:110px;margin-top:20px;border-radius:50%;background:conic-gradient(var(--c) 0 92%,#22223a 0);display:grid;place-items:center}
+.ring b{width:84px;height:84px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:1.3rem}
+
+/* tabs */
+.tabs{display:flex;gap:8px;justify-content:center;margin-top:40px;flex-wrap:wrap}
+.tabs button{background:transparent;border:1px solid var(--line);color:var(--mut);padding:10px 18px;border-radius:99px;font:500 .9rem inherit;font-family:inherit;cursor:pointer;transition:.2s}
+.tabs button.on{background:#fff;color:#0b0b14;border-color:#fff}
+.panel{margin-top:34px;display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:clamp(24px,4vw,48px)}
+.panel h3{font-size:1.7rem;margin-bottom:12px}
+.panel p{color:var(--mut)}
+.panel ul{list-style:none;margin-top:20px;display:grid;gap:10px;font-size:.95rem}
+.panel li{display:flex;gap:10px}.panel li svg{color:var(--c);flex:none;margin-top:2px}
+.code{background:#0a0a12;border:1px solid var(--line);border-radius:14px;padding:20px;font:500 .84rem/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:#c9c8e3;overflow:auto;white-space:pre}
+.code .k{color:#ff7ac6}.code .s{color:#3ee0d0}.code .c{color:#5c5b78}.code .f{color:#a48bff}
+.fade{animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+@media(max-width:860px){.panel{grid-template-columns:1fr}}
+
+/* pricing */
+.toggle{display:inline-flex;align-items:center;gap:14px;margin-top:30px;color:var(--mut);font-size:.92rem}
+.sw{width:52px;height:30px;border-radius:99px;background:#22223a;border:0;position:relative;cursor:pointer;transition:.3s}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.3s}
+.sw.on{background:var(--v)}.sw.on::after{left:26px}
+.save{color:var(--c);font-weight:600;font-size:.8rem;background:rgba(62,224,208,.1);padding:3px 10px;border-radius:99px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;align-items:stretch}
+@media(max-width:900px){.plans{grid-template-columns:1fr}}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px;display:flex;flex-direction:column}
+.plan.pop{background:linear-gradient(180deg,#1d1638,var(--card) 60%);border-color:var(--v);position:relative}
+.plan.pop::before{content:"Most popular";position:absolute;top:-12px;left:32px;background:var(--grad);color:#14101f;font-size:.74rem;font-weight:700;padding:4px 12px;border-radius:99px}
+.plan h3{font-size:1.1rem}
+.plan .d{color:var(--mut);font-size:.88rem;margin:6px 0 22px}
+.price{font-size:3rem;font-weight:800;letter-spacing:-.04em;display:flex;align-items:baseline;gap:6px}
+.price small{font-size:.9rem;color:var(--mut);font-weight:500;letter-spacing:0}
+.plan ul{list-style:none;margin:24px 0 28px;display:grid;gap:12px;font-size:.92rem;color:#cfcde6;flex:1}
+.plan li{display:flex;gap:10px}.plan li svg{color:var(--v2);flex:none;width:18px;height:18px;margin-top:2px}
+.plan .btn{justify-content:center}
+
+/* testimonials */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px}
+@media(max-width:900px){.quotes{grid-template-columns:1fr}}
+.q{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px}
+.q p{color:#d5d3ea;font-size:.97rem}
+.q .who{display:flex;gap:12px;align-items:center;margin-top:20px;font-size:.88rem}
+.q .who .av{width:38px;height:38px;font-size:.8rem}
+.q .who span{color:var(--dim);display:block;font-size:.8rem}
+
+/* faq */
+.faq{max-width:780px;margin:44px auto 0}
+.qa{border-bottom:1px solid var(--line)}
+.qa button{width:100%;background:none;border:0;color:var(--txt);text-align:left;padding:22px 0;font:600 1.02rem inherit;font-family:inherit;display:flex;justify-content:space-between;gap:20px;cursor:pointer}
+.qa button i{font-style:normal;color:var(--v2);transition:.3s;font-size:1.3rem;line-height:1}
+.qa.open button i{transform:rotate(45deg)}
+.qa .a{max-height:0;overflow:hidden;transition:max-height .35s;color:var(--mut)}
+.qa .a p{padding-bottom:22px}
+
+.final{margin:0 auto;max-width:1100px;border-radius:28px;padding:clamp(40px,7vw,80px);text-align:center;background:radial-gradient(600px 300px at 50% 0%,rgba(124,92,255,.5),transparent),var(--bg2);border:1px solid var(--line);overflow:hidden;position:relative}
+.final h2{font-size:clamp(2rem,4.5vw,3.4rem);margin-bottom:14px}
+.final .btn{margin-top:28px}
+footer{padding-block:50px;border-top:1px solid var(--line);margin-top:100px;color:var(--dim);font-size:.88rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:center}
+footer .links{display:flex;gap:24px}footer .links a:hover{color:var(--txt)}
+.demo{text-align:center;font-size:.8rem;color:var(--dim);padding:14px;border-top:1px solid var(--line)}
+.demo a{color:var(--v2);text-decoration:underline}
+.reveal{opacity:0;transform:translateY(26px);transition:.8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<header id="hdr"><div class="wrap">
+  <a href="#" class="logo"><i></i>Flowbase</a>
+  <nav><a href="#features">Features</a><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+  <div class="hdr-cta"><a href="#pricing" class="btn sec">Log in</a><a href="#top" class="btn pri">Start free</a></div>
+</div></header>
+
+<section class="hero" id="top">
+  <div class="glow"></div><div class="gridbg"></div>
+  <div class="wrap">
+    <a href="#features" class="eyebrow reveal"><b>New</b>AI task summaries are here →</a>
+    <h1 class="reveal">Plan, track and ship work <span class="grad">without the chaos</span></h1>
+    <p class="sub reveal">Flowbase brings your tasks, docs and team chat into one fast workspace — so projects move forward instead of getting lost in tabs.</p>
+    <form class="signup reveal" id="signup" novalidate>
+      <input type="email" id="email" placeholder="Enter your work email" aria-label="Work email">
+      <button class="btn pri" type="submit">Get started</button>
+    </form>
+    <p class="note" id="note">Free for teams up to 5 · No credit card required</p>
+
+    <div class="app reveal">
+      <div class="app-in">
+        <div class="bar"><span></span><span></span><span></span><em>app.flowbase.io/acme/website-launch</em></div>
+        <div class="body">
+          <div class="side">
+            <small>Workspace</small>
+            <div class="on"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Board</div>
+            <div><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>My tasks</div>
+            <div><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar</div>
+            <div><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inbox</div>
+            <small>Projects</small>
+            <div><i class="dot" style="background:#a48bff"></i>Website launch</div>
+            <div><i class="dot" style="background:#3ee0d0"></i>Mobile app</div>
+            <div><i class="dot" style="background:#ffb36b"></i>Q4 marketing</div>
+          </div>
+          <div class="board" id="board"></div>
+        </div>
+      </div>
+      <div class="hint">↔ Try it: drag the cards</div>
+    </div>
+  </div>
+</section>
+
+<div class="logos"><div class="wrap">
+  Trusted by 9,000+ fast-moving teams
+  <div class="row"><span>Northwind</span><span>Lumen</span><span>Orbitly</span><span>Kinetic</span><span>Paperhouse</span><span>Vantage</span></div>
+</div></div>
+
+<section id="features"><div class="wrap">
+  <div class="center reveal"><span class="kicker">Features</span><h2 class="h2">Everything your team needs.<br>Nothing it doesn't.</h2><p class="sub">Built for speed: every action takes under 100ms, works offline and syncs in real time across all devices.</p></div>
+  <div class="bento">
+    <div class="b b1 reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/></svg></div><h3>Insights that write themselves</h3><p>See velocity, workload and blockers at a glance. Weekly reports land in your inbox automatically.</p>
+      <div class="chart"><i style="height:38%"></i><i style="height:52%"></i><i style="height:45%"></i><i style="height:66%"></i><i style="height:58%"></i><i style="height:78%"></i><i style="height:72%"></i><i style="height:92%"></i></div></div>
+    <div class="b b2 reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Enterprise-grade security</h3><p>SSO, audit logs and encryption at rest.</p><div class="ring"><b>99.9%</b></div></div>
+    <div class="b b3 reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div><h3>Automations</h3><p>When a task moves to Done, notify the client, update the doc and start the next sprint — no code.</p></div>
+    <div class="b b4 reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></div><h3>60+ integrations</h3><p>Connect the tools you already use.</p><div class="pills"><span>Slack</span><span>GitHub</span><span>Figma</span><span>Google Drive</span><span>Zapier</span></div></div>
+    <div class="b b5 reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></div><h3>AI summaries</h3><p>Turn a 40-comment thread into three clear bullet points and next steps.</p></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="center reveal"><span class="kicker">How it works</span><h2 class="h2">Up and running in minutes</h2></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="panel" id="panel"></div>
+</div></section>
+
+<section id="pricing"><div class="wrap center">
+  <div class="reveal"><span class="kicker">Pricing</span><h2 class="h2">Simple pricing that scales with you</h2><p class="sub">Start free. Upgrade when your team grows. Cancel anytime.</p>
+  <div class="toggle">Monthly <button class="sw" id="sw" aria-label="Toggle yearly billing"></button> Yearly <span class="save">Save 20%</span></div></div>
+  <div class="plans" id="plans" style="text-align:left"></div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="center reveal"><span class="kicker">Testimonials</span><h2 class="h2">Teams love working in Flowbase</h2></div>
+  <div class="quotes">
+    <div class="q reveal"><p>"We replaced three tools with Flowbase and cut our weekly status meeting from an hour to ten minutes."</p><div class="who"><span class="av" style="background:#a48bff">MK</span><div>Maya Klein<span>COO, Orbitly</span></div></div></div>
+    <div class="q reveal"><p>"The board is ridiculously fast. My developers actually update their tasks now — that never happened before."</p><div class="who"><span class="av" style="background:#3ee0d0">DR</span><div>Daniel Ross<span>CTO, Kinetic</span></div></div></div>
+    <div class="q reveal"><p>"Automations alone save our agency about 15 hours a week. Onboarding new clients is now a single click."</p><div class="who"><span class="av" style="background:#ffb36b">SP</span><div>Sara Patel<span>Founder, Paperhouse</span></div></div></div>
+  </div>
+</div></section>
+
+<section id="faq" style="padding-top:20px"><div class="wrap">
+  <div class="center reveal"><span class="kicker">FAQ</span><h2 class="h2">Questions? Answers.</h2></div>
+  <div class="faq" id="faqList"></div>
+</div></section>
+
+<div class="wrap"><div class="final reveal">
+  <h2>Ready to bring calm<br>to your <span class="grad">team's work?</span></h2>
+  <p class="sub" style="margin:0 auto">Join 9,000+ teams shipping faster with Flowbase.</p>
+  <a href="#top" class="btn pri">Start for free →</a>
+</div></div>
+
+<footer><div class="wrap">
+  <a href="#" class="logo"><i></i>Flowbase</a>
+  <div class="links"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+  <span>© <span id="yr"></span> Flowbase Inc.</span>
+</div></footer>
+<div class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</div>
+
+<script>
+const $=s=>document.querySelector(s);
+addEventListener('scroll',()=>$('#hdr').classList.toggle('s',scrollY>20),{passive:true});
+
+/* signup */
+$('#signup').addEventListener('submit',e=>{e.preventDefault();const em=$('#email'),n=$('#note');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em.value.trim())){em.classList.add('bad');n.className='note';n.textContent='Please enter a valid email address';return}
+  em.classList.remove('bad');n.className='note ok';n.textContent='✓ Check your inbox — your workspace is ready!';em.value=''});
+
+/* kanban with drag & drop */
+const people={YS:'#a48bff',AL:'#3ee0d0',MK:'#ffb36b',DR:'#ff7ac6'};
+const labels={Design:['#ff7ac6','rgba(255,122,198,.14)'],Dev:['#a48bff','rgba(164,139,255,.14)'],Marketing:['#ffb36b','rgba(255,179,107,.14)'],QA:['#3ee0d0','rgba(62,224,208,.14)']};
+const cols={'To do':[['Design pricing page','Design','MK','Oct 18'],['Write launch email','Marketing','DR','Oct 20'],['Set up analytics','Dev','AL','Oct 21']],
+  'In progress':[['Build checkout flow','Dev','YS','Oct 16'],['Mobile navigation','Design','MK','Oct 17']],
+  'Done':[['Homepage hero','Design','MK','Oct 12'],['Auth & sign-up','Dev','YS','Oct 11'],['Test payment forms','QA','AL','Oct 13']]};
+const board=$('#board');let dragged=null;
+for(const [name,tasks] of Object.entries(cols)){
+  const col=document.createElement('div');col.className='col';
+  col.innerHTML=`<h4>${name}<span>${tasks.length}</span></h4><div class="list"></div>`;
+  const list=col.querySelector('.list');
+  tasks.forEach(([t,l,p,d])=>{const el=document.createElement('div');el.className='task';
+    el.innerHTML=`<span class="lbl" style="color:${labels[l][0]};background:${labels[l][1]}">${l}</span><div>${t}</div><div class="meta"><span>📅 ${d}</span><span class="av" style="background:${people[p]}">${p}</span></div>`;
+    el.addEventListener('pointerdown',startDrag);list.appendChild(el)});
+  board.appendChild(col);
+}
+/* pointer-based drag & drop: works with mouse and touch */
+let ghost=null,offX=0,offY=0;
+function startDrag(e){if(e.button>0)return;const el=e.currentTarget,r=el.getBoundingClientRect();dragged=el;offX=e.clientX-r.left;offY=e.clientY-r.top;
+  ghost=el.cloneNode(true);Object.assign(ghost.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',pointerEvents:'none',zIndex:100,transform:'rotate(3deg)',boxShadow:'0 20px 40px -10px rgba(0,0,0,.6)',borderColor:'#7c5cff'});
+  document.body.appendChild(ghost);el.classList.add('drag');
+  addEventListener('pointermove',moveDrag);addEventListener('pointerup',endDrag,{once:true});e.preventDefault()}
+function moveDrag(e){ghost.style.left=e.clientX-offX+'px';ghost.style.top=e.clientY-offY+'px';
+  const list=document.elementFromPoint(e.clientX,e.clientY)?.closest('#board .list');
+  board.querySelectorAll('.list').forEach(l=>l.classList.toggle('over',l===list));if(!list)return;
+  const after=[...list.querySelectorAll('.task:not(.drag)')].find(c=>e.clientY<c.getBoundingClientRect().top+c.offsetHeight/2);
+  after?list.insertBefore(dragged,after):list.appendChild(dragged);count()}
+function endDrag(){removeEventListener('pointermove',moveDrag);ghost?.remove();ghost=null;dragged?.classList.remove('drag');dragged=null;
+  board.querySelectorAll('.list').forEach(l=>l.classList.remove('over'));count()}
+function count(){board.querySelectorAll('.col').forEach(c=>c.querySelector('h4 span').textContent=c.querySelectorAll('.task').length)}
+
+/* tabs */
+const tick='<svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M20 6 9 17l-5-5"/></svg>';
+const steps=[
+  ['1. Import','Bring your work in seconds','Import projects from Trello, Asana, Jira or a CSV file. Flowbase keeps your columns, labels, assignees and due dates.',['One-click import from 8 tools','Keeps comments and attachments','Invite your team by link'],
+   `<span class="c">// Import an existing board</span>\n<span class="k">const</span> board = <span class="k">await</span> flowbase.<span class="f">import</span>({\n  source: <span class="s">"trello"</span>,\n  boardId: <span class="s">"website-launch"</span>,\n  keepLabels: <span class="k">true</span>\n});\n\nconsole.<span class="f">log</span>(board.tasks.length); <span class="c">// 128</span>`],
+  ['2. Automate','Let routine work run itself','Create rules with a simple builder: when something happens, do something else. No code, no plugins.',['Triggers for status, date and fields','Send Slack or email notifications','Recurring tasks and templates'],
+   `<span class="c">// When a task is done, notify the client</span>\nflowbase.<span class="f">rule</span>({\n  when: { status: <span class="s">"Done"</span>, label: <span class="s">"Client"</span> },\n  then: [\n    { notify: <span class="s">"#client-updates"</span> },\n    { move: <span class="s">"Archive"</span>, after: <span class="s">"7d"</span> }\n  ]\n});`],
+  ['3. Ship','See progress in real time','Dashboards update live as your team works. Share a read-only link with clients so they always know the status.',['Live dashboards and timelines','Shareable client portals','Weekly progress reports'],
+   `<span class="c">// Real-time updates</span>\nflowbase.<span class="f">onChange</span>(<span class="s">"website-launch"</span>, (task) => {\n  dashboard.<span class="f">update</span>(task);\n});\n\n<span class="c">// → progress: 87% · 3 tasks left</span>`]
+];
+const tabs=$('#tabs'),panel=$('#panel');
+function show(i){tabs.querySelectorAll('button').forEach((b,k)=>b.classList.toggle('on',k===i));const [,h,p,li,code]=steps[i];
+  panel.innerHTML=`<div class="fade"><h3>${h}</h3><p>${p}</p><ul>${li.map(x=>`<li>${tick}${x}</li>`).join('')}</ul></div><div class="code fade">${code}</div>`}
+steps.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s[0];b.onclick=()=>show(i);tabs.appendChild(b)});show(0);
+
+/* pricing */
+const plans=[['Starter','For individuals and small teams',0,['Up to 5 members','Unlimited tasks','3 projects','Basic integrations'],'Start free','sec'],
+  ['Pro','For growing teams that need more',12,['Unlimited members','Unlimited projects','Automations (1,000/mo)','AI summaries','Priority support'],'Start 14-day trial','pri'],
+  ['Business','For companies with advanced needs',24,['Everything in Pro','SSO & audit logs','Unlimited automations','Client portals','Dedicated manager'],'Contact sales','sec']];
+let yearly=false;
+function renderPlans(){$('#plans').innerHTML=plans.map(([n,d,p,f,c,s],i)=>{const v=yearly?Math.round(p*.8*10)/10:p;
+  return `<div class="plan${i===1?' pop':''}"><h3>${n}</h3><div class="d">${d}</div><div class="price">$${v}<small>${p?'/ user / month':'forever'}</small></div><ul>${f.map(x=>`<li>${tick}${x}</li>`).join('')}</ul><a href="#top" class="btn ${s}">${c}</a></div>`}).join('')}
+renderPlans();
+$('#sw').onclick=e=>{yearly=!yearly;e.currentTarget.classList.toggle('on',yearly);renderPlans()};
+
+/* faq */
+const faqs=[['Is there really a free plan?','Yes. Starter is free forever for up to 5 members, with unlimited tasks and 3 projects.'],
+  ['Can I import my data from other tools?','You can import from Trello, Asana, Jira, Monday, ClickUp, Notion, Basecamp or any CSV file in a few clicks.'],
+  ['How does billing work for yearly plans?','Yearly plans are paid once per year and are 20% cheaper. You can switch between monthly and yearly at any time.'],
+  ['Is my data secure?','All data is encrypted in transit and at rest, backed up daily and stored in SOC 2 certified data centers.']];
+const fl=$('#faqList');
+faqs.forEach(([q,a])=>fl.insertAdjacentHTML('beforeend',`<div class="qa"><button type="button">${q}<i>+</i></button><div class="a"><p>${a}</p></div></div>`));
+fl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const qa=b.parentElement,a=qa.querySelector('.a');
+  fl.querySelectorAll('.qa.open').forEach(o=>{if(o!==qa){o.classList.remove('open');o.querySelector('.a').style.maxHeight=0}});
+  const op=qa.classList.toggle('open');a.style.maxHeight=op?a.scrollHeight+'px':0});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+$('#yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
