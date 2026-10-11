@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forkful — Recipe Finder App</title>
+<meta name="description" content="Demo recipe finder by Yurii Starikov — live search from a public recipe API, categories, random recipe, favorites and a step-by-step cooking view.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fffaf3;--card:#fff;--ink:#23201c;--ink2:#635c53;--mut:#a39a8e;--line:#efe6d8;--g:#2f7d4f;--g2:#e5f2e9;--o:#f2994a;--r:#e5484d;
+  --fd:"Poppins",system-ui,sans-serif;--fb:"Inter",system-ui,sans-serif;--sh:0 24px 50px -28px rgba(35,32,28,.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:1220px;margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--fd);letter-spacing:-.02em;line-height:1.12}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:74px}
+.logo{font-family:var(--fd);font-weight:800;font-size:1.35rem;display:flex;gap:8px;align-items:center}
+.logo span{color:var(--g)}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:99px;cursor:pointer;font-weight:600;font-size:.88rem;color:var(--ink2);display:flex;gap:6px;align-items:center}
+.tabs button.on{background:var(--ink);color:#fff}
+.tabs b{background:var(--o);color:#fff;border-radius:99px;font-size:.7rem;padding:0 7px}
+.hero{padding:40px 0 30px;text-align:center;position:relative}
+.hero h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:800;max-width:820px;margin:0 auto}
+.hero h1 span{color:var(--g);position:relative;white-space:nowrap}
+.hero h1 span svg{position:absolute;left:0;bottom:-8px;width:100%;height:14px}
+.hero p{color:var(--ink2);margin:18px auto 30px;max-width:520px;font-size:1.08rem}
+.sbar{display:flex;gap:8px;max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:8px;box-shadow:var(--sh)}
+.sbar label{flex:1;display:flex;align-items:center;gap:10px;padding-left:12px;color:var(--mut)}
+.sbar input{flex:1;border:0;outline:0;background:none;font-size:1rem;color:var(--ink);min-width:0}
+.sbar button{border:0;border-radius:14px;padding:12px 22px;font-weight:600;cursor:pointer;display:flex;gap:8px;align-items:center}
+.go{background:var(--g);color:#fff}.go:hover{background:#256a41}
+.rand{background:#fff1e3;color:#b4621a}.rand:hover{background:#ffe3c6}
+@media(max-width:560px){.sbar{flex-wrap:wrap}.sbar label{flex-basis:100%;padding:8px 10px}.sbar button{flex:1;justify-content:center}}
+.floating{position:absolute;font-size:2.4rem;animation:fl 6s ease-in-out infinite;user-select:none}
+@keyframes fl{50%{transform:translateY(-12px) rotate(8deg)}}
+@media(max-width:860px){.floating{display:none}}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:26px 0 10px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 16px 6px 6px;cursor:pointer;font-weight:500;font-size:.9rem;transition:.2s}
+.cats button img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:var(--g2)}
+.cats button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.cats button:hover{border-color:var(--g)}
+.head{display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 4px;gap:10px;flex-wrap:wrap}
+.head h2{font-size:1.6rem}
+.head span{color:var(--mut);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:18px;padding-bottom:70px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.grid{grid-template-columns:1fr 1fr;gap:14px}}
+.rc{background:var(--card);border-radius:22px;overflow:hidden;border:1px solid var(--line);cursor:pointer;transition:.3s;animation:pp .4s both;position:relative}
+.rc:hover{transform:translateY(-5px);box-shadow:var(--sh)}
+@keyframes pp{from{opacity:0;transform:translateY(12px)}}
+.rc .img{aspect-ratio:1/1;overflow:hidden;background:var(--g2)}
+.rc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.rc:hover img{transform:scale(1.07)}
+.rc .b{padding:14px 16px 18px}
+.rc h3{font-size:1rem;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc .tg{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rc .tg span{font-size:.72rem;font-weight:600;background:var(--g2);color:var(--g);border-radius:99px;padding:2px 9px}
+.rc .tg span.a{background:#fff1e3;color:#b4621a}
+.fav{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;transition:.2s;color:var(--ink)}
+.fav:hover{transform:scale(1.1)}
+.fav.on{color:var(--r)}.fav.on svg{fill:var(--r)}
+.sk{background:var(--card);border-radius:22px;overflow:hidden;border:1px solid var(--line)}
+.sk div{background:linear-gradient(90deg,#f3ece1 0,#faf5ee 50%,#f3ece1 100%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.msg{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--mut)}
+.msg .e{font-size:3rem}
+.msg h3{color:var(--ink);margin:8px 0}
+
+.modal{position:fixed;inset:0;background:rgba(35,32,28,.5);backdrop-filter:blur(4px);z-index:50;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto}
+.modal.open{display:flex}
+.mb{background:var(--card);border-radius:28px;max-width:960px;width:100%;overflow:hidden;animation:pp .35s}
+.mtop{display:grid;grid-template-columns:1fr 1.1fr}
+@media(max-width:760px){.mtop{grid-template-columns:1fr}}
+.mtop img{width:100%;height:100%;object-fit:cover;min-height:300px;max-height:420px;display:block;background:var(--g2)}
+.mi{padding:30px;position:relative}
+.x{position:absolute;right:18px;top:18px;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:1.2rem}
+.mi h2{font-size:1.9rem;margin:10px 40px 10px 0}
+.facts{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.facts span{display:flex;gap:6px;align-items:center;background:var(--bg);border-radius:12px;padding:8px 12px;font-size:.86rem;font-weight:500}
+.acts{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.acts button,.acts a{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 16px;font-weight:600;font-size:.88rem;cursor:pointer;display:flex;gap:8px;align-items:center}
+.acts .yt{background:var(--r);color:#fff;border-color:var(--r)}
+.acts .on{color:var(--r);border-color:var(--r)}
+.mbody{display:grid;grid-template-columns:1fr 1.4fr;gap:34px;padding:30px;border-top:1px solid var(--line)}
+@media(max-width:760px){.mbody{grid-template-columns:1fr}}
+.mbody h3{font-size:1.15rem;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.mbody h3 small{font-family:var(--fb);font-weight:500;color:var(--mut);font-size:.8rem}
+.ing{list-style:none;display:grid;gap:4px}
+.ing label{display:flex;gap:12px;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:.93rem}
+.ing label:hover{background:var(--bg)}
+.ing input{accent-color:var(--g);width:18px;height:18px}
+.ing input:checked+span{text-decoration:line-through;color:var(--mut)}
+.ing em{font-style:normal;color:var(--mut);margin-left:auto;font-size:.85rem;text-align:right}
+.steps{list-style:none;counter-reset:s;display:grid;gap:14px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;font-size:.94rem;color:var(--ink2);cursor:pointer;padding:8px;border-radius:12px;transition:.2s}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--g2);color:var(--g);display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.steps li.done{opacity:.45}
+.steps li.done::before{content:"✓";background:var(--g);color:#fff}
+.steps li:hover{background:var(--bg)}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--mut);font-size:.86rem;text-align:center}
+footer a{color:var(--g);text-decoration:underline}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,100px);opacity:0;background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-size:.9rem;transition:.3s;z-index:80}
+.toast.show{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="#" class="logo" id="home"><svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="#2f7d4f" stroke-width="2.4" stroke-linecap="round"><path d="M9 3v10a4 4 0 0 0 8 0V3M13 3v26M23 3c-3 2-4 6-4 10h4v16"/></svg><b style="font-weight:800">Fork<span>ful</span></b></a>
+  <div class="tabs" id="tabs"><button class="on" data-v="browse">Browse</button><button data-v="favs">♥ Saved <b id="favN">0</b></button></div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <span class="floating" style="left:6%;top:30px">🥑</span><span class="floating" style="right:8%;top:60px;animation-delay:-2s">🍋</span><span class="floating" style="left:12%;bottom:10px;animation-delay:-4s">🌶️</span><span class="floating" style="right:14%;bottom:0;animation-delay:-1s">🍝</span>
+  <h1>What would you like to <span>cook today?<svg viewBox="0 0 300 14" preserveAspectRatio="none"><path d="M2 10 Q150 0 298 8" stroke="#f2994a" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span></h1>
+  <p>Search thousands of recipes from around the world, save your favorites and cook step by step.</p>
+  <form class="sbar" id="sform">
+    <label><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Try “chicken”, “pasta” or “cake”" aria-label="Search recipes"></label>
+    <button class="go" type="submit">Search</button>
+    <button class="rand" type="button" id="rand">🎲 Surprise me</button>
+  </form>
+</div></section>
+
+<main class="wrap">
+  <div class="cats" id="cats"></div>
+  <div class="head"><h2 id="title">Popular recipes</h2><span id="count"></span></div>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>Demo project · Recipes from the free TheMealDB API · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a></footer>
+<div class="modal" id="modal"><div class="mb" id="mb"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),API='https://www.themealdb.com/api/json/v1/1/';
+let favs=[];try{favs=JSON.parse(localStorage.getItem('forkful-favs'))||[]}catch(e){}
+let view='browse',current=[],cat='';
+const get=async p=>{const r=await fetch(API+p);if(!r.ok)throw new Error(r.status);return r.json()};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const heart='<svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.6 1-1.1a5.5 5.5 0 0 0 0-7.7z"/></svg>';
+const isFav=id=>favs.some(f=>f.id===id);
+
+function skeleton(){$('#grid').innerHTML=Array(8).fill('<div class="sk"><div style="aspect-ratio:1/1"></div><div style="height:16px;margin:16px;border-radius:6px"></div><div style="height:12px;width:50%;margin:0 16px 18px;border-radius:6px"></div></div>').join('')}
+function cards(list,title){
+  current=list;$('#title').textContent=title;$('#count').textContent=list.length?`${list.length} recipe${list.length>1?'s':''}`:'';
+  $('#grid').innerHTML=list.length?list.map((m,i)=>`<article class="rc" data-id="${m.id}" style="animation-delay:${Math.min(i,12)*35}ms">
+    <div class="img"><img src="${esc(m.img)}/preview" alt="${esc(m.name)}" loading="lazy" onerror="this.onerror=null;this.src='${esc(m.img)}'"></div>
+    <button class="fav${isFav(m.id)?' on':''}" data-fav="${m.id}" aria-label="Save recipe">${heart}</button>
+    <div class="b"><h3>${esc(m.name)}</h3><div class="tg">${m.cat?`<span>${esc(m.cat)}</span>`:''}${m.area?`<span class="a">${esc(m.area)}</span>`:''}</div></div></article>`).join('')
+  :view==='favs'?`<div class="msg"><div class="e">💚</div><h3>No saved recipes yet</h3><p>Tap the heart on any recipe to save it here.</p></div>`
+  :`<div class="msg"><div class="e">🍽️</div><h3>No recipes found</h3><p>Try another ingredient or pick a category above.</p></div>`;
+}
+const fromMeal=m=>({id:m.idMeal,name:m.strMeal,img:m.strMealThumb,cat:m.strCategory||cat,area:m.strArea});
+function fail(){$('#grid').innerHTML=`<div class="msg"><div class="e">📡</div><h3>Couldn't reach the recipe server</h3><p>Check your connection and try again.</p></div>`;$('#count').textContent=''}
+
+async function search(q){view='browse';setTab();skeleton();try{const j=await get('search.php?s='+encodeURIComponent(q));cat='';markCat();cards((j.meals||[]).map(fromMeal),q?`Results for “${q}”`:'Popular recipes')}catch(e){fail()}}
+async function byCat(c){view='browse';setTab();cat=c;markCat();skeleton();try{const j=await get('filter.php?c='+encodeURIComponent(c));cards((j.meals||[]).map(m=>({...fromMeal(m),cat:c})),c+' recipes')}catch(e){fail()}}
+function markCat(){$('#cats').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.c===cat))}
+async function loadCats(){try{const j=await get('categories.php');$('#cats').innerHTML=j.categories.slice(0,14).map(c=>`<button data-c="${esc(c.strCategory)}"><img src="${esc(c.strCategoryThumb)}" alt="">${esc(c.strCategory)}</button>`).join('')}catch(e){}}
+
+async function open(id){
+  $('#mb').innerHTML='<div class="msg"><div class="e">⏳</div>Loading recipe…</div>';$('#modal').classList.add('open');document.body.style.overflow='hidden';
+  try{const m=(await get('lookup.php?i='+id)).meals[0];showRecipe(m)}catch(e){$('#mb').innerHTML='<div class="msg"><div class="e">📡</div><h3>Could not load this recipe</h3></div>'}
+}
+function showRecipe(m){
+  const ing=[];for(let i=1;i<=20;i++){const n=(m['strIngredient'+i]||'').trim();if(n)ing.push([n,(m['strMeasure'+i]||'').trim()])}
+  const steps=(m.strInstructions||'').split(/\r?\n|(?<=\.)\s+(?=[A-Z])/).map(s=>s.replace(/^(step\s*)?\d+[.):]?\s*/i,'').trim()).filter(s=>s.length>3);
+  const r=fromMeal(m),mins=Math.max(15,Math.round(steps.length*6/5)*5);
+  $('#mb').innerHTML=`<div class="mtop"><img src="${esc(m.strMealThumb)}" alt="${esc(m.strMeal)}"><div class="mi"><button class="x" id="mx" aria-label="Close">×</button>
+    <div class="tg" style="display:flex;gap:6px"><span style="font-size:.75rem;font-weight:600;background:var(--g2);color:var(--g);border-radius:99px;padding:3px 10px">${esc(m.strCategory)}</span><span style="font-size:.75rem;font-weight:600;background:#fff1e3;color:#b4621a;border-radius:99px;padding:3px 10px">${esc(m.strArea)} cuisine</span></div>
+    <h2>${esc(m.strMeal)}</h2>
+    <div class="facts"><span>⏱ ~${mins} min</span><span>🥕 ${ing.length} ingredients</span><span>📋 ${steps.length} steps</span></div>
+    <div class="acts"><button id="mfav" class="${isFav(r.id)?'on':''}">${heart}<span>${isFav(r.id)?'Saved':'Save recipe'}</span></button>
+    ${m.strYoutube?`<a class="yt" href="${esc(m.strYoutube)}" target="_blank" rel="noopener">▶ Watch video</a>`:''}<button id="share">🔗 Copy link</button></div></div></div>
+    <div class="mbody"><div><h3>Ingredients <small id="ingProg">0/${ing.length} ready</small></h3><ul class="ing">${ing.map(([n,q])=>`<li><label><input type="checkbox"><span>${esc(n)}</span><em>${esc(q)}</em></label></li>`).join('')}</ul></div>
+    <div><h3>Instructions <small>tap a step when done</small></h3><ol class="steps">${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div></div>`;
+  $('#mx').onclick=close;
+  $('#mfav').onclick=()=>{toggleFav(r);const on=isFav(r.id);$('#mfav').classList.toggle('on',on);$('#mfav span').textContent=on?'Saved':'Save recipe'};
+  $('#share').onclick=()=>{const url=location.href.split('#')[0]+'#recipe-'+r.id;(navigator.clipboard?.writeText(url)||Promise.reject()).then(()=>toast('✓ Link copied'),()=>toast(url))};
+  $('#mb').querySelector('.ing').addEventListener('change',()=>{$('#ingProg').textContent=`${$('#mb').querySelectorAll('.ing input:checked').length}/${ing.length} ready`});
+  $('#mb').querySelector('.steps').addEventListener('click',e=>{const li=e.target.closest('li');if(li)li.classList.toggle('done')});
+  history.replaceState(null,'','#recipe-'+r.id);
+}
+function close(){$('#modal').classList.remove('open');document.body.style.overflow='';history.replaceState(null,'',location.pathname+location.search)}
+function toggleFav(r){favs=isFav(r.id)?favs.filter(f=>f.id!==r.id):[...favs,r];try{localStorage.setItem('forkful-favs',JSON.stringify(favs))}catch(e){}
+  $('#favN').textContent=favs.length;toast(isFav(r.id)?'♥ Saved to your recipes':'Removed from saved');
+  document.querySelectorAll(`[data-fav="${r.id}"]`).forEach(b=>b.classList.toggle('on',isFav(r.id)));if(view==='favs')cards(favs,'Your saved recipes')}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2000)}
+function setTab(){$('#tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===view))}
+
+$('#grid').addEventListener('click',e=>{const f=e.target.closest('[data-fav]');if(f){e.stopPropagation();const r=current.find(x=>x.id===f.dataset.fav)||favs.find(x=>x.id===f.dataset.fav);toggleFav(r);return}
+  const c=e.target.closest('.rc');if(c)open(c.dataset.id)});
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(b)byCat(b.dataset.c)});
+$('#sform').addEventListener('submit',e=>{e.preventDefault();const q=$('#q').value.trim();if(q)search(q)});
+$('#rand').onclick=async()=>{try{const m=(await get('random.php')).meals[0];$('#modal').classList.add('open');document.body.style.overflow='hidden';showRecipe(m)}catch(e){toast('Could not load a random recipe')}};
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;setTab();if(view==='favs'){cat='';markCat();cards(favs,'Your saved recipes')}else search('')});
+$('#home').onclick=e=>{e.preventDefault();$('#q').value='';search('')};
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')close()});
+addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+$('#favN').textContent=favs.length;
+loadCats();search('');
+const deep=location.hash.match(/^#recipe-(\d+)$/);if(deep)open(deep[1]);
+</script>
+</body>
+</html>

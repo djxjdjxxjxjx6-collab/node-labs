@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontier Conf 2027 — Tech Conference Website</title>
+<meta name="description" content="Demo event website by Yurii Starikov — live countdown, speakers, filterable schedule with personal agenda and a ticket selector.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f1e9;--ink:#111;--ink2:#4b4b4b;--mut:#8a857c;--line:#e2dbcf;--o:#ff5a1f;--o2:#ff8a3d;--blue:#3d5afe;--card:#fff;
+  --fd:"Poppins",system-ui,sans-serif;--fb:"Inter",system-ui,sans-serif;--maxw:1220px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--fd);letter-spacing:-.03em;line-height:1.02}
+section{padding-block:clamp(70px,9vw,110px)}
+.k{font-family:var(--fd);font-weight:600;font-size:.85rem;color:var(--o);text-transform:uppercase;letter-spacing:.08em}
+.h2{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;margin:10px 0 14px}
+.sub{color:var(--ink2);max-width:580px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border:0;border-radius:99px;padding:15px 26px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--o)}
+.btn.o{background:var(--o)}.btn.o:hover{background:var(--ink)}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+header{position:sticky;top:0;z-index:30;background:rgba(246,241,233,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+.logo{font-family:var(--fd);font-weight:800;font-size:1.25rem;display:flex;gap:8px;align-items:center}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--o);display:grid;place-items:center;color:#fff;font-style:normal;font-size:.9rem}
+nav{display:flex;gap:28px;font-weight:500;font-size:.92rem;color:var(--ink2)}
+nav a:hover{color:var(--o)}
+header .btn{padding:10px 18px;font-size:.88rem}
+@media(max-width:860px){nav{display:none}}
+
+.hero{padding-top:56px;padding-bottom:40px;overflow:hidden}
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.meta span{border:1.5px solid var(--ink);border-radius:99px;padding:6px 14px;font-weight:600;font-size:.85rem;display:flex;gap:8px;align-items:center}
+.hero h1{font-size:clamp(3.4rem,11vw,9.5rem);font-weight:800;margin:24px 0 18px;letter-spacing:-.05em;line-height:.92}
+.hero h1 span{color:var(--o)}
+.hero h1 em{font-style:normal;display:inline-block;background:var(--ink);color:var(--bg);border-radius:20px;padding:0 .18em;transform:rotate(-2deg)}
+.hrow{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
+@media(max-width:860px){.hrow{grid-template-columns:1fr}}
+.hrow p{color:var(--ink2);font-size:1.12rem;max-width:520px}
+.hrow .cta{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.cd{display:flex;gap:10px}
+.cd div{background:var(--ink);color:#fff;border-radius:18px;width:96px;padding:16px 0;text-align:center}
+.cd b{display:block;font-family:var(--fd);font-size:2.4rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.cd span{font-size:.72rem;color:#aaa;text-transform:uppercase;letter-spacing:.1em}
+.cd div:first-child{background:var(--o)}.cd div:first-child span{color:#ffe0d2}
+@media(max-width:520px){.cd div{width:72px}.cd b{font-size:1.8rem}}
+.ticker{margin-top:50px;border-block:1.5px solid var(--ink);overflow:hidden;white-space:nowrap}
+.ticker div{display:inline-flex;gap:40px;padding:14px 0;font-family:var(--fd);font-weight:700;font-size:1.3rem;animation:tk 30s linear infinite}
+.ticker div span{display:flex;gap:40px;align-items:center}
+.ticker div span::after{content:"✺";color:var(--o)}
+@keyframes tk{to{transform:translateX(-50%)}}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
+@media(max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--card);border-radius:22px;padding:24px}
+.stat b{font-family:var(--fd);font-size:2.6rem;font-weight:800;display:block;line-height:1}
+.stat span{color:var(--mut);font-size:.9rem}
+.stat:nth-child(2){background:var(--blue);color:#fff}.stat:nth-child(2) span{color:#c9d1ff}
+
+.speakers{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+@media(max-width:960px){.speakers{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.speakers{grid-template-columns:1fr 1fr}}
+.sp{cursor:pointer}
+.sp .ph{aspect-ratio:1/1.1;border-radius:22px;position:relative;overflow:hidden;display:grid;place-items:end center;transition:.3s}
+.sp:hover .ph{border-radius:50% 50% 22px 22px}
+.sp .ph svg{width:78%}
+.sp .ph .co{position:absolute;left:12px;top:12px;background:#fff;border-radius:99px;font-size:.72rem;font-weight:600;padding:4px 10px}
+.sp h3{font-size:1.1rem;margin-top:12px}
+.sp p{color:var(--mut);font-size:.86rem}
+
+.sched{background:var(--ink);color:#fff}
+.sched .sub{color:#aaa}
+.stop{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;margin-top:30px;flex-wrap:wrap}
+.tabs button{background:#222;border:0;border-radius:99px;padding:10px 20px;cursor:pointer;font-weight:600;color:#bbb}
+.tabs button.on{background:var(--o);color:#fff}
+.tracks{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.tracks button{background:none;border:1px solid #333;border-radius:99px;padding:6px 14px;cursor:pointer;color:#aaa;font-size:.84rem}
+.tracks button.on{border-color:#fff;color:#fff}
+.mine{display:flex;gap:10px;align-items:center;color:#bbb;font-size:.9rem;cursor:pointer;user-select:none}
+.mine input{accent-color:var(--o);width:18px;height:18px}
+.talks{margin-top:26px;display:grid;gap:10px}
+.talk{display:grid;grid-template-columns:120px 1fr auto;gap:20px;align-items:center;background:#1a1a1a;border:1px solid #262626;border-radius:18px;padding:18px 22px;animation:fi .35s both}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+.talk .tm{font-family:var(--fd);font-weight:600}
+.talk .tm small{display:block;color:#888;font-family:var(--fb);font-weight:400;font-size:.78rem}
+.talk h4{font-family:var(--fd);font-size:1.08rem;font-weight:600;letter-spacing:-.01em}
+.talk .by{color:#999;font-size:.86rem;margin-top:2px}
+.talk .tr{font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:99px;margin-right:8px}
+.star{width:44px;height:44px;border-radius:50%;border:1px solid #333;background:none;color:#888;cursor:pointer;display:grid;place-items:center;transition:.2s}
+.star:hover{border-color:var(--o);color:var(--o)}
+.star.on{background:var(--o);border-color:var(--o);color:#fff}
+.star.on svg{fill:#fff}
+.talk.brk{background:transparent;border-style:dashed;grid-template-columns:120px 1fr}
+.talk.brk h4{color:#888;font-weight:500}
+@media(max-width:640px){.talk{grid-template-columns:1fr auto}.talk .tm{grid-column:1/-1}.talk.brk{grid-template-columns:1fr}}
+.empty{color:#888;padding:30px 0}
+
+.tix{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+@media(max-width:900px){.tix{grid-template-columns:1fr}}
+.tk{background:var(--card);border-radius:26px;padding:28px;display:flex;flex-direction:column;position:relative;border:2px solid transparent;transition:.2s}
+.tk.sel{border-color:var(--o)}
+.tk .tg{position:absolute;top:22px;right:22px;background:var(--o);color:#fff;font-size:.72rem;font-weight:700;border-radius:99px;padding:4px 10px}
+.tk h3{font-size:1.4rem}
+.tk .pr{font-family:var(--fd);font-size:2.8rem;font-weight:800;margin:14px 0 2px}
+.tk .pr s{font-size:1.1rem;color:var(--mut);font-weight:500;margin-left:6px}
+.tk>span{color:var(--mut);font-size:.88rem}
+.tk ul{list-style:none;margin:20px 0;display:grid;gap:9px;font-size:.92rem;flex:1}
+.tk li::before{content:"✓ ";color:var(--o);font-weight:700}
+.qty{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:99px;padding:6px}
+.qty button{width:40px;height:40px;border-radius:50%;border:0;background:#fff;cursor:pointer;font-size:1.2rem;font-weight:600}
+.qty button:hover{background:var(--ink);color:#fff}
+.qty b{font-family:var(--fd);font-size:1.2rem}
+.sum{margin-top:22px;background:var(--ink);color:#fff;border-radius:26px;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.sum .t{font-family:var(--fd);font-size:1.8rem;font-weight:700}
+.sum small{color:#aaa;display:block;font-size:.84rem}
+.sum .disc{color:var(--o2)}
+.sum .btn:disabled{opacity:.4;cursor:not-allowed}
+
+.venue{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px}
+@media(max-width:860px){.venue{grid-template-columns:1fr}}
+.vimg{border-radius:26px;overflow:hidden;min-height:320px;background:var(--blue);position:relative}
+.vimg svg{position:absolute;inset:0;width:100%;height:100%}
+.vinfo{background:var(--card);border-radius:26px;padding:32px;display:grid;gap:18px;align-content:start}
+.vinfo div{display:flex;gap:14px}
+.vinfo .ic{width:44px;height:44px;border-radius:12px;background:var(--bg);display:grid;place-items:center;color:var(--o);flex:none}
+.vinfo b{display:block}
+.vinfo span{color:var(--ink2);font-size:.92rem}
+.spons{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;margin-top:40px;font-family:var(--fd);font-weight:700;font-size:1.5rem;color:#b8b0a3}
+footer{border-top:1.5px solid var(--ink);padding:34px 0;font-size:.9rem;color:var(--ink2)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.demo{text-align:center;font-size:.8rem;color:var(--mut);padding:12px;background:#ece5d9}
+.demo a{color:var(--o);text-decoration:underline}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+.modal.open{display:flex}
+.mbox{background:var(--card);border-radius:28px;max-width:640px;width:100%;display:grid;grid-template-columns:200px 1fr;overflow:hidden;animation:pop .3s}
+@keyframes pop{from{opacity:0;transform:scale(.96)}}
+.mbox .ph{display:grid;place-items:end center}
+.mbox .ph svg{width:90%}
+.mbox .b{padding:28px;position:relative}
+.mbox .x{position:absolute;right:16px;top:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;font-size:1.1rem}
+.mbox h3{font-size:1.6rem}
+.mbox .r{color:var(--o);font-weight:600;font-size:.9rem}
+.mbox p{color:var(--ink2);margin:12px 0;font-size:.95rem}
+.mbox .tl{background:var(--bg);border-radius:14px;padding:14px;font-size:.9rem}
+.mbox .tl b{display:block;font-family:var(--fd)}
+@media(max-width:560px){.mbox{grid-template-columns:1fr}.mbox .ph{height:160px}.mbox .ph svg{width:40%}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,100px);opacity:0;background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-size:.9rem;transition:.3s;z-index:80}
+.toast.show{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="#" class="logo"><i>F</i>Frontier Conf</a>
+  <nav><a href="#speakers">Speakers</a><a href="#schedule">Schedule</a><a href="#tickets">Tickets</a><a href="#venue">Venue</a></nav>
+  <a href="#tickets" class="btn o">Get tickets</a>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div class="meta"><span><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>March 18–19, 2027</span><span><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/></svg>Lisbon, Portugal</span><span>+ Online</span></div>
+  <h1>Build the <span>web</span><br>of <em>tomorrow</em></h1>
+  <div class="hrow">
+    <div><p>Two days of talks, workshops and late-night hacking with 1,500 developers, designers and founders shaping the future of the web.</p>
+      <div class="cta"><a href="#tickets" class="btn o">Grab early-bird ticket →</a><a href="#schedule" class="btn">View schedule</a></div></div>
+    <div><div class="k" style="margin-bottom:10px">Early-bird ends in</div><div class="cd" id="cd"></div></div>
+  </div>
+  <div class="ticker"><div id="ticker"></div></div>
+  <div class="stats">
+    <div class="stat"><b>40+</b><span>world-class speakers</span></div>
+    <div class="stat"><b>1,500</b><span>attendees from 60 countries</span></div>
+    <div class="stat"><b>12</b><span>hands-on workshops</span></div>
+    <div class="stat"><b>2</b><span>days of pure inspiration</span></div>
+  </div>
+</div></section>
+
+<section id="speakers"><div class="wrap">
+  <span class="k">Speakers</span><h2 class="h2">Learn from the best</h2><p class="sub">Engineers and designers from companies you use every day. Click a speaker to see their talk.</p>
+  <div class="speakers" id="spk"></div>
+</div></section>
+
+<section class="sched" id="schedule"><div class="wrap">
+  <div class="stop"><div><span class="k">Schedule</span><h2 class="h2">Plan your two days</h2><p class="sub">Star the talks you don't want to miss — your agenda is saved in this browser.</p></div>
+    <label class="mine"><input type="checkbox" id="mineOnly">Show only my agenda (<b id="mineCount">0</b>)</label></div>
+  <div class="tabs" id="dayTabs"><button class="on" data-d="0">Day 1 · Mar 18</button><button data-d="1">Day 2 · Mar 19</button></div>
+  <div class="tracks" id="trackBtns"></div>
+  <div class="talks" id="talks"></div>
+</div></section>
+
+<section id="tickets"><div class="wrap">
+  <span class="k">Tickets</span><h2 class="h2">Choose your pass</h2><p class="sub">Group discount: buy 3 or more tickets and save 15% automatically.</p>
+  <div class="tix" id="tix"></div>
+  <div class="sum"><div><small id="sumInfo">No tickets selected</small><span class="t" id="sumTotal">€0</span> <small class="disc" id="sumDisc"></small></div><button class="btn o" id="buy" disabled>Continue to checkout →</button></div>
+</div></section>
+
+<section id="venue" style="padding-top:20px"><div class="wrap">
+  <span class="k">Venue</span><h2 class="h2">See you in Lisbon</h2>
+  <div class="venue">
+    <div class="vimg"><svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice"><rect width="600" height="340" fill="#3d5afe"/><circle cx="470" cy="90" r="46" fill="#ffd36b"/>
+      <path d="M0 250 L600 230 L600 340 L0 340z" fill="#2a3fd6"/><g fill="#f6f1e9"><rect x="90" y="140" width="260" height="110"/><path d="M80 140h280l-30-40H110z"/><rect x="380" y="170" width="120" height="70"/></g>
+      <g fill="#3d5afe"><rect x="110" y="160" width="40" height="70"/><rect x="170" y="160" width="40" height="70"/><rect x="230" y="160" width="40" height="70"/><rect x="290" y="160" width="40" height="70"/><rect x="395" y="185" width="90" height="20"/></g>
+      <path d="M0 290 Q150 270 300 290 T600 285" stroke="#fff" stroke-width="3" fill="none" opacity=".4"/></svg></div>
+    <div class="vinfo">
+      <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span><p><b>Riverside Congress Centre</b><span>Av. da Ribeira 12, Lisbon — 10 min from the airport by metro</span></p></div>
+      <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg></span><p><b>Partner hotels</b><span>Attendees get up to 20% off at 4 hotels within walking distance.</span></p></div>
+      <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><p><b>Can't travel?</b><span>Every talk is streamed live with Q&amp;A for online ticket holders.</span></p></div>
+    </div>
+  </div>
+  <div class="spons"><span>Northwind</span><span>Lumen</span><span>Orbitly</span><span>Paperhouse</span><span>Vantage</span></div>
+</div></section>
+
+<footer><div class="wrap"><span class="logo"><i>F</i>Frontier Conf 2027</span><span>hello@frontierconf.dev</span><span>© <span id="yr"></span> Frontier Conf</span></div></footer>
+<div class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</div>
+<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+/* countdown to early-bird deadline (14 days from first visit, so the demo never expires) */
+let end;try{end=+localStorage.getItem('fc-end')}catch(e){}
+if(!end||end<Date.now()){end=Date.now()+14*864e5+5*36e5;try{localStorage.setItem('fc-end',end)}catch(e){}}
+function tick(){const s=Math.max(0,Math.floor((end-Date.now())/1000)),u=[[Math.floor(s/86400),'Days'],[Math.floor(s/3600)%24,'Hours'],[Math.floor(s/60)%60,'Min'],[s%60,'Sec']];
+  $('#cd').innerHTML=u.map(([v,l])=>`<div><b>${String(v).padStart(2,'0')}</b><span>${l}</span></div>`).join('')}
+tick();setInterval(tick,1000);
+$('#ticker').innerHTML=[0,1].map(()=>'<span>'+['Web Performance','AI in the Browser','Design Systems','TypeScript','Accessibility','Edge Computing','Web Animations'].join('</span><span>')+'</span>').join('');
+
+const tracks={Frontend:'#ff5a1f',Design:'#c05cff',AI:'#3d5afe',Career:'#1fae6b'};
+const speakers=[
+ ['Sara Lindqvist','Staff Engineer','Northwind','Frontend','#ffd8c7','The Fast Web: shipping 100kb apps in 2027','Sara leads the performance team at Northwind and has spent ten years making large websites feel instant.'],
+ ['Kenji Watanabe','Design Lead','Lumen','Design','#e6d6ff','Design systems that survive real teams','Kenji built the Lumen design system used by 400 designers and engineers across 12 products.'],
+ ['Amara Okafor','ML Engineer','Orbitly','AI','#d6dcff','Running AI models right in the browser','Amara works on on-device machine learning and believes the best AI features need no server at all.'],
+ ['Lucas Ferreira','Founder','Paperhouse','Career','#cdeedd','From side project to 1M users','Lucas started Paperhouse as a weekend project. Today it serves a million writers worldwide.'],
+ ['Priya Raman','Accessibility Lead','Vantage','Frontend','#ffe3b8','Accessibility is a feature, not a checklist','Priya helps product teams build interfaces that work for everyone, from keyboard users to screen readers.'],
+ ['Tom Becker','Principal Engineer','Kinetic','Frontend','#ffd8c7','TypeScript patterns that scale','Tom maintains popular open-source libraries downloaded over 30 million times a month.'],
+ ['Elena Rossi','Creative Developer','Studio Nove','Design','#e6d6ff','Motion that feels natural','Elena creates award-winning interactive websites for fashion and culture brands.'],
+ ['David Cho','VP Engineering','Orbitly','AI','#d6dcff','Building products with AI agents','David leads a team shipping AI features to 20 million users every week.']
+];
+const face=(c)=>`<svg viewBox="0 0 200 200"><circle cx="100" cy="76" r="40" fill="#111"/><path d="M28 200c0-52 32-86 72-86s72 34 72 86z" fill="#111"/><circle cx="100" cy="76" r="40" fill="none" stroke="${c}" stroke-width="0"/></svg>`;
+$('#spk').innerHTML=speakers.map((s,i)=>`<div class="sp" data-i="${i}"><div class="ph" style="background:${s[4]}">${face(tracks[s[3]])}<span class="co">${s[2]}</span></div><h3>${s[0]}</h3><p>${s[1]}, ${s[2]}</p></div>`).join('');
+$('#spk').addEventListener('click',e=>{const c=e.target.closest('.sp');if(!c)return;const s=speakers[c.dataset.i],t=talksAll.find(x=>x.who===s[0]);
+  $('#mbox').innerHTML=`<div class="ph" style="background:${s[4]}">${face()}</div><div class="b"><button class="x" id="mx">×</button><h3>${s[0]}</h3><div class="r">${s[1]} · ${s[2]}</div><p>${s[6]}</p>
+   <div class="tl"><span style="color:${tracks[s[3]]};font-weight:600;font-size:.8rem">${s[3].toUpperCase()} TRACK</span><b>${s[5]}</b>${t?`Day ${t.day+1} · ${t.time}`:''}</div></div>`;
+  $('#modal').classList.add('open');$('#mx').onclick=()=>$('#modal').classList.remove('open')});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.remove('open')});
+addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('open')});
+
+/* schedule */
+const times=[['09:30','10:15'],['10:30','11:15'],['11:30','12:15'],['13:30','14:15'],['14:30','15:15'],['16:00','16:45']];
+const talksAll=[];speakers.forEach((s,i)=>talksAll.push({id:'t'+i,day:i%2,time:times[Math.floor(i/2)+ (i%2)][0]+' – '+times[Math.floor(i/2)+(i%2)][1],title:s[5],who:s[0],co:s[2],tr:s[3]}));
+[[0,'Opening keynote: The next 10 years of the web','Conference team','Frontend','09:00 – 09:25'],[1,'Panel: Will AI replace frontend developers?','Amara Okafor & David Cho','AI','16:00 – 16:45'],[0,'Workshop: Build a design system in 2 hours','Kenji Watanabe','Design','16:00 – 17:30'],[1,'Lightning talks: 6 speakers, 6 minutes each','Community','Career','11:30 – 12:15']]
+ .forEach(([d,t,w,tr,tm],k)=>talksAll.push({id:'x'+k,day:d,time:tm,title:t,who:w,co:'',tr}));
+const breaks=[['12:15 – 13:30','Lunch break & networking'],['17:30 – late','Afterparty on the rooftop 🎉']];
+let day=0,track='All',mineOnly=false,mine=[];try{mine=JSON.parse(localStorage.getItem('fc-agenda'))||[]}catch(e){}
+$('#trackBtns').innerHTML=['All',...Object.keys(tracks)].map(t=>`<button class="${t==='All'?'on':''}" data-t="${t}">${t}</button>`).join('');
+function renderTalks(){
+  let list=talksAll.filter(t=>t.day===day&&(track==='All'||t.tr===track)&&(!mineOnly||mine.includes(t.id))).map(t=>({...t,brk:false}));
+  if(track==='All'&&!mineOnly)breaks.forEach(([tm,ti])=>list.push({time:tm,title:ti,brk:true}));
+  list.sort((a,b)=>a.time.localeCompare(b.time));
+  $('#talks').innerHTML=list.length?list.map((t,i)=>t.brk?`<div class="talk brk" style="animation-delay:${i*30}ms"><div class="tm">${t.time}</div><h4>${t.title}</h4></div>`:
+   `<div class="talk" style="animation-delay:${i*30}ms"><div class="tm">${t.time.split(' – ')[0]}<small>until ${t.time.split(' – ')[1]}</small></div>
+    <div><h4>${t.title}</h4><div class="by"><span class="tr" style="background:${tracks[t.tr]}26;color:${tracks[t.tr]}">${t.tr}</span>${t.who}${t.co?' · '+t.co:''}</div></div>
+    <button class="star${mine.includes(t.id)?' on':''}" data-id="${t.id}" aria-label="Add to my agenda"><svg class="i" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></button></div>`).join('')
+   :`<p class="empty">${mineOnly?'Your agenda for this day is empty — star some talks!':'No talks in this track today.'}</p>`;
+  $('#mineCount').textContent=mine.length;
+}
+$('#dayTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;day=+b.dataset.d;$('#dayTabs').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderTalks()});
+$('#trackBtns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;track=b.dataset.t;$('#trackBtns').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderTalks()});
+$('#mineOnly').onchange=e=>{mineOnly=e.target.checked;renderTalks()};
+$('#talks').addEventListener('click',e=>{const b=e.target.closest('.star');if(!b)return;const id=b.dataset.id;mine=mine.includes(id)?mine.filter(x=>x!==id):[...mine,id];
+  try{localStorage.setItem('fc-agenda',JSON.stringify(mine))}catch(err){}toast(mine.includes(id)?'★ Added to your agenda':'Removed from your agenda');renderTalks()});
+renderTalks();
+
+/* tickets */
+const tickets=[['Online','€99',99,null,['Live stream of all talks','Q&A with speakers','Recordings for 12 months']],
+  ['Conference','€349',349,'€449',['Both conference days','Lunch & coffee included','Afterparty access','Recordings for 12 months'],'Early bird'],
+  ['VIP','€749',749,null,['Everything in Conference','2 workshops of your choice','Speakers dinner','Front-row seating']]];
+const qty=[0,0,0];
+function renderTix(){
+  $('#tix').innerHTML=tickets.map(([n,,p,old,f,tag],i)=>`<div class="tk${qty[i]?' sel':''}">${tag?`<span class="tg">${tag}</span>`:''}<h3>${n}</h3><div class="pr">€${p}${old?`<s>${old}</s>`:''}</div><span>per person · incl. VAT</span>
+   <ul>${f.map(x=>`<li>${x}</li>`).join('')}</ul><div class="qty"><button data-i="${i}" data-d="-1" aria-label="Less">−</button><b>${qty[i]}</b><button data-i="${i}" data-d="1" aria-label="More">+</button></div></div>`).join('');
+  const count=qty.reduce((a,b)=>a+b,0),sub=qty.reduce((s,q,i)=>s+q*tickets[i][2],0),disc=count>=3?sub*.15:0;
+  $('#sumInfo').textContent=count?`${count} ticket${count>1?'s':''} selected`:'No tickets selected';
+  $('#sumTotal').textContent='€'+(sub-disc).toLocaleString('en-US',{maximumFractionDigits:2});
+  $('#sumDisc').textContent=disc?`Group discount −€${disc.toFixed(2)}`:count?`Add ${3-count} more for 15% off`:'';
+  $('#buy').disabled=!count;
+}
+$('#tix').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;qty[i]=Math.max(0,Math.min(10,qty[i]+ +b.dataset.d));renderTix()});
+$('#buy').onclick=()=>toast('✓ Demo checkout — no payment is processed on this page');
+renderTix();
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2000)}
+$('#yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>

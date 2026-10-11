@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sterling & Hale — Law Firm Website</title>
+<meta name="description" content="Demo law firm website by Yurii Starikov — practice areas, case results and a multi-step consultation form.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f1d33;--navy2:#172a47;--gold:#c8a45c;--gold2:#e0c48a;--ink:#14213a;--ink2:#4f5b70;--mut:#8590a3;--bg:#fbfaf7;--line:#e7e2d8;
+  --fd:"Lora",Georgia,serif;--fb:"Inter",system-ui,sans-serif;--maxw:1200px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);color:var(--ink);background:var(--bg);line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--fd);font-weight:600;line-height:1.15}
+section{padding-block:clamp(70px,9vw,110px)}
+.k{display:inline-flex;align-items:center;gap:12px;color:var(--gold);font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.k::before{content:"";width:34px;height:1px;background:var(--gold)}
+.h2{font-size:clamp(2rem,3.8vw,2.9rem);margin:14px 0 16px}
+.sub{color:var(--ink2);max-width:600px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--navy);padding:15px 28px;font-weight:600;border:0;cursor:pointer;transition:.25s;font-size:.95rem}
+.btn:hover{background:var(--gold2)}
+.btn.line{background:transparent;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.btn.line:hover{box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold2)}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.top{background:var(--navy);color:#a9b4c8;font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.top .wrap{display:flex;justify-content:space-between;padding-block:9px;gap:12px;flex-wrap:wrap}
+.top b{color:var(--gold2);font-weight:600}
+header{background:var(--navy);position:sticky;top:0;z-index:30}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:78px}
+.logo{display:flex;align-items:center;gap:12px;color:#fff}
+.logo .m{width:44px;height:44px;border:1px solid var(--gold);display:grid;place-items:center;font-family:var(--fd);color:var(--gold);font-size:1.1rem;font-weight:700}
+.logo b{font-family:var(--fd);font-size:1.25rem;font-weight:600;display:block;line-height:1.1}
+.logo small{font-size:.66rem;letter-spacing:.24em;color:#8d9ab2;text-transform:uppercase}
+nav{display:flex;gap:30px;color:#c3cbda;font-size:.92rem}
+nav a:hover{color:var(--gold2)}
+header .btn{padding:12px 20px;font-size:.88rem}
+@media(max-width:900px){nav{display:none}}
+
+.hero{background:radial-gradient(900px 500px at 80% 20%,rgba(200,164,92,.16),transparent 60%),linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding-block:clamp(70px,10vw,120px);position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.25fr .9fr;gap:60px;align-items:center}
+.hero h1{font-size:clamp(2.6rem,5.4vw,4.3rem);margin:20px 0}
+.hero h1 em{color:var(--gold2)}
+.hero p{color:#b9c3d6;font-size:1.08rem;max-width:540px}
+.hero .cta{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.badges{display:flex;gap:26px;margin-top:40px;color:#97a3ba;font-size:.84rem;flex-wrap:wrap}
+.badges span{display:flex;gap:8px;align-items:center}
+.badges svg{color:var(--gold)}
+.card-q{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);padding:34px;backdrop-filter:blur(6px)}
+.card-q .stars{color:var(--gold);letter-spacing:3px}
+.card-q blockquote{font-family:var(--fd);font-size:1.3rem;line-height:1.5;margin:14px 0 20px}
+.card-q .who{display:flex;gap:12px;align-items:center;color:#b9c3d6;font-size:.88rem}
+.card-q .who i{width:44px;height:44px;border-radius:50%;background:var(--gold);display:grid;place-items:center;color:var(--navy);font-style:normal;font-weight:700}
+.card-q .who b{color:#fff;display:block}
+.scales{position:absolute;right:-60px;bottom:-60px;width:360px;opacity:.06;color:var(--gold)}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+
+.stats{background:#fff;border-bottom:1px solid var(--line)}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.stats div{padding:34px 20px;text-align:center;border-left:1px solid var(--line)}
+.stats div:first-child{border-left:0}
+.stats b{font-family:var(--fd);font-size:2.4rem;color:var(--navy);display:block;line-height:1.1}
+.stats span{color:var(--mut);font-size:.88rem}
+@media(max-width:760px){.stats .wrap{grid-template-columns:1fr 1fr}.stats div:nth-child(3){border-left:0}.stats div{border-top:1px solid var(--line)}}
+
+.areas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:50px}
+@media(max-width:900px){.areas{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.areas{grid-template-columns:1fr}}
+.ar{background:#fff;padding:36px 32px;transition:.35s;position:relative;cursor:default}
+.ar:hover{background:var(--navy);color:#fff}
+.ar .ic{color:var(--gold);margin-bottom:20px}
+.ar .ic svg{width:40px;height:40px;stroke-width:1.3}
+.ar h3{font-size:1.3rem;margin-bottom:10px}
+.ar p{color:var(--ink2);font-size:.93rem;transition:.35s}
+.ar:hover p{color:#b9c3d6}
+.ar .more{margin-top:18px;display:inline-flex;gap:8px;color:var(--gold);font-weight:600;font-size:.86rem}
+
+.results{background:var(--navy);color:#fff}
+.results .sub{color:#b9c3d6}
+.res{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px}
+@media(max-width:900px){.res{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.res{grid-template-columns:1fr}}
+.rc{border:1px solid rgba(255,255,255,.12);padding:28px;background:rgba(255,255,255,.03)}
+.rc b{font-family:var(--fd);font-size:2.2rem;color:var(--gold2);display:block}
+.rc h4{font-size:.98rem;margin:8px 0 6px;font-weight:600}
+.rc p{color:#97a3ba;font-size:.86rem}
+.note{color:#7c88a0;font-size:.78rem;margin-top:22px}
+
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:50px}
+@media(max-width:900px){.team{grid-template-columns:1fr}}
+.at .ph{aspect-ratio:4/4.4;background:linear-gradient(180deg,#e9e3d6,#d7cdb8);position:relative;overflow:hidden;display:grid;place-items:end center}
+.at .ph svg{width:70%}
+.at .ph span{position:absolute;left:0;bottom:0;background:var(--navy);color:var(--gold2);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;padding:8px 14px}
+.at h3{font-size:1.35rem;margin-top:18px}
+.at .r{color:var(--gold);font-weight:600;font-size:.88rem}
+.at p{color:var(--ink2);font-size:.92rem;margin-top:8px}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:50px;counter-reset:s}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+.st{border-top:2px solid var(--line);padding-top:24px;position:relative}
+.st::before{counter-increment:s;content:"0" counter(s);font-family:var(--fd);font-size:2.4rem;color:var(--gold);display:block;line-height:1;margin-bottom:12px}
+.st h3{font-size:1.15rem;margin-bottom:6px}
+.st p{color:var(--ink2);font-size:.92rem}
+
+.consult{background:linear-gradient(180deg,#f3efe6,var(--bg))}
+.consult .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
+@media(max-width:900px){.consult .wrap{grid-template-columns:1fr}}
+.contact{display:grid;gap:18px;margin-top:30px}
+.contact div{display:flex;gap:14px;align-items:flex-start}
+.contact .ic{width:46px;height:46px;background:var(--navy);color:var(--gold);display:grid;place-items:center;flex:none}
+.contact b{display:block}
+.contact span{color:var(--ink2);font-size:.92rem}
+form.ms{background:#fff;border:1px solid var(--line);padding:clamp(24px,4vw,40px);box-shadow:0 30px 60px -40px rgba(15,29,51,.4)}
+.prog{display:flex;gap:6px;margin-bottom:26px}
+.prog i{flex:1;height:4px;background:var(--line);transition:.4s}
+.prog i.on{background:var(--gold)}
+.stepn{font-size:.8rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase}
+form.ms h3{font-size:1.5rem;margin:4px 0 20px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts label{border:1px solid var(--line);padding:14px 16px;cursor:pointer;display:flex;gap:10px;align-items:center;transition:.2s;font-weight:500;font-size:.94rem}
+.opts label:hover{border-color:var(--gold)}
+.opts input{accent-color:var(--navy)}
+.opts label:has(input:checked){border-color:var(--navy);background:#f6f3ec}
+.f{display:grid;gap:6px;margin-bottom:14px}
+.f label{font-size:.8rem;font-weight:600;color:var(--ink2)}
+.f input,.f select,.f textarea{border:1px solid var(--line);padding:13px 14px;outline:0;background:var(--bg);resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--navy);background:#fff}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:#c0392b}
+.f em{font-style:normal;color:#c0392b;font-size:.78rem;display:none}
+.f.bad em{display:block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.two,.opts{grid-template-columns:1fr}}
+.nav{display:flex;justify-content:space-between;margin-top:22px;gap:10px}
+.back{background:none;border:1px solid var(--line);padding:14px 22px;cursor:pointer}
+.err1{color:#c0392b;font-size:.85rem;margin-top:10px;min-height:1.2em}
+.pane{display:none;animation:fd .4s ease}
+.pane.on{display:block}
+@keyframes fd{from{opacity:0;transform:translateX(14px)}}
+.done{text-align:center;padding:20px 0}
+.done .seal{width:76px;height:76px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;color:var(--gold)}
+.done p{color:var(--ink2)}
+footer{background:var(--navy);color:#8d9ab2;padding:46px 0 30px;font-size:.86rem}
+footer .wrap{display:grid;gap:18px}
+footer .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer small{color:#5f6c86;font-size:.76rem;max-width:860px}
+.demo{text-align:center;font-size:.8rem;color:var(--mut);padding:12px;background:#0a1424}
+.demo a{color:var(--gold2);text-decoration:underline}
+.reveal{opacity:0;transform:translateY(24px);transition:.8s ease}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><span>Free 30-minute consultation · <b>No fee unless we win</b></span><span>Mon–Fri 8:00–18:00 · (555) 318-4400</span></div></div>
+<header><div class="wrap">
+  <a href="#" class="logo"><span class="m">S&amp;H</span><span><b>Sterling &amp; Hale</b><small>Attorneys at Law</small></span></a>
+  <nav><a href="#practice">Practice areas</a><a href="#results">Results</a><a href="#team">Attorneys</a><a href="#process">Process</a></nav>
+  <a href="#consult" class="btn">Free consultation</a>
+</div></header>
+
+<section class="hero">
+  <svg class="scales" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 3v18M5 21h14M3 7h18M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/></svg>
+  <div class="wrap">
+    <div>
+      <span class="k reveal">Trusted since 1994</span>
+      <h1 class="reveal">Experienced lawyers who <em>fight for you</em></h1>
+      <p class="reveal">From personal injury to business disputes, our attorneys have recovered more than $250 million for clients across Illinois. Clear advice, honest fees, real results.</p>
+      <div class="cta reveal"><a href="#consult" class="btn">Book a free consultation <svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="#practice" class="btn line">Our practice areas</a></div>
+      <div class="badges reveal"><span><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="12" cy="8" r="6"/><path d="M8.2 13.9 7 22l5-3 5 3-1.2-8.1"/></svg>Top Rated Lawyers 2026</span><span><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Licensed in IL & WI</span></div>
+    </div>
+    <div class="card-q reveal">
+      <div class="stars">★★★★★</div>
+      <blockquote>“After my accident, they handled everything — the insurance company, the paperwork, the court. I could focus on getting better.”</blockquote>
+      <div class="who"><i>RM</i><div><b>Robert M.</b>Personal injury client · $1.2M settlement</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="stats"><div class="wrap">
+  <div><b data-n="250" data-p="$" data-s="M+">0</b><span>recovered for clients</span></div>
+  <div><b data-n="98" data-s="%">0</b><span>case success rate</span></div>
+  <div><b data-n="30" data-s="+">0</b><span>years of experience</span></div>
+  <div><b data-n="4500" data-s="+">0</b><span>clients represented</span></div>
+</div></div>
+
+<section id="practice"><div class="wrap">
+  <span class="k reveal">Practice areas</span>
+  <h2 class="h2 reveal">How we can help you</h2>
+  <p class="sub reveal">Each case is led by a senior attorney who specializes in that area of law — not passed down to a junior associate.</p>
+  <div class="areas" id="areas"></div>
+</div></section>
+
+<section class="results" id="results"><div class="wrap">
+  <span class="k reveal">Case results</span>
+  <h2 class="h2 reveal">Results that speak for themselves</h2>
+  <p class="sub reveal">A selection of recent verdicts and settlements secured by our team.</p>
+  <div class="res">
+    <div class="rc reveal"><b>$4.8M</b><h4>Truck accident</h4><p>Settlement for a family after a commercial truck collision on I-90.</p></div>
+    <div class="rc reveal"><b>$2.3M</b><h4>Medical malpractice</h4><p>Verdict for a patient injured by a delayed cancer diagnosis.</p></div>
+    <div class="rc reveal"><b>$1.6M</b><h4>Business dispute</h4><p>Recovered for a supplier after a breach of a long-term contract.</p></div>
+    <div class="rc reveal"><b>$850K</b><h4>Workplace injury</h4><p>Settlement for a construction worker injured by faulty equipment.</p></div>
+  </div>
+  <p class="note">Prior results do not guarantee a similar outcome. Every case is different.</p>
+</div></section>
+
+<section id="team"><div class="wrap">
+  <span class="k reveal">Our attorneys</span>
+  <h2 class="h2 reveal">Meet the partners</h2>
+  <div class="team" id="teamGrid"></div>
+</div></section>
+
+<section id="process" style="background:#fff;border-block:1px solid var(--line)"><div class="wrap">
+  <span class="k reveal">How it works</span>
+  <h2 class="h2 reveal">A clear process, start to finish</h2>
+  <div class="steps">
+    <div class="st reveal"><h3>Free consultation</h3><p>Tell us what happened. We review your situation and explain your options — at no cost.</p></div>
+    <div class="st reveal"><h3>Case strategy</h3><p>We investigate, gather evidence and build a strategy tailored to your goals.</p></div>
+    <div class="st reveal"><h3>Negotiation</h3><p>We deal with the other side and insurance companies so you don't have to.</p></div>
+    <div class="st reveal"><h3>Resolution</h3><p>Most cases settle. If not, we are fully prepared to win in court.</p></div>
+  </div>
+</div></section>
+
+<section class="consult" id="consult"><div class="wrap">
+  <div class="reveal">
+    <span class="k">Free consultation</span>
+    <h2 class="h2">Tell us about your case</h2>
+    <p class="sub">It takes less than two minutes. An attorney — not a call center — will review your request and contact you within one business day. Everything you share is confidential.</p>
+    <div class="contact">
+      <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span><p><b>(555) 318-4400</b><span>Mon–Fri 8:00–18:00</span></p></div>
+      <div><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span><p><b>200 W Madison St, Suite 1800</b><span>Chicago, IL 60606</span></p></div>
+    </div>
+  </div>
+  <form class="ms reveal" id="ms" novalidate>
+    <div class="prog" id="prog"><i class="on"></i><i></i><i></i></div>
+    <div class="pane on" data-s="1">
+      <div class="stepn">Step 1 of 3</div><h3>What type of case is it?</h3>
+      <div class="opts" id="opts"></div>
+      <div class="err1" id="e1"></div>
+    </div>
+    <div class="pane" data-s="2">
+      <div class="stepn">Step 2 of 3</div><h3>A few details</h3>
+      <div class="f"><label>When did it happen?</label><select id="when"><option value="">Select…</option><option>In the last month</option><option>1–6 months ago</option><option>6–12 months ago</option><option>More than a year ago</option></select><em>Please choose an option</em></div>
+      <div class="f"><label>Briefly describe your situation</label><textarea id="desc" rows="4" placeholder="What happened, who was involved, any injuries or losses…"></textarea><em>Please write at least 20 characters</em></div>
+    </div>
+    <div class="pane" data-s="3">
+      <div class="stepn">Step 3 of 3</div><h3>How can we reach you?</h3>
+      <div class="two"><div class="f"><label>Full name</label><input id="nm"><em>Required</em></div><div class="f"><label>Phone</label><input id="ph"><em>Enter a valid phone</em></div></div>
+      <div class="f"><label>Email</label><input id="em" type="email"><em>Enter a valid email</em></div>
+    </div>
+    <div class="pane" data-s="4"><div class="done"><div class="seal"><svg class="i" viewBox="0 0 24 24" style="width:34px;height:34px"><path d="M20 6 9 17l-5-5"/></svg></div><h3 id="doneT">Thank you</h3><p id="doneP"></p></div></div>
+    <div class="nav" id="navBtns"><button type="button" class="back" id="back" style="visibility:hidden">← Back</button><button class="btn" id="next">Continue →</button></div>
+  </form>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="row"><span class="logo"><span class="m">S&amp;H</span><span><b>Sterling &amp; Hale</b><small>Attorneys at Law</small></span></span><span>© <span id="yr"></span> Sterling &amp; Hale LLP · Chicago, IL</span></div>
+  <small>Attorney advertising. The information on this website is for general information only and is not legal advice. Contacting us does not create an attorney-client relationship.</small>
+</div></footer>
+<div class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const areas=[
+ ['Personal Injury','Car, truck and slip-and-fall accidents. We handle the insurance companies while you recover.','<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
+ ['Business Law','Contracts, partnerships and commercial disputes for small and mid-sized companies.','<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>'],
+ ['Family Law','Divorce, custody and support handled with care, discretion and a focus on your children.','<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>'],
+ ['Real Estate','Purchases, leases, title issues and landlord–tenant disputes, residential and commercial.','<path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/>'],
+ ['Employment Law','Wrongful termination, discrimination and unpaid wages. Know your rights at work.','<circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>'],
+ ['Estate Planning','Wills, trusts and probate to protect your family and what you have built.','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>']
+];
+$('#areas').innerHTML=areas.map(([t,d,ic])=>`<div class="ar reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24">${ic}</svg></div><h3>${t}</h3><p>${d}</p><a href="#consult" class="more">Free case review →</a></div>`).join('');
+$('#opts').innerHTML=areas.map(([t])=>`<label><input type="radio" name="type" value="${t}">${t}</label>`).join('');
+const team=[['Daniel Sterling','Founding Partner','Personal injury trial lawyer with 30 years in Illinois courts and over 200 jury trials.','DS'],
+  ['Margaret Hale','Managing Partner','Business and real estate attorney. Former in-house counsel for a Fortune 500 company.','MH'],
+  ['Andre Collins','Partner','Employment and family law. Known for calm, practical advice in difficult moments.','AC']];
+$('#teamGrid').innerHTML=team.map(([n,r,d])=>`<div class="at reveal"><div class="ph"><svg viewBox="0 0 200 210"><circle cx="100" cy="72" r="40" fill="#0f1d33" opacity=".85"/><path d="M24 210c0-56 34-92 76-92s76 36 76 92z" fill="#0f1d33" opacity=".85"/><path d="M84 122l16 34 16-34" fill="#c8a45c"/></svg><span>${r}</span></div><h3>${n}</h3><div class="r">${r}</div><p>${d}</p></div>`).join('');
+
+/* multi-step form */
+let step=1;const prog=$('#prog').children;
+function show(s){step=s;document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',+p.dataset.s===s));
+  [...prog].forEach((p,i)=>p.classList.toggle('on',i<Math.min(s,3)));$('#back').style.visibility=s>1&&s<4?'visible':'hidden';
+  $('#next').textContent=s===3?'Submit request':'Continue →';$('#navBtns').style.display=s===4?'none':'flex'}
+const mark=(id,ok)=>{$('#'+id).parentElement.classList.toggle('bad',!ok);return ok};
+function valid(){
+  if(step===1){const ok=!!document.querySelector('input[name=type]:checked');$('#e1').textContent=ok?'':'Please choose the type of your case';return ok}
+  if(step===2){const a=mark('when',!!$('#when').value),b=mark('desc',$('#desc').value.trim().length>=20);return a&&b}
+  const a=mark('nm',$('#nm').value.trim().length>1),b=mark('ph',$('#ph').value.replace(/\D/g,'').length>=7),c=mark('em',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('#em').value.trim()));return a&&b&&c}
+$('#ms').addEventListener('submit',e=>{e.preventDefault();if(!valid())return;
+  if(step<3)return show(step+1);
+  const t=document.querySelector('input[name=type]:checked').value;
+  $('#doneT').textContent=`Thank you, ${$('#nm').value.trim().split(' ')[0]}`;
+  $('#doneP').textContent=`Your ${t.toLowerCase()} request has been received. A ${t.toLowerCase()} attorney will call you at ${$('#ph').value.trim()} within one business day.`;show(4)});
+$('#back').onclick=()=>show(step-1);
+$('#opts').addEventListener('change',()=>$('#e1').textContent='');
+document.querySelectorAll('#ms input,#ms select,#ms textarea').forEach(el=>el.addEventListener('input',()=>el.parentElement.classList.remove('bad')));
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;e.target.classList.add('in');io.unobserve(e.target);
+  e.target.querySelectorAll?.('[data-n]').forEach(count)}),{threshold:.12});
+document.querySelectorAll('.reveal,.stats').forEach(el=>io.observe(el));
+function count(el){const end=+el.dataset.n,p=el.dataset.p||'',s=el.dataset.s||'';let t0;const f=t=>{t0??=t;const k=Math.min((t-t0)/1600,1);el.textContent=p+Math.round(end*(1-(1-k)**3)).toLocaleString()+s;if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+$('#yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>

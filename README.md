@@ -9,6 +9,28 @@ Firebase-powered online store.
 
 ---
 
+## 🌐 Live website demos
+
+**Portfolio hub:** https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/
+
+| Project | Type | Live demo |
+|---------|------|-----------|
+| Flowbase | SaaS landing page — drag & drop board, pricing toggle | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/saas/) |
+| BrightSmile Dental | Clinic website — online booking with time slots | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/dental/) |
+| Saffron & Oak | Restaurant landing page — reservation form | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/bistro/) |
+| Kettle & Co. | E-commerce store — cart, promo codes, checkout | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/store/) |
+| Pulse Analytics | Admin dashboard — SVG charts, data table, dark mode | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/dashboard/) |
+| Haven Estates | Real estate — filters, favorites, mortgage calculator | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/realty/) |
+| Skycast | Weather app — public REST API, geolocation, charts | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/weather/) |
+| Forkful | Recipe finder — public REST API, favorites | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/recipes/) |
+| Sterling & Hale | Law firm website — multi-step consultation form | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/law/) |
+| FitForge | Gym website — class timetable, BMI calculator | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/gym/) |
+| Frontier Conf | Event website — countdown, schedule, tickets | [Open](https://djxjdjxxjxjx6-collab.github.io/node-labs/demos/conference/) |
+
+All demos are hand-coded with HTML, CSS and vanilla JavaScript, fully responsive and dependency-free.
+
+---
+
 ## 🛒 Featured: TechShop — Online Store (Firebase)
 
 A complete web shop built on **Firebase + Cloud Firestore**:

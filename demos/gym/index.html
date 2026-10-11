@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitForge — Gym & Fitness Club Website</title>
+<meta name="description" content="Demo fitness club website by Yurii Starikov — class timetable, BMI calculator, memberships and free-trial form.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0d0f;--bg2:#141518;--card:#1a1b1f;--line:#2a2b31;--txt:#f2f3f5;--mut:#9a9ca6;--lime:#c6ff3d;--lime2:#a8e021;--org:#ff6a3d;
+  --fd:"Poppins",system-ui,sans-serif;--fb:"Inter",system-ui,sans-serif;--maxw:1220px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--fd);line-height:1.02;letter-spacing:-.02em;text-transform:uppercase}
+section{padding-block:clamp(70px,10vw,110px)}
+.k{color:var(--lime);font-weight:600;font-size:.82rem;letter-spacing:.2em;text-transform:uppercase}
+.h2{font-size:clamp(2rem,4.6vw,3.4rem);margin:10px 0 14px;font-weight:800}
+.sub{color:var(--mut);max-width:560px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--lime);color:#0c0d0f;font-weight:700;padding:15px 28px;border-radius:4px;border:0;cursor:pointer;font-family:var(--fd);text-transform:uppercase;font-size:.88rem;letter-spacing:.04em;transition:.2s}
+.btn:hover{background:#fff;transform:translateY(-2px)}
+.btn.o{background:transparent;color:var(--txt);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.o:hover{box-shadow:inset 0 0 0 2px var(--lime);color:var(--lime);background:transparent}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+header{position:fixed;inset:0 0 auto;z-index:40;transition:.3s}
+header.s{background:rgba(12,13,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:76px}
+.logo{font-family:var(--fd);font-weight:800;font-size:1.4rem;letter-spacing:-.02em;display:flex;gap:8px;align-items:center}
+.logo b{color:var(--lime)}
+nav{display:flex;gap:30px;font-size:.9rem;color:var(--mut);font-weight:500}
+nav a:hover{color:var(--lime)}
+header .btn{padding:11px 20px;font-size:.78rem}
+@media(max-width:860px){nav{display:none}}
+
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:100px}
+.hero::before{content:"";position:absolute;right:-10%;top:10%;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,rgba(198,255,61,.22),transparent 65%)}
+.hero .wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;position:relative}
+.hero h1{font-size:clamp(3rem,8vw,6.6rem);font-weight:800}
+.hero h1 span{color:transparent;-webkit-text-stroke:2px var(--lime)}
+.hero p{color:var(--mut);font-size:1.1rem;max-width:480px;margin:24px 0 34px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.figure{position:relative;aspect-ratio:3/4;max-width:420px;justify-self:center;width:100%}
+.figure .bg{position:absolute;inset:8% 4% 0;background:linear-gradient(160deg,var(--lime),#7fbf00);clip-path:polygon(18% 0,100% 0,82% 100%,0 100%)}
+.figure svg{position:absolute;inset:0;width:100%;height:100%}
+.stat{position:absolute;background:rgba(20,21,24,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:.82rem;color:var(--mut)}
+.stat b{display:block;font-family:var(--fd);font-size:1.4rem;color:var(--txt)}
+.s1{left:-6%;top:22%}.s2{right:-4%;bottom:14%}
+.nums{display:flex;gap:40px;margin-top:46px;flex-wrap:wrap}
+.nums b{font-family:var(--fd);font-size:2.2rem;font-weight:800;display:block;line-height:1}
+.nums span{color:var(--mut);font-size:.85rem}
+@media(max-width:860px){.hero .wrap{grid-template-columns:1fr}.figure{max-width:300px}}
+
+.marquee{background:var(--lime);color:#0c0d0f;overflow:hidden;padding:16px 0;transform:rotate(-1.5deg);margin:10px -20px}
+.marquee div{display:flex;gap:44px;white-space:nowrap;animation:mq 22s linear infinite;font-family:var(--fd);font-weight:800;font-size:1.4rem;text-transform:uppercase;width:max-content}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+.progs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+@media(max-width:960px){.progs{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.progs{grid-template-columns:1fr}}
+.pg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:28px 24px;transition:.3s;position:relative;overflow:hidden}
+.pg::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--lime);transition:.4s}
+.pg:hover{transform:translateY(-6px);border-color:#3a3b42}.pg:hover::after{width:100%}
+.pg .ic{width:54px;height:54px;border-radius:10px;background:rgba(198,255,61,.1);color:var(--lime);display:grid;place-items:center;margin-bottom:22px}
+.pg .ic svg{width:26px;height:26px}
+.pg h3{font-size:1.15rem;margin-bottom:8px}
+.pg p{color:var(--mut);font-size:.92rem}
+.pg small{display:block;margin-top:16px;color:var(--lime);font-weight:600;font-size:.8rem}
+
+.sched{background:var(--bg2)}
+.days{display:flex;gap:6px;margin-top:34px;overflow-x:auto;padding-bottom:4px}
+.days button{flex:1;min-width:84px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;cursor:pointer;font-weight:600;transition:.2s}
+.days button small{display:block;color:var(--mut);font-weight:500;font-size:.72rem}
+.days button.on{background:var(--lime);color:#0c0d0f;border-color:var(--lime)}
+.days button.on small{color:#365100}
+.fil{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.fil button{background:none;border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:.82rem;cursor:pointer;color:var(--mut)}
+.fil button.on{border-color:var(--lime);color:var(--lime)}
+.classes{margin-top:22px;display:grid;gap:10px}
+.cl{display:grid;grid-template-columns:110px 1.4fr 1fr 1fr auto;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;animation:in .35s both}
+@keyframes in{from{opacity:0;transform:translateX(-10px)}}
+.cl .t{font-family:var(--fd);font-weight:700;font-size:1.1rem}
+.cl .t small{display:block;font-family:var(--fb);color:var(--mut);font-size:.75rem;font-weight:500}
+.cl h4{font-family:var(--fd);text-transform:uppercase;font-size:1rem}
+.cl .tag{font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:99px;display:inline-block;margin-top:2px}
+.cl .m{color:var(--mut);font-size:.88rem}
+.spots{font-size:.82rem;color:var(--mut)}
+.spots i{display:block;height:4px;background:var(--line);border-radius:9px;margin-top:6px;overflow:hidden}
+.spots i b{display:block;height:100%;background:var(--lime)}
+.cl button{background:none;border:1px solid var(--lime);color:var(--lime);border-radius:6px;padding:9px 16px;font-weight:600;font-size:.82rem;cursor:pointer;transition:.2s;white-space:nowrap}
+.cl button:hover{background:var(--lime);color:#0c0d0f}
+.cl button.bk{background:var(--lime);color:#0c0d0f}
+.cl button:disabled{border-color:var(--line);color:var(--mut);cursor:not-allowed;background:none}
+@media(max-width:820px){.cl{grid-template-columns:80px 1fr auto}.cl .m,.cl .spots{display:none}}
+
+.bmi .wrap{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+@media(max-width:860px){.bmi .wrap{grid-template-columns:1fr}}
+.calc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px}
+.units{display:inline-flex;background:var(--bg);border-radius:8px;padding:4px;margin-bottom:20px}
+.units button{border:0;background:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem;color:var(--mut)}
+.units button.on{background:var(--line);color:var(--txt)}
+.fld{margin-bottom:18px}
+.fld label{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut);margin-bottom:8px}
+.fld label b{color:var(--txt);font-family:var(--fd)}
+input[type=range]{width:100%;accent-color:var(--lime)}
+.res{margin-top:10px;padding-top:20px;border-top:1px solid var(--line)}
+.res .v{font-family:var(--fd);font-size:3rem;font-weight:800;line-height:1}
+.res .c{font-weight:600;margin-top:6px}
+.gauge{position:relative;height:10px;border-radius:9px;background:linear-gradient(90deg,#4cc3ff 0 18.5%,#c6ff3d 18.5% 50%,#ffc23d 50% 70%,#ff6a3d 70%);margin:18px 0 6px}
+.gauge i{position:absolute;top:-6px;width:4px;height:22px;background:#fff;border-radius:3px;transition:left .4s cubic-bezier(.3,1.4,.5,1);box-shadow:0 0 0 3px rgba(0,0,0,.4)}
+.gl{display:flex;justify-content:space-between;font-size:.72rem;color:var(--mut)}
+.tip{margin-top:16px;font-size:.9rem;color:var(--mut);background:var(--bg);border-radius:10px;padding:14px}
+
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+@media(max-width:860px){.team{grid-template-columns:1fr}}
+.tr{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tr .ph{height:240px;position:relative;display:grid;place-items:end center;overflow:hidden}
+.tr .ph svg{width:70%;height:90%}
+.tr .b{padding:20px 22px}
+.tr h3{font-size:1.15rem}
+.tr span{color:var(--lime);font-size:.85rem;font-weight:600}
+.tr p{color:var(--mut);font-size:.88rem;margin-top:6px}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+@media(max-width:860px){.plans{grid-template-columns:1fr}}
+.pl{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:32px;display:flex;flex-direction:column}
+.pl.hot{background:var(--lime);color:#0c0d0f;border-color:var(--lime)}
+.pl h3{font-size:1.2rem}
+.pl .pr{font-family:var(--fd);font-size:3rem;font-weight:800;margin:16px 0 4px}
+.pl .pr small{font-size:.9rem;font-weight:500}
+.pl ul{list-style:none;display:grid;gap:10px;margin:20px 0 28px;font-size:.92rem;flex:1}
+.pl li{display:flex;gap:10px}
+.pl.hot .btn{background:#0c0d0f;color:var(--lime)}
+.pl .btn{justify-content:center}
+
+.trial{background:linear-gradient(120deg,#1a2a00,#0c0d0f 60%);border-top:1px solid var(--line)}
+.trial .wrap{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+@media(max-width:860px){.trial .wrap{grid-template-columns:1fr}}
+.tf{display:grid;gap:12px}
+.tf input,.tf select{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;outline:0}
+.tf input:focus,.tf select:focus{border-color:var(--lime)}
+.tf .bad{border-color:var(--org)}
+.tf .msg{font-size:.85rem;min-height:1.2em;color:var(--org)}
+.tf .msg.ok{color:var(--lime)}
+footer{padding:36px 0;border-top:1px solid var(--line);color:var(--mut);font-size:.88rem}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.demo{text-align:center;font-size:.8rem;color:var(--mut);padding:12px;background:var(--bg2)}
+.demo a{color:var(--lime);text-decoration:underline}
+.reveal{opacity:0;transform:translateY(30px);transition:.8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<header id="hdr"><div class="wrap">
+  <a href="#" class="logo"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#c6ff3d" stroke-width="2.6" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><span>Fit<b>Forge</b></span></a>
+  <nav><a href="#programs">Programs</a><a href="#schedule">Schedule</a><a href="#bmi">BMI</a><a href="#coaches">Coaches</a><a href="#plans">Pricing</a></nav>
+  <a href="#trial" class="btn">Free trial</a>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="k reveal">Open 24/7 · Downtown Austin</span>
+    <h1 class="reveal">Stronger<br><span>every</span><br>single day</h1>
+    <p class="reveal">Premium equipment, 60+ weekly classes and coaches who actually care about your progress. Your first week is on us.</p>
+    <div class="cta reveal"><a href="#trial" class="btn">Claim free week <svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="#schedule" class="btn o">See schedule</a></div>
+    <div class="nums reveal"><div><b data-n="2400">0</b><span>active members</span></div><div><b data-n="65">0</b><span>weekly classes</span></div><div><b data-n="18">0</b><span>certified coaches</span></div></div>
+  </div>
+  <div class="figure reveal">
+    <div class="bg"></div>
+    <svg viewBox="0 0 300 400" aria-hidden="true">
+      <g transform="translate(150 215)">
+        <path d="M-52-92a52 52 0 0 1 104 0v22h-22v-22a30 30 0 0 0-60 0v22h-22z" fill="#0c0d0f"/>
+        <path d="M-88 10a88 88 0 0 1 60-84h56a88 88 0 0 1 60 84c0 44-26 80-88 80s-88-36-88-80z" fill="#0c0d0f"/>
+        <text x="0" y="40" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="800" font-size="46" fill="#c6ff3d">24</text>
+        <text x="0" y="64" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600" font-size="13" fill="#c6ff3d" letter-spacing="3">KG</text>
+      </g>
+      <g transform="translate(150 360) rotate(-8)">
+        <rect x="-110" y="-6" width="220" height="12" rx="6" fill="#0c0d0f"/>
+        <rect x="-100" y="-30" width="22" height="60" rx="6" fill="#0c0d0f"/><rect x="-74" y="-22" width="14" height="44" rx="5" fill="#0c0d0f"/>
+        <rect x="78" y="-30" width="22" height="60" rx="6" fill="#0c0d0f"/><rect x="60" y="-22" width="14" height="44" rx="5" fill="#0c0d0f"/>
+      </g>
+    </svg>
+    <div class="stat s1"><b>-12 kg</b>avg. in 12 weeks</div>
+    <div class="stat s2"><b>4.9★</b>Google rating</div>
+  </div>
+</div></section>
+
+<div style="overflow:hidden;padding:14px 0"><div class="marquee"><div id="mq"></div></div></div>
+
+<section id="programs"><div class="wrap">
+  <span class="k reveal">Programs</span><h2 class="h2 reveal">Train the way you like</h2><p class="sub reveal">Whether you want to lose weight, build muscle or just feel better — we have a program for that.</p>
+  <div class="progs">
+    <div class="pg reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg></div><h3>Strength</h3><p>Barbells, racks and machines with coaching on technique.</p><small>12 classes / week</small></div>
+    <div class="pg reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>HIIT & Cardio</h3><p>High-energy interval sessions that burn up to 800 kcal.</p><small>18 classes / week</small></div>
+    <div class="pg reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M4 21l4-8 4 3 4-3 4 8M8 13l4-5 4 5"/></svg></div><h3>Yoga & Mobility</h3><p>Improve flexibility, posture and recovery between workouts.</p><small>15 classes / week</small></div>
+    <div class="pg reveal"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg></div><h3>Boxing</h3><p>Pads, bags and footwork drills for stress relief and power.</p><small>10 classes / week</small></div>
+  </div>
+</div></section>
+
+<section class="sched" id="schedule"><div class="wrap">
+  <span class="k reveal">Class schedule</span><h2 class="h2 reveal">Book your spot</h2><p class="sub reveal">Pick a day, filter by type and reserve a place in one click.</p>
+  <div class="days" id="days"></div>
+  <div class="fil" id="fil"></div>
+  <div class="classes" id="classes"></div>
+</div></section>
+
+<section class="bmi" id="bmi"><div class="wrap">
+  <div class="reveal"><span class="k">Free tool</span><h2 class="h2">Check your BMI in seconds</h2><p class="sub">Body Mass Index is a quick way to see if your weight is in a healthy range for your height. Use it as a starting point — our coaches will build a plan around your real goals.</p></div>
+  <div class="calc reveal">
+    <div class="units" id="units"><button class="on" data-u="m">Metric</button><button data-u="i">Imperial</button></div>
+    <div class="fld"><label>Height <b id="hTxt"></b></label><input type="range" id="h"></div>
+    <div class="fld"><label>Weight <b id="wTxt"></b></label><input type="range" id="w"></div>
+    <div class="res"><div class="v" id="bmiV"></div><div class="c" id="bmiC"></div>
+      <div class="gauge"><i id="needle"></i></div><div class="gl"><span>15</span><span>18.5</span><span>25</span><span>30</span><span>35+</span></div>
+      <div class="tip" id="bmiTip"></div></div>
+  </div>
+</div></section>
+
+<section id="coaches"><div class="wrap">
+  <span class="k reveal">Coaches</span><h2 class="h2 reveal">Meet your coaches</h2>
+  <div class="team" id="team"></div>
+</div></section>
+
+<section id="plans" style="background:var(--bg2)"><div class="wrap">
+  <span class="k reveal">Membership</span><h2 class="h2 reveal">No contracts. Cancel anytime.</h2>
+  <div class="plans">
+    <div class="pl reveal"><h3>Basic</h3><div class="pr">$29<small>/mo</small></div><span style="color:var(--mut)">Gym floor access</span><ul><li>✓ 24/7 gym access</li><li>✓ Locker rooms & showers</li><li>✓ Fitness app</li></ul><a href="#trial" class="btn o">Choose Basic</a></div>
+    <div class="pl hot reveal"><h3>Pro · Most popular</h3><div class="pr">$59<small>/mo</small></div><span>Everything you need</span><ul><li>✓ Everything in Basic</li><li>✓ Unlimited classes</li><li>✓ 1 PT session / month</li><li>✓ Sauna & recovery zone</li></ul><a href="#trial" class="btn">Choose Pro</a></div>
+    <div class="pl reveal"><h3>Elite</h3><div class="pr">$119<small>/mo</small></div><span style="color:var(--mut)">Personal coaching</span><ul><li>✓ Everything in Pro</li><li>✓ 4 PT sessions / month</li><li>✓ Nutrition plan</li><li>✓ Body scan every month</li></ul><a href="#trial" class="btn o">Choose Elite</a></div>
+  </div>
+</div></section>
+
+<section class="trial" id="trial"><div class="wrap">
+  <div class="reveal"><span class="k">Free trial</span><h2 class="h2">Your first week is free</h2><p class="sub">Leave your details and we'll send your free 7-day pass to your phone. No card, no commitment.</p></div>
+  <form class="tf reveal" id="tf" novalidate>
+    <input id="tn" placeholder="Your name">
+    <input id="tp" placeholder="Phone number">
+    <select id="tg"><option value="">Your main goal</option><option>Lose weight</option><option>Build muscle</option><option>Get fit & healthy</option><option>Train for an event</option></select>
+    <button class="btn" style="justify-content:center">Get my free pass</button>
+    <div class="msg" id="tmsg"></div>
+  </form>
+</div></section>
+
+<footer><div class="wrap"><span class="logo" style="font-size:1.1rem">Fit<b style="color:var(--lime)">Forge</b></span><span>1200 Congress Ave, Austin, TX · Open 24/7</span><span>© <span id="yr"></span> FitForge</span></div></footer>
+<div class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</div>
+
+<script>
+const $=s=>document.querySelector(s);
+addEventListener('scroll',()=>$('#hdr').classList.toggle('s',scrollY>30),{passive:true});
+$('#mq').innerHTML=Array(2).fill(['Strength','✦','HIIT','✦','Yoga','✦','Boxing','✦','Personal training','✦','Open 24/7','✦']).flat().map(s=>`<span>${s}</span>`).join('');
+
+/* schedule */
+const types={Strength:'#c6ff3d',HIIT:'#ff6a3d',Yoga:'#4cc3ff',Boxing:'#ffc23d'};
+const coaches=['Marcus Reed','Lena Ortiz','Jay Park','Nina Shah'];
+const base=[['06:30','Morning HIIT','HIIT',45],['08:00','Power Lifting','Strength',60],['09:30','Flow Yoga','Yoga',60],['12:15','Lunch Express','HIIT',30],
+  ['17:30','Boxing Basics','Boxing',50],['18:30','Full Body Strength','Strength',55],['19:30','Yin Yoga','Yoga',60],['20:30','Fight Club','Boxing',45]];
+const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+let day=(new Date().getDay()+6)%7,filter='All',booked=new Set();
+function renderDays(){const now=new Date(),mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  $('#days').innerHTML=dayNames.map((d,i)=>{const dt=new Date(mon);dt.setDate(mon.getDate()+i);return `<button class="${i===day?'on':''}" data-d="${i}">${d}<small>${dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</small></button>`}).join('')}
+function renderClasses(){
+  const list=base.filter((c,i)=>!(day>4&&i%3===0)).map((c,i)=>{const cap=16,taken=(day*7+i*5)%17;return {t:c[0],n:c[1],ty:c[2],dur:c[3],coach:coaches[(i+day)%4],cap,taken,key:day+'-'+c[0]}})
+    .filter(c=>filter==='All'||c.ty===filter);
+  $('#classes').innerHTML=list.length?list.map((c,i)=>{const isB=booked.has(c.key),left=c.cap-c.taken-(isB?1:0),full=left<=0&&!isB;
+    return `<div class="cl" style="animation-delay:${i*40}ms"><div class="t">${c.t}<small>${c.dur} min</small></div>
+     <div><h4>${c.n}</h4><span class="tag" style="color:${types[c.ty]};background:${types[c.ty]}1f">${c.ty}</span></div>
+     <div class="m">with ${c.coach}</div>
+     <div class="spots">${full?'Class is full':left+' of '+c.cap+' spots left'}<i><b style="width:${(c.cap-left)/c.cap*100}%"></b></i></div>
+     <button data-k="${c.key}" class="${isB?'bk':''}" ${full?'disabled':''}>${isB?'✓ Booked':full?'Full':'Book'}</button></div>`}).join('')
+    :`<p style="color:var(--mut);padding:20px 0">No ${filter} classes on this day.</p>`;
+}
+$('#fil').innerHTML=['All',...Object.keys(types)].map(t=>`<button class="${t==='All'?'on':''}" data-f="${t}">${t}</button>`).join('');
+$('#days').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;day=+b.dataset.d;renderDays();renderClasses()});
+$('#fil').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;filter=b.dataset.f;$('#fil').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderClasses()});
+$('#classes').addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;booked.has(k)?booked.delete(k):booked.add(k);renderClasses()});
+renderDays();renderClasses();
+
+/* BMI */
+let unit='m';const h=$('#h'),w=$('#w');
+function setUnit(u){unit=u;$('#units').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.u===u));
+  if(u==='m'){Object.assign(h,{min:140,max:210,step:1,value:175});Object.assign(w,{min:40,max:160,step:1,value:74})}
+  else{Object.assign(h,{min:55,max:83,step:1,value:69});Object.assign(w,{min:90,max:350,step:1,value:163})}calc()}
+function calc(){
+  const hv=+h.value,wv=+w.value;
+  $('#hTxt').textContent=unit==='m'?hv+' cm':Math.floor(hv/12)+"' "+hv%12+'"';$('#wTxt').textContent=wv+(unit==='m'?' kg':' lb');
+  const bmi=unit==='m'?wv/((hv/100)**2):703*wv/(hv*hv);
+  const cats=[[18.5,'Underweight','#4cc3ff','Focus on strength training and a calorie surplus with plenty of protein.'],[25,'Healthy weight','#c6ff3d','Great range! Keep a balanced mix of strength and cardio to stay here.'],
+    [30,'Overweight','#ffc23d','A mix of HIIT and strength 3–4× per week plus a small calorie deficit works best.'],[99,'Obesity','#ff6a3d','Start with low-impact cardio and guided strength sessions — our coaches can help.']];
+  const c=cats.find(x=>bmi<x[0]);
+  $('#bmiV').textContent=bmi.toFixed(1);$('#bmiV').style.color=c[2];$('#bmiC').textContent=c[1];$('#bmiTip').textContent='💡 '+c[3];
+  $('#needle').style.left=`calc(${Math.min(Math.max((bmi-15)/20,0),1)*100}% - 2px)`;
+}
+h.oninput=w.oninput=calc;$('#units').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setUnit(b.dataset.u)});setUnit('m');
+
+/* coaches */
+const cs=[['Marcus Reed','Head Strength Coach','10 years · ex-competitive powerlifter','#c6ff3d'],['Lena Ortiz','Yoga & Mobility','RYT-500 certified, helps you move pain-free','#4cc3ff'],['Jay Park','Boxing & HIIT','Former amateur champion, high-energy classes','#ff6a3d']];
+$('#team').innerHTML=cs.map(([n,r,d,c])=>`<div class="tr reveal"><div class="ph" style="background:linear-gradient(180deg,${c}26,${c}08)"><svg viewBox="0 0 200 220"><circle cx="100" cy="70" r="38" fill="${c}"/><path d="M30 220c0-50 30-90 70-90s70 40 70 90z" fill="${c}"/></svg></div><div class="b"><h3>${n}</h3><span>${r}</span><p>${d}</p></div></div>`).join('');
+
+/* trial form */
+$('#tf').addEventListener('submit',e=>{e.preventDefault();const n=$('#tn'),p=$('#tp'),g=$('#tg'),m=$('#tmsg');
+  const ok=[[n,n.value.trim().length>1],[p,p.value.replace(/\D/g,'').length>=7],[g,!!g.value]];ok.forEach(([el,v])=>el.classList.toggle('bad',!v));
+  if(ok.some(x=>!x[1])){m.className='msg';m.textContent='Please fill in all fields correctly.';return}
+  m.className='msg ok';m.textContent=`✓ Done, ${n.value.trim().split(' ')[0]}! Your free 7-day pass is on its way to ${p.value.trim()}.`;e.target.reset()});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('[data-n]').forEach(el=>{const end=+el.dataset.n;let t0;const f=t=>{t0??=t;const p=Math.min((t-t0)/1500,1);el.textContent=Math.round(end*(1-(1-p)**3)).toLocaleString()+(end>100?'+':'');if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)});
+$('#yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
