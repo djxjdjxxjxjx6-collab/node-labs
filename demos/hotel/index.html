@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maré Hotel & Spa — Hotel Booking Website</title>
+<meta name="description" content="Demo hotel website by Yurii Starikov — custom date-range calendar, guest picker, live room pricing and a booking flow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--sea:#0d3b4f;--sea2:#14566f;--foam:#e8f2f4;--sand:#f3eee6;--coral:#e86f51;--ink:#122a33;--ink2:#4d6570;--mut:#8aa0a8;--line:#dde7ea;--bg:#fbfcfc;
+  --fd:"Instrument Serif",Georgia,serif;--fb:"Outfit",system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:22px}
+h1,h2,h3{font-family:var(--fd);font-weight:400;line-height:1.02;letter-spacing:-.01em}
+section{padding-block:clamp(70px,9vw,110px)}
+.k{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--coral);font-weight:600}
+.h2{font-size:clamp(2.4rem,5vw,4rem);margin:12px 0 14px}
+.h2 i{color:var(--sea2)}
+.sub{color:var(--ink2);max-width:560px}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--coral);color:#fff;border:0;border-radius:99px;padding:14px 26px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{background:#d65c3f}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+header{position:absolute;inset:0 0 auto;z-index:20;color:#fff}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:80px}
+.logo{font-family:var(--fd);font-size:1.9rem;line-height:1}
+.logo small{display:block;font-family:var(--fb);font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;opacity:.75}
+nav{display:flex;gap:30px;font-size:.95rem}
+nav a{opacity:.85}nav a:hover{opacity:1}
+@media(max-width:820px){nav{display:none}}
+
+.hero{position:relative;min-height:88vh;display:flex;align-items:flex-end;color:#fff;padding-bottom:150px;overflow:hidden;background:var(--sea)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero .wrap{position:relative;width:100%}
+.hero h1{font-size:clamp(3.4rem,9vw,8.5rem);max-width:900px}
+.hero h1 i{color:#ffd2c4}
+.hero p{max-width:460px;font-size:1.12rem;opacity:.9;margin-top:16px;font-weight:300}
+.book{position:relative;z-index:5;margin-top:-80px}
+.bar{background:#fff;border-radius:22px;box-shadow:0 30px 70px -30px rgba(13,59,79,.45);padding:10px;display:grid;grid-template-columns:1.4fr 1fr auto;gap:6px;align-items:stretch}
+@media(max-width:820px){.bar{grid-template-columns:1fr}}
+.fieldb{border:0;background:none;text-align:left;padding:12px 18px;border-radius:14px;cursor:pointer;display:grid;gap:2px;position:relative}
+.fieldb:hover,.fieldb.on{background:var(--foam)}
+.fieldb span{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.fieldb b{font-weight:500;font-size:1.05rem}
+.dates{display:grid;grid-template-columns:1fr 1fr}
+.pop{position:absolute;left:0;top:calc(100% + 10px);background:#fff;border-radius:20px;box-shadow:0 30px 70px -20px rgba(13,59,79,.4);padding:22px;z-index:30;display:none;cursor:default}
+.pop.on{display:block}
+.cal{width:min(640px,calc(100vw - 44px))}
+.calh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.calh button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer}
+.months{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media(max-width:640px){.months{grid-template-columns:1fr}.months .m2{display:none}}
+.mon h4{text-align:center;font-weight:600;margin-bottom:10px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:.9rem}
+.days .dn{color:var(--mut);font-size:.72rem;font-weight:600;padding:6px 0}
+.d{aspect-ratio:1;border:0;background:none;border-radius:50%;cursor:pointer;position:relative;display:grid;place-items:center;line-height:1.1}
+.d small{display:block;font-size:.58rem;color:var(--mut)}
+.d:hover:not(:disabled){background:var(--foam)}
+.d:disabled{color:#c4d0d4;cursor:not-allowed;text-decoration:line-through}
+.d.in{background:var(--foam);border-radius:0}
+.d.s,.d.e{background:var(--sea);color:#fff;border-radius:50%}
+.d.s small,.d.e small{color:#bfe0ea}
+.calf{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.9rem;color:var(--ink2);gap:10px;flex-wrap:wrap}
+.calf button{background:none;border:0;text-decoration:underline;cursor:pointer;color:var(--ink2)}
+.guests{width:300px}
+.g{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.g:last-child{border:0}
+.g small{display:block;color:var(--mut)}
+.ctr{display:flex;align-items:center;gap:12px}
+.ctr button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:1.1rem}
+.ctr button:disabled{opacity:.35}
+.ctr b{min-width:16px;text-align:center}
+
+.rooms{display:grid;gap:22px;margin-top:40px}
+.room{display:grid;grid-template-columns:1.1fr 1.3fr;background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;transition:.3s}
+.room:hover{box-shadow:0 26px 50px -30px rgba(13,59,79,.4)}
+.room.sel{border-color:var(--coral);box-shadow:0 0 0 2px var(--coral)}
+@media(max-width:820px){.room{grid-template-columns:1fr}}
+.rimg{position:relative;min-height:280px}
+.rimg svg{position:absolute;inset:0;width:100%;height:100%}
+.rimg .tag{position:absolute;left:16px;top:16px;background:#fff;border-radius:99px;font-size:.75rem;font-weight:600;padding:5px 12px}
+.rb{padding:28px;display:flex;flex-direction:column;gap:12px}
+.rb h3{font-size:2.1rem}
+.feat{display:flex;flex-wrap:wrap;gap:8px}
+.feat span{display:flex;gap:6px;align-items:center;background:var(--foam);border-radius:99px;padding:5px 12px;font-size:.84rem;color:var(--sea)}
+.rb p{color:var(--ink2);font-size:.95rem}
+.rf{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--line)}
+.price b{font-family:var(--fd);font-size:2.2rem;font-weight:400}
+.price span{color:var(--mut);font-size:.88rem}
+.price small{display:block;color:var(--ink2);font-size:.88rem}
+.full{color:var(--coral);font-weight:600;font-size:.9rem}
+
+.summary{position:fixed;left:50%;bottom:18px;transform:translate(-50%,150%);background:var(--sea);color:#fff;border-radius:20px;padding:14px 14px 14px 24px;display:flex;align-items:center;gap:24px;z-index:40;box-shadow:0 24px 60px -20px rgba(13,59,79,.7);transition:.45s cubic-bezier(.2,.8,.2,1);width:min(760px,calc(100% - 24px))}
+.summary.on{transform:translate(-50%,0)}
+.summary div{flex:1;min-width:0}
+.summary small{opacity:.75;display:block;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary b{font-family:var(--fd);font-size:1.7rem;font-weight:400}
+
+.amen{background:var(--sand)}
+.agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
+@media(max-width:900px){.agrid{grid-template-columns:1fr 1fr}}
+.am{background:#fff;border-radius:20px;padding:24px}
+.am .ic{width:46px;height:46px;border-radius:14px;background:var(--foam);color:var(--sea);display:grid;place-items:center;margin-bottom:14px}
+.am h4{font-family:var(--fd);font-size:1.5rem;font-weight:400}
+.am p{color:var(--ink2);font-size:.9rem}
+.revs{display:grid;grid-template-columns:auto 1fr;gap:50px;align-items:center}
+@media(max-width:820px){.revs{grid-template-columns:1fr}}
+.score{background:var(--sea);color:#fff;border-radius:24px;padding:30px;text-align:center;min-width:220px}
+.score b{font-family:var(--fd);font-size:5rem;font-weight:400;line-height:1}
+.score .bars{display:grid;gap:8px;margin-top:18px;text-align:left;font-size:.82rem}
+.score .bars div{display:grid;grid-template-columns:80px 1fr 28px;gap:8px;align-items:center}
+.score .bars i{height:5px;border-radius:9px;background:rgba(255,255,255,.2);overflow:hidden}
+.score .bars i u{display:block;height:100%;background:#ffd2c4}
+.rq{display:grid;gap:18px}
+.rq blockquote{font-family:var(--fd);font-size:1.6rem;line-height:1.25}
+.rq cite{color:var(--mut);font-style:normal;font-size:.9rem;display:block;margin-top:6px}
+
+.modal{position:fixed;inset:0;background:rgba(13,59,79,.55);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
+.modal.on{display:flex}
+.mb{background:#fff;border-radius:26px;width:min(860px,100%);max-height:92vh;overflow:auto;display:grid;grid-template-columns:1.2fr 1fr}
+@media(max-width:760px){.mb{grid-template-columns:1fr}}
+.mb form{padding:30px;display:grid;gap:14px;align-content:start}
+.mb h3{font-size:2rem}
+.f{display:grid;gap:5px}
+.f label{font-size:.8rem;font-weight:600;color:var(--ink2)}
+.f input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;outline:0;background:var(--bg)}
+.f input:focus{border-color:var(--sea)}
+.f.bad input{border-color:var(--coral);background:#fff6f3}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.recap{background:var(--foam);padding:30px;display:grid;gap:10px;align-content:start}
+.recap .line{display:flex;justify-content:space-between;font-size:.92rem;color:var(--ink2)}
+.recap .tot{border-top:1px solid #c9dce1;padding-top:12px;font-weight:600;color:var(--ink);font-size:1.05rem}
+.recap .tot b{font-family:var(--fd);font-size:1.8rem;font-weight:400}
+.ok{text-align:center;padding:40px 30px;grid-column:1/-1}
+.ok .seal{width:76px;height:76px;border-radius:50%;background:var(--foam);color:var(--sea);display:grid;place-items:center;margin:0 auto 16px;font-size:1.8rem}
+footer{background:var(--sea);color:#bcd6de;padding:50px 0 120px;font-size:.92rem}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .logo{color:#fff}
+.demo{text-align:center;font-size:.8rem;color:#8fb3be;margin-top:24px}
+.demo a{color:#ffd2c4;text-decoration:underline}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a href="#" class="logo">Maré<small>Hotel & Spa · Algarve</small></a><nav><a href="#rooms">Rooms</a><a href="#amenities">Spa & dining</a><a href="#reviews">Reviews</a></nav></div></header>
+
+<section class="hero"><canvas id="sea" aria-hidden="true"></canvas><div class="wrap">
+  <span class="k" style="color:#ffd2c4">Boutique hotel on the cliffs</span>
+  <h1>Where the ocean <i>sets the pace.</i></h1>
+  <p>Twenty-four rooms above a quiet beach in the Algarve. Wake up to the sound of waves, unwind in our cliffside spa, and dine on what the sea brings in each morning.</p>
+</div></section>
+
+<div class="wrap book"><div class="bar">
+  <div class="dates" style="position:relative">
+    <button class="fieldb" id="dBtn" type="button"><span>Check in</span><b id="ciT">Add date</b></button>
+    <button class="fieldb" id="dBtn2" type="button"><span>Check out</span><b id="coT">Add date</b></button>
+    <div class="pop cal" id="cal">
+      <div class="calh"><button id="prev" type="button" aria-label="Previous month">‹</button><b id="calInfo" style="font-weight:500;color:var(--ink2)">Select your check-in date</b><button id="next" type="button" aria-label="Next month">›</button></div>
+      <div class="months" id="months"></div>
+      <div class="calf"><span id="calNights">Minimum stay: 2 nights · prices per night</span><span><button type="button" id="clr">Clear dates</button> &nbsp; <button class="btn" type="button" id="calDone" style="padding:9px 20px;text-decoration:none">Done</button></span></div>
+    </div>
+  </div>
+  <div style="position:relative">
+    <button class="fieldb" id="gBtn" type="button" style="width:100%"><span>Guests</span><b id="gT">2 adults</b></button>
+    <div class="pop guests" id="gp">
+      <div class="g"><div>Adults<small>Ages 13+</small></div><div class="ctr"><button type="button" data-g="a" data-d="-1">−</button><b id="ga">2</b><button type="button" data-g="a" data-d="1">+</button></div></div>
+      <div class="g"><div>Children<small>Ages 2–12</small></div><div class="ctr"><button type="button" data-g="c" data-d="-1">−</button><b id="gc">0</b><button type="button" data-g="c" data-d="1">+</button></div></div>
+    </div>
+  </div>
+  <button class="btn" id="search" type="button" style="padding:0 30px;min-height:56px">Check availability</button>
+</div></div>
+
+<section id="rooms"><div class="wrap">
+  <span class="k">Rooms & suites</span><h2 class="h2">Choose your <i>view</i></h2><p class="sub" id="roomsInfo">Pick your dates to see the exact price for your stay.</p>
+  <div class="rooms" id="roomList"></div>
+</div></section>
+
+<section class="amen" id="amenities"><div class="wrap">
+  <span class="k">Stay well</span><h2 class="h2">Everything is <i>included</i></h2>
+  <div class="agrid">
+    <div class="am"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/></svg></div><h4>Infinity pool</h4><p>Heated saltwater pool on the cliff edge, open from 7am to 10pm.</p></div>
+    <div class="am"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 22c4-3 7-7 7-11a7 7 0 0 0-14 0c0 4 3 8 7 11z"/></svg></div><h4>Cliffside spa</h4><p>Sauna, steam room and treatments with organic local oils.</p></div>
+    <div class="am"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M3 2v7a3 3 0 0 0 6 0V2M6 2v20M21 15V2a5 5 0 0 0-5 5v6h5v9"/></svg></div><h4>Ocean kitchen</h4><p>Breakfast included. Dinner menu changes daily with the catch.</p></div>
+    <div class="am"><div class="ic"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h4>Late checkout</h4><p>Check out at 2pm at no extra cost, subject to availability.</p></div>
+  </div>
+</div></section>
+
+<section id="reviews"><div class="wrap revs">
+  <div class="score"><b>9.6</b><div>Exceptional · 1,284 reviews</div><div class="bars">
+    <div>Location<i><u style="width:98%"></u></i>9.8</div><div>Cleanliness<i><u style="width:97%"></u></i>9.7</div><div>Staff<i><u style="width:96%"></u></i>9.6</div><div>Value<i><u style="width:91%"></u></i>9.1</div></div></div>
+  <div class="rq"><span class="k">Guest reviews</span>
+    <div><blockquote>“The most peaceful week we have had in years. The sea view from the bath is unreal.”</blockquote><cite>Emma & Tom · United Kingdom · Ocean Suite</cite></div>
+    <div><blockquote>“Booking was easy, the staff remembered our names, and breakfast on the terrace was perfect.”</blockquote><cite>Lukas · Germany · Garden Room</cite></div></div>
+</div></section>
+
+<footer><div class="wrap"><div class="logo">Maré<small>Hotel & Spa · Algarve</small></div><div>Praia do Camilo, Lagos, Portugal<br>Reception open 24/7</div><div>© <span id="yr"></span> Maré Hotel & Spa</div></div>
+<p class="demo">Demo project · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a> · Available for freelance work</p></footer>
+
+<div class="summary" id="sum"><div><small id="sumInfo"></small><b id="sumTot"></b></div><button class="btn" id="reserve">Reserve</button></div>
+<div class="modal" id="modal"><div class="mb" id="mb"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+/* animated sea */
+const cv=$('#sea'),cx=cv.getContext('2d');let W,H,t=0;
+function sz(){const r=devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*r;cv.height=H*r;cx.setTransform(r,0,0,r,0,0)}sz();addEventListener('resize',sz);
+function sea(){t+=.006;const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#f3b49b');g.addColorStop(.38,'#e98a6f');g.addColorStop(.52,'#2d6f86');g.addColorStop(1,'#0b2f40');cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  const sun=cx.createRadialGradient(W*.7,H*.42,0,W*.7,H*.42,H*.35);sun.addColorStop(0,'rgba(255,236,210,.95)');sun.addColorStop(.2,'rgba(255,214,180,.6)');sun.addColorStop(1,'rgba(255,200,170,0)');cx.fillStyle=sun;cx.fillRect(0,0,W,H*.52);
+  cx.fillStyle='rgba(255,240,220,.9)';cx.beginPath();cx.arc(W*.7,H*.47,H*.07,Math.PI,0);cx.fill();
+  for(let l=0;l<9;l++){const y0=H*.5+l*l*H*.008+l*8;cx.beginPath();cx.moveTo(0,H);for(let x=0;x<=W;x+=12){cx.lineTo(x,y0+Math.sin(x*.008+t*(1+l*.3)+l)*(3+l*2.2)+Math.sin(x*.021-t*2)*(1+l))}cx.lineTo(W,H);cx.closePath();
+    cx.fillStyle=`rgba(${10+l*2},${55+l*3},${75+l*2},${.22+l*.05})`;cx.fill()}
+  cx.fillStyle='rgba(255,226,200,.35)';for(let i=0;i<40;i++){const x=W*.7+Math.sin(i*7.3+t*3)*W*.08*(i/40),y=H*.52+i*H*.009;cx.fillRect(x,y,14+Math.sin(i+t*4)*10,1.5)}
+  /* cliff */
+  cx.fillStyle='#0a2633';cx.beginPath();cx.moveTo(0,H*.44);cx.bezierCurveTo(W*.12,H*.42,W*.2,H*.5,W*.26,H*.56);cx.lineTo(W*.3,H);cx.lineTo(0,H);cx.fill();
+  requestAnimationFrame(sea)}
+sea();
+
+/* rooms */
+const ROOMS=[{id:'garden',n:'Garden Room',size:28,beds:'Queen bed',max:2,base:180,left:4,pal:['#cfe3d6','#7fae8f','#f4efe6'],d:'A calm room opening onto the olive garden, with a rain shower and a private patio.',tag:'Best value'},
+ {id:'ocean',n:'Ocean View Room',size:34,beds:'King bed',max:3,base:260,left:2,pal:['#cfe5ee','#2d6f86','#f7f2ea'],d:'Floor-to-ceiling windows facing the Atlantic and a balcony made for sunsets.',tag:'Most booked'},
+ {id:'suite',n:'Cliff Suite',size:58,beds:'King bed + sofa bed',max:4,base:420,left:1,pal:['#f3d8c9','#e86f51','#faf4ee'],d:'Our largest suite with a freestanding bath by the window, a lounge and a terrace above the waves.',tag:'Only 1 left'}];
+function roomArt(r){const [wall,acc,lin]=r.pal;return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="${wall}"/>
+  <rect x="210" y="40" width="160" height="150" rx="6" fill="#fff"/><rect x="218" y="48" width="144" height="134" fill="url(#w${r.id})"/>
+  <defs><linearGradient id="w${r.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c9b1"/><stop offset=".55" stop-color="#9fc9d6"/><stop offset="1" stop-color="#2d6f86"/></linearGradient></defs>
+  <path d="M218 140q36-8 72 0t72 0v42H218z" fill="#245d72" opacity=".7"/><circle cx="320" cy="100" r="12" fill="#fff3e3"/>
+  <rect y="230" width="400" height="70" fill="#d9c7b0"/><rect x="30" y="160" width="220" height="80" rx="10" fill="${lin}"/><rect x="30" y="140" width="220" height="34" rx="10" fill="${acc}"/>
+  <rect x="44" y="150" width="60" height="26" rx="8" fill="#fff"/><rect x="112" y="150" width="60" height="26" rx="8" fill="#fff"/><rect x="30" y="200" width="220" height="16" fill="${acc}" opacity=".35"/>
+  <rect x="268" y="205" width="40" height="40" rx="4" fill="${acc}" opacity=".8"/><path d="M288 205v-34M276 175l12-10 12 10" stroke="#5a7d5e" stroke-width="4" fill="none"/><circle cx="288" cy="160" r="16" fill="#7fae8f"/></svg>`}
+/* dates */
+const today=new Date();today.setHours(0,0,0,0);
+let ci=null,co=null,view=new Date(today.getFullYear(),today.getMonth(),1),adults=2,kids=0,sel='ocean';
+const blocked=new Set();for(let i=0;i<90;i++){const d=new Date(today);d.setDate(d.getDate()+i);if((i*7)%23===3||(i%17===9))blocked.add(+d)}
+const nightPrice=(d,base)=>{const wk=d.getDay()===5||d.getDay()===6;return Math.round(base*(wk?1.2:1))};
+const fmtD=d=>d?d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'Add date';
+const nights=()=>ci&&co?Math.round((co-ci)/864e5):0;
+function monthHTML(m,cls){const y=m.getFullYear(),mo=m.getMonth(),first=(new Date(y,mo,1).getDay()+6)%7,n=new Date(y,mo+1,0).getDate();
+  let h=`<div class="mon ${cls}"><h4>${m.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h4><div class="days">${['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>`<span class="dn">${x}</span>`).join('')}`;
+  for(let i=0;i<first;i++)h+='<span></span>';
+  for(let d=1;d<=n;d++){const dt=new Date(y,mo,d),v=+dt,past=dt<today,bl=blocked.has(v),inR=ci&&co&&dt>ci&&dt<co,isS=ci&&v===+ci,isE=co&&v===+co;
+    const bad=past||(bl&&!(ci&&!co&&dt>ci&&!rangeBlocked(ci,dt)));
+    h+=`<button type="button" class="d${inR?' in':''}${isS?' s':''}${isE?' e':''}" data-v="${v}" ${past||(bl&&!(ci&&!co))?'disabled':''} aria-label="${dt.toDateString()}">${d}${!past&&!bl?`<small>€${nightPrice(dt,260)}</small>`:''}</button>`}
+  return h+'</div></div>'}
+function rangeBlocked(a,b){for(let d=new Date(a);d<b;d.setDate(d.getDate()+1))if(blocked.has(+d)&&+d!==+a)return true;return false}
+function renderCal(){const m2=new Date(view.getFullYear(),view.getMonth()+1,1);$('#months').innerHTML=monthHTML(view,'m1')+monthHTML(m2,'m2');
+  $('#prev').disabled=view<=new Date(today.getFullYear(),today.getMonth(),1);
+  $('#calInfo').textContent=!ci?'Select your check-in date':!co?'Now select your check-out date':`${nights()} night${nights()>1?'s':''} · ${fmtD(ci)} → ${fmtD(co)}`;
+  $('#ciT').textContent=fmtD(ci);$('#coT').textContent=fmtD(co)}
+$('#months').addEventListener('click',e=>{const b=e.target.closest('.d');if(!b||b.disabled)return;const d=new Date(+b.dataset.v);
+  if(!ci||co||d<=ci){ci=d;co=null}else{if(rangeBlocked(ci,d)){$('#calInfo').textContent='Some nights in this range are fully booked, choose another date';return}
+    if((d-ci)/864e5<2){$('#calInfo').textContent='Minimum stay is 2 nights';return}co=d}
+  renderCal();renderRooms()});
+$('#prev').onclick=()=>{view.setMonth(view.getMonth()-1);renderCal()};$('#next').onclick=()=>{view.setMonth(view.getMonth()+1);renderCal()};
+$('#clr').onclick=()=>{ci=co=null;renderCal();renderRooms()};
+function closePops(){if($('#cal').classList.contains('on'))setTimeout(sumUpd,0);document.querySelectorAll('.pop').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.fieldb').forEach(f=>f.classList.remove('on'))}
+$('#dBtn').onclick=$('#dBtn2').onclick=e=>{const o=$('#cal').classList.contains('on');closePops();if(!o){$('#cal').classList.add('on');e.currentTarget.classList.add('on');renderCal();$('#sum').classList.remove('on');setTimeout(()=>$('#cal').scrollIntoView({block:'nearest',behavior:'smooth'}),30)}};
+$('#calDone').onclick=()=>{closePops();sumUpd()};
+$('#gBtn').onclick=e=>{const o=$('#gp').classList.contains('on');closePops();if(!o){$('#gp').classList.add('on');e.currentTarget.classList.add('on')}};
+$('#gp').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;if(b.dataset.g==='a')adults=Math.min(6,Math.max(1,adults+ +b.dataset.d));else kids=Math.min(4,Math.max(0,kids+ +b.dataset.d));gUpd();renderRooms()});
+function gUpd(){$('#ga').textContent=adults;$('#gc').textContent=kids;$('#gT').textContent=`${adults} adult${adults>1?'s':''}${kids?`, ${kids} child${kids>1?'ren':''}`:''}`;
+  document.querySelectorAll('[data-g="a"][data-d="-1"]')[0].disabled=adults<=1;document.querySelectorAll('[data-g="c"][data-d="-1"]')[0].disabled=kids<=0}
+document.addEventListener('click',e=>{if(!e.composedPath().some(n=>n.classList&&(n.classList.contains('pop')||n.classList.contains('fieldb'))))closePops()});
+$('#search').onclick=()=>{closePops();if(!ci||!co){$('#cal').classList.add('on');$('#dBtn').classList.add('on');renderCal();return}$('#rooms').scrollIntoView({behavior:'smooth'})};
+
+function stayTotal(r){if(!nights())return null;let s=0;for(let d=new Date(ci);d<co;d.setDate(d.getDate()+1))s+=nightPrice(d,r.base);return s}
+function renderRooms(){const g=adults+kids,n=nights();
+  $('#roomsInfo').textContent=n?`Prices for ${n} night${n>1?'s':''} (${fmtD(ci)} → ${fmtD(co)}), ${g} guest${g>1?'s':''}. Breakfast and spa access included.`:'Pick your dates to see the exact price for your stay.';
+  $('#roomList').innerHTML=ROOMS.map(r=>{const tot=stayTotal(r),fits=g<=r.max;
+    return `<article class="room${sel===r.id&&fits&&n?' sel':''}"><div class="rimg">${roomArt(r)}<span class="tag">${r.tag}</span></div><div class="rb"><h3>${r.n}</h3>
+     <div class="feat"><span>${r.size} m²</span><span>${r.beds}</span><span>Up to ${r.max} guests</span><span>Breakfast incl.</span></div><p>${r.d}</p>
+     <div class="rf"><div class="price">${tot?`<b>€${tot.toLocaleString()}</b> <span>total</span><small>€${Math.round(tot/n)} avg. per night · ${r.left} left at this price</small>`:`<span>from</span> <b>€${r.base}</b> <span>/ night</span>`}</div>
+     ${fits?`<button class="btn" data-r="${r.id}">${sel===r.id&&n?'✓ Selected':'Select room'}</button>`:`<span class="full">Not available for ${g} guests</span>`}</div></div></article>`}).join('');
+  if(!ROOMS.find(r=>r.id===sel&&g<=r.max))sel=null;sumUpd()}
+$('#roomList').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;sel=b.dataset.r;if(!nights()){$('#cal').classList.add('on');$('#dBtn').classList.add('on');renderCal();scrollTo({top:$('.book').offsetTop-100,behavior:'smooth'});e.stopPropagation()}renderRooms()});
+function sumUpd(){const r=ROOMS.find(x=>x.id===sel),n=nights(),on=r&&n&&!$('#cal').classList.contains('on');$('#sum').classList.toggle('on',!!on);if(!on)return;
+  $('#sumInfo').textContent=`${r.n} · ${n} night${n>1?'s':''} · ${fmtD(ci)} → ${fmtD(co)} · ${$('#gT').textContent}`;$('#sumTot').textContent='€'+stayTotal(r).toLocaleString()}
+/* checkout */
+$('#reserve').onclick=()=>{const r=ROOMS.find(x=>x.id===sel),n=nights(),tot=stayTotal(r),tax=Math.round(tot*.06);
+  $('#mb').innerHTML=`<form id="bf" novalidate><h3>Your details</h3><div class="two"><div class="f"><label>First name</label><input id="fn"></div><div class="f"><label>Last name</label><input id="ln"></div></div>
+   <div class="f"><label>Email</label><input id="em" type="email"></div><div class="f"><label>Phone</label><input id="ph"></div>
+   <label style="display:flex;gap:8px;font-size:.88rem;color:var(--ink2)"><input type="checkbox" id="airport"> Add airport transfer (+€60)</label>
+   <button class="btn" style="margin-top:6px">Confirm reservation</button><button type="button" class="btn" style="background:none;color:var(--ink2)" id="bk">Back</button></form>
+   <div class="recap"><span class="k">Your stay</span><h3 style="font-size:1.7rem">${r.n}</h3><div class="line"><span>Check in</span><b>${fmtD(ci)}, 3pm</b></div><div class="line"><span>Check out</span><b>${fmtD(co)}, 2pm</b></div>
+    <div class="line"><span>Guests</span><b>${$('#gT').textContent}</b></div><div class="line"><span>${n} nights</span><b>€${tot.toLocaleString()}</b></div><div class="line"><span>Tourist tax</span><b>€${tax}</b></div>
+    <div class="line" id="trRow" style="display:none"><span>Airport transfer</span><b>€60</b></div><div class="line tot"><span>Total</span><b id="gt">€${(tot+tax).toLocaleString()}</b></div><small style="color:var(--mut)">Free cancellation until 48 hours before arrival. Pay at the hotel.</small></div>`;
+  $('#modal').classList.add('on');
+  $('#airport').onchange=e=>{$('#trRow').style.display=e.target.checked?'flex':'none';$('#gt').textContent='€'+(tot+tax+(e.target.checked?60:0)).toLocaleString()};
+  $('#bk').onclick=()=>$('#modal').classList.remove('on');
+  $('#bf').onsubmit=e=>{e.preventDefault();const chk={fn:v=>v.length>0,ln:v=>v.length>0,em:v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v),ph:v=>v.replace(/\D/g,'').length>=7};let ok=true;
+    for(const k in chk){const g=chk[k]($('#'+k).value.trim());$('#'+k).parentElement.classList.toggle('bad',!g);if(!g)ok=false}if(!ok)return;
+    $('#mb').innerHTML=`<div class="ok"><div class="seal">✓</div><h3>See you soon, ${$('#fn').value.trim()}!</h3><p style="color:var(--ink2);margin:10px auto 20px;max-width:440px">Booking <b>MR-${Math.floor(10000+Math.random()*89999)}</b> is confirmed: ${r.n}, ${fmtD(ci)} → ${fmtD(co)}. A confirmation email is on its way.</p><button class="btn" id="okc">Done</button></div>`;
+    $('#okc').onclick=()=>$('#modal').classList.remove('on')}};
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')});
+addEventListener('keydown',e=>{if(e.key==='Escape'){closePops();$('#modal').classList.remove('on')}});
+/* demo preset: a 4-night stay starting in two weeks */
+(function(){let d=new Date(today);d.setDate(d.getDate()+14);for(let k=0;k<20;k++){const e=new Date(d);e.setDate(e.getDate()+4);if(!rangeBlocked(d,e)&&!blocked.has(+d)){ci=d;co=e;break}d.setDate(d.getDate()+1)}})();
+gUpd();renderCal();renderRooms();$('#yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>

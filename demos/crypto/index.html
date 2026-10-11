@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coinwave — Live Crypto Market Tracker</title>
+<meta name="description" content="Demo crypto tracker by Yurii Starikov — live prices from a public API, sparklines, watchlist, interactive price charts and a converter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--ink:#0f1430;--ink2:#545b78;--mut:#8f95ad;--line:#e6e8f0;--acc:#3b5bfd;--acc-s:#eef1ff;--up:#0f9d6b;--up-s:#e5f6ef;--dn:#e2364b;--dn-s:#fde9ec;
+  --fd:"Manrope",system-ui,sans-serif;--fm:"IBM Plex Mono",ui-monospace,monospace}
+[data-theme=dark]{--bg:#0b0e1d;--card:#131830;--ink:#eef0fb;--ink2:#a9afcb;--mut:#6c7392;--line:#232a47;--acc-s:#1d2550;--up-s:#0f2a24;--dn-s:#33161d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fd);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:20px}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.num{font-family:var(--fm);font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.dn{color:var(--dn)}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+header .wrap{display:flex;align-items:center;gap:18px;height:66px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.2rem;letter-spacing:-.02em}
+.logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#3b5bfd,#7b5bff);display:grid;place-items:center}
+.ticker{flex:1;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);min-width:0}
+.ticker div{display:flex;gap:28px;width:max-content;animation:tk 40s linear infinite;font-size:.84rem}
+.ticker span{display:flex;gap:6px;white-space:nowrap}
+.ticker b{font-weight:700}
+@keyframes tk{to{transform:translateX(-50%)}}
+.hbtn{display:flex;gap:8px;align-items:center}
+.sel{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-weight:600;font-size:.86rem;cursor:pointer}
+.ib{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;cursor:pointer;color:var(--ink2)}
+@media(max-width:760px){.ticker{display:none}header .wrap{justify-content:space-between}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}}
+.st{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.st span{color:var(--mut);font-size:.8rem;font-weight:600}
+.st b{display:block;font-size:1.35rem;font-weight:700;margin-top:4px;letter-spacing:-.02em}
+.st small{font-weight:600;font-size:.8rem}
+.dom{display:flex;height:8px;border-radius:9px;overflow:hidden;margin-top:10px}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:18px;align-items:start}
+@media(max-width:1060px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;min-width:0}
+.bar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px}
+.tabs button{border:0;background:none;padding:7px 14px;border-radius:9px;font-weight:600;font-size:.86rem;color:var(--ink2);cursor:pointer}
+.tabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(15,20,48,.12)}
+.srch{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:0 12px;color:var(--mut)}
+.srch input{border:0;outline:0;background:none;padding:9px 0;width:170px;color:var(--ink)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:720px}
+th{text-align:right;font-size:.74rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:12px 10px;cursor:pointer;user-select:none;white-space:nowrap}
+th:nth-child(-n+3){text-align:left}
+th.s{color:var(--acc)}
+td{padding:12px 10px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+td:nth-child(-n+3){text-align:left}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:var(--acc-s)}
+tbody tr.flash-up td.p{animation:fu 1.2s}tbody tr.flash-dn td.p{animation:fd 1.2s}
+@keyframes fu{0%{background:var(--up-s)}}@keyframes fd{0%{background:var(--dn-s)}}
+.coin{display:flex;align-items:center;gap:10px;font-weight:700}
+.coin img,.coin .ph{width:26px;height:26px;border-radius:50%;flex:none}
+.coin .ph{display:grid;place-items:center;font-size:.7rem;color:#fff}
+.coin small{color:var(--mut);font-weight:600;text-transform:uppercase}
+.star{background:none;border:0;cursor:pointer;color:var(--mut);padding:4px;display:grid}
+.star.on{color:#f5a524}.star.on svg{fill:#f5a524}
+.chg{font-weight:600}
+td svg.sp{width:96px;height:34px;display:block;margin-left:auto}
+.msg{padding:50px 20px;text-align:center;color:var(--mut)}
+.msg button{margin-top:12px;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:600;cursor:pointer}
+.skel td{height:58px}
+.skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line),var(--bg),var(--line));background-size:200%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.foot{display:flex;justify-content:space-between;padding:12px 18px;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);gap:10px;flex-wrap:wrap}
+.live{display:inline-flex;gap:6px;align-items:center}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--up);animation:pl 1.6s infinite}
+@keyframes pl{50%{opacity:.3}}
+.side{display:grid;gap:18px}
+.side .card{padding:18px}
+.side h3{font-size:1rem;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.cv{display:grid;gap:10px}
+.cv .row{display:flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px 4px 4px 14px}
+.cv input{flex:1;border:0;outline:0;background:none;font-family:var(--fm);font-size:1.15rem;padding:8px 0;min-width:0}
+.cv .row{min-width:0}.cv select{max-width:92px;border:0;background:var(--card);border-radius:9px;padding:8px;font-weight:700;cursor:pointer}
+.swap{justify-self:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;display:grid;place-items:center;transition:transform .3s}
+.swap:hover{transform:rotate(180deg)}
+.rate{color:var(--mut);font-size:.82rem;text-align:center}
+.mv{display:grid;gap:10px}
+.mv div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem;cursor:pointer;padding:4px;border-radius:8px}
+.mv div:hover{background:var(--bg)}
+.fg{height:12px;border-radius:9px;background:linear-gradient(90deg,#e2364b,#f5a524,#0f9d6b);position:relative;margin:30px 0 8px}
+.fg i{position:absolute;top:-8px;width:4px;height:28px;border-radius:3px;background:var(--ink);transition:left .6s}
+.fgv{display:flex;justify-content:space-between;align-items:baseline}
+.fgv b{font-size:2rem}
+/* drawer */
+.ov{position:fixed;inset:0;background:rgba(10,13,30,.45);opacity:0;pointer-events:none;transition:.3s;z-index:40}
+.ov.on{opacity:1;pointer-events:auto}
+.dr{position:fixed;right:0;top:0;height:100%;width:min(560px,100%);background:var(--card);z-index:50;transform:translateX(100%);transition:.4s cubic-bezier(.2,.8,.2,1);overflow-y:auto;padding:24px}
+.dr.on{transform:none}
+.dh{display:flex;justify-content:space-between;align-items:center}
+.dh .coin{font-size:1.2rem}.dh .coin img,.dh .coin .ph{width:38px;height:38px}
+.big{font-size:2.3rem;font-weight:800;letter-spacing:-.03em;margin-top:18px}
+.rng{display:flex;gap:4px;margin:18px 0 10px}
+.rng button{border:1px solid var(--line);background:none;border-radius:8px;padding:6px 12px;font-weight:600;font-size:.82rem;cursor:pointer;color:var(--ink2)}
+.rng button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.ch{position:relative;height:240px}
+.ch svg{width:100%;height:100%;display:block;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--card);font-size:.78rem;padding:6px 10px;border-radius:8px;transform:translate(-50%,-120%);white-space:nowrap;opacity:0}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.kv div{background:var(--bg);border-radius:12px;padding:12px}
+.kv span{color:var(--mut);font-size:.78rem;font-weight:600;display:block}
+.kv b{font-size:1rem}
+.demo{text-align:center;color:var(--mut);font-size:.8rem;padding:26px 0}
+.demo a{color:var(--acc)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo"><i><svg class="i" viewBox="0 0 24 24" style="color:#fff;width:16px;height:16px"><path d="M2 12c3-6 6-6 9 0s6 6 9 0"/></svg></i>Coinwave</div>
+  <div class="ticker"><div id="ticker"></div></div>
+  <div class="hbtn"><select class="sel" id="cur" aria-label="Currency"><option value="usd">USD $</option><option value="eur">EUR €</option><option value="gbp">GBP £</option></select>
+  <button class="ib" id="theme" aria-label="Toggle dark mode"><svg class="i" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
+</div></header>
+
+<main class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="grid">
+    <div class="card">
+      <div class="bar">
+        <div class="tabs" id="tabs"><button class="on" data-t="all">All coins</button><button data-t="watch">★ Watchlist</button><button data-t="gain">Top gainers</button><button data-t="lose">Top losers</button></div>
+        <label class="srch"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search coin" aria-label="Search coin"></label>
+      </div>
+      <div class="tw"><table><thead><tr><th></th><th data-k="market_cap_rank">#</th><th data-k="name">Coin</th><th data-k="current_price">Price</th><th data-k="price_change_percentage_1h_in_currency">1h</th><th data-k="price_change_percentage_24h_in_currency">24h</th><th data-k="price_change_percentage_7d_in_currency">7d</th><th data-k="market_cap">Market cap</th><th>Last 7 days</th></tr></thead><tbody id="tb"></tbody></table></div>
+      <div class="foot"><span class="live"><i></i>Live · updates every 60 s · <span id="upd">—</span></span><span>Data: CoinGecko public API</span></div>
+    </div>
+    <div class="side">
+      <div class="card"><h3>Converter</h3>
+        <div class="cv"><div class="row"><input id="a1" value="1" inputmode="decimal" aria-label="Amount"><select id="c1" aria-label="From coin"></select></div>
+          <button class="swap" id="swap" aria-label="Swap">⇅</button>
+          <div class="row"><input id="a2" inputmode="decimal" aria-label="Converted amount"><select id="c2" aria-label="To currency"></select></div>
+          <div class="rate" id="rate"></div></div></div>
+      <div class="card"><h3>Market sentiment <small style="color:var(--mut);font-weight:600">by 24h breadth</small></h3>
+        <div class="fgv"><b id="fgN">—</b><span id="fgL" style="font-weight:700"></span></div><div class="fg"><i id="fgI" style="left:50%"></i></div>
+        <div style="display:flex;justify-content:space-between;color:var(--mut);font-size:.74rem;font-weight:600"><span>Extreme fear</span><span>Neutral</span><span>Extreme greed</span></div></div>
+      <div class="card"><h3>Biggest movers <small style="color:var(--mut);font-weight:600">24h</small></h3><div class="mv" id="mv"></div></div>
+    </div>
+  </div>
+  <p class="demo">Demo project · Not financial advice · Design & development by <a href="https://github.com/djxjdjxxjxjx6-collab">Yurii Starikov</a></p>
+</main>
+
+<div class="ov" id="ov"></div>
+<aside class="dr" id="dr" aria-label="Coin details"></aside>
+
+<script>
+const $=s=>document.querySelector(s),API='https://api.coingecko.com/api/v3/';
+let coins=[],glob=null,cur='usd',tab='all',sortK='market_cap_rank',dir=1,q='',watch=[];
+try{watch=JSON.parse(localStorage.getItem('cw-watch'))||['bitcoin','ethereum'];cur=localStorage.getItem('cw-cur')||'usd';if(localStorage.getItem('cw-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){watch=['bitcoin','ethereum']}
+$('#cur').value=cur;
+const sym={usd:'$',eur:'€',gbp:'£'};
+const fmt=(n,d)=>{if(n==null)return '—';const a=Math.abs(n);d??=(a>=1000?0:a>=1?2:a>=.01?4:6);return sym[cur]+n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})};
+const big=n=>n>=1e12?sym[cur]+(n/1e12).toFixed(2)+'T':n>=1e9?sym[cur]+(n/1e9).toFixed(2)+'B':n>=1e6?sym[cur]+(n/1e6).toFixed(1)+'M':fmt(n,0);
+const pct=n=>n==null?'<span class="mut">—</span>':`<span class="chg ${n>=0?'up':'dn'}">${n>=0?'▲':'▼'} ${Math.abs(n).toFixed(2)}%</span>`;
+const icon=c=>c.image?`<img src="${c.image}" alt="" loading="lazy">`:`<span class="ph" style="background:hsl(${c.name.length*37%360} 60% 50%)">${c.symbol.slice(0,2).toUpperCase()}</span>`;
+function spark(arr,up,w=110,h=34){if(!arr||arr.length<2)return '';const s=arr.filter((_,i)=>i%3===0),mx=Math.max(...s),mn=Math.min(...s);
+  const pts=s.map((v,i)=>`${(i/(s.length-1)*w).toFixed(1)},${(h-2-(v-mn)/(mx-mn||1)*(h-4)).toFixed(1)}`).join(' ');
+  return `<svg class="sp" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${up?'var(--up)':'var(--dn)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`}
+
+async function load(){
+  try{const [m,g]=await Promise.all([fetch(`${API}coins/markets?vs_currency=${cur}&order=market_cap_desc&per_page=50&page=1&sparkline=true&price_change_percentage=1h,24h,7d`),fetch(API+'global')]);
+    if(!m.ok)throw new Error(m.status);const prev=Object.fromEntries(coins.map(c=>[c.id,c.current_price]));coins=await m.json();glob=g.ok?(await g.json()).data:null;
+    render(prev);$('#upd').textContent='updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'})}
+  catch(e){if(!coins.length)$('#tb').innerHTML=`<tr><td colspan="9"><div class="msg">Couldn't load market data (the free API may be rate-limited).<br><button id="retry">Try again</button></div></td></tr>`;
+    $('#upd').textContent='update failed, retrying soon'}
+}
+function render(prev={}){
+  /* stats */
+  const cap=glob?.total_market_cap?.[cur],vol=glob?.total_volume?.[cur],chg=glob?.market_cap_change_percentage_24h_usd,btcD=glob?.market_cap_percentage?.btc,ethD=glob?.market_cap_percentage?.eth;
+  $('#stats').innerHTML=`<div class="st"><span>Total market cap</span><b class="num">${cap?big(cap):'—'}</b><small class="${chg>=0?'up':'dn'}">${chg!=null?(chg>=0?'▲ ':'▼ ')+Math.abs(chg).toFixed(2)+'% 24h':''}</small></div>
+   <div class="st"><span>24h trading volume</span><b class="num">${vol?big(vol):'—'}</b><small style="color:var(--mut)">${glob?glob.active_cryptocurrencies.toLocaleString()+' active coins':''}</small></div>
+   <div class="st"><span>Dominance</span><b class="num">BTC ${btcD?btcD.toFixed(1):'—'}%</b><div class="dom"><i style="width:${btcD||0}%;background:#f7931a"></i><i style="width:${ethD||0}%;background:#627eea"></i><i style="flex:1;background:var(--line)"></i></div></div>
+   <div class="st"><span>Your watchlist</span><b class="num">${watch.length} coins</b><small style="color:var(--mut)">saved in this browser</small></div>`;
+  $('#ticker').innerHTML=[0,1].map(()=>coins.slice(0,15).map(c=>`<span><b>${c.symbol.toUpperCase()}</b><span class="num">${fmt(c.current_price)}</span>${pct(c.price_change_percentage_24h_in_currency)}</span>`).join('')).join('');
+  table(prev);side();
+}
+function table(prev={}){
+  let list=coins.filter(c=>(c.name+' '+c.symbol).toLowerCase().includes(q));
+  if(tab==='watch')list=list.filter(c=>watch.includes(c.id));
+  if(tab==='gain'||tab==='lose'){list=[...list].sort((a,b)=>(b.price_change_percentage_24h_in_currency-a.price_change_percentage_24h_in_currency)*(tab==='gain'?1:-1)).slice(0,10)}
+  else list=[...list].sort((a,b)=>{const A=a[sortK],B=b[sortK];return (typeof A==='string'?A.localeCompare(B):(A??0)-(B??0))*dir});
+  $('#tb').innerHTML=list.length?list.map(c=>{const p=prev[c.id],fl=p&&p!==c.current_price?(c.current_price>p?'flash-up':'flash-dn'):'';
+    return `<tr data-id="${c.id}" class="${fl}"><td><button class="star${watch.includes(c.id)?' on':''}" data-w="${c.id}" aria-label="Add to watchlist"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></button></td>
+     <td class="num" style="color:var(--mut)">${c.market_cap_rank??'—'}</td><td><div class="coin">${icon(c)}<span>${c.name} <small>${c.symbol}</small></span></div></td>
+     <td class="num p">${fmt(c.current_price)}</td><td class="num">${pct(c.price_change_percentage_1h_in_currency)}</td><td class="num">${pct(c.price_change_percentage_24h_in_currency)}</td><td class="num">${pct(c.price_change_percentage_7d_in_currency)}</td>
+     <td class="num">${big(c.market_cap)}</td><td>${spark(c.sparkline_in_7d?.price,(c.price_change_percentage_7d_in_currency||0)>=0)}</td></tr>`}).join('')
+   :`<tr><td colspan="9"><div class="msg">${tab==='watch'?'Your watchlist is empty. Tap ☆ next to any coin to add it.':'No coins match “'+q+'”.'}</div></td></tr>`;
+  document.querySelectorAll('th[data-k]').forEach(th=>th.classList.toggle('s',th.dataset.k===sortK&&tab!=='gain'&&tab!=='lose'));
+}
+function side(){
+  const opts=coins.slice(0,30).map(c=>`<option value="${c.id}">${c.symbol.toUpperCase()}</option>`).join('');
+  const k1=$('#c1').value||'bitcoin',k2=$('#c2').value||'fiat';
+  $('#c1').innerHTML=opts;$('#c2').innerHTML=`<option value="fiat">${cur.toUpperCase()}</option>`+opts;$('#c1').value=k1;$('#c2').value=k2;conv();
+  const ups=coins.filter(c=>c.price_change_percentage_24h_in_currency>0).length,score=Math.round(ups/(coins.length||1)*100);
+  $('#fgN').textContent=score;$('#fgI').style.left=`calc(${score}% - 2px)`;const lb=score<25?['Extreme fear','dn']:score<45?['Fear','dn']:score<55?['Neutral','']:score<75?['Greed','up']:['Extreme greed','up'];
+  $('#fgL').textContent=lb[0];$('#fgL').className=lb[1];
+  const mv=[...coins].sort((a,b)=>Math.abs(b.price_change_percentage_24h_in_currency)-Math.abs(a.price_change_percentage_24h_in_currency)).slice(0,5);
+  $('#mv').innerHTML=mv.map(c=>`<div data-id="${c.id}"><span class="coin">${icon(c)}${c.symbol.toUpperCase()}</span><span class="num">${fmt(c.current_price)}</span>${pct(c.price_change_percentage_24h_in_currency)}</div>`).join('');
+}
+const price=id=>id==='fiat'?1:coins.find(c=>c.id===id)?.current_price;
+let lastEdit='a1';
+function conv(){const p1=price($('#c1').value),p2=price($('#c2').value);if(!p1||!p2)return;
+  if(lastEdit==='a1'){const v=parseFloat($('#a1').value.replace(',','.'))||0;$('#a2').value=+(v*p1/p2).toFixed(p2===1?2:8)}else{const v=parseFloat($('#a2').value.replace(',','.'))||0;$('#a1').value=+(v*p2/p1).toFixed(8)}
+  const n1=$('#c1').selectedOptions[0]?.text,n2=$('#c2').selectedOptions[0]?.text;$('#rate').textContent=`1 ${n1} = ${(p1/p2).toLocaleString('en-US',{maximumFractionDigits:p2===1?2:8})} ${n2}`}
+$('#a1').oninput=()=>{lastEdit='a1';conv()};$('#a2').oninput=()=>{lastEdit='a2';conv()};$('#c1').onchange=$('#c2').onchange=conv;
+$('#swap').onclick=()=>{const a=$('#c1').value,b=$('#c2').value;if(b==='fiat')return;$('#c1').value=b;$('#c2').value=a;conv()};
+
+/* coin drawer with chart */
+let drCoin=null,days=7;
+async function openCoin(id){drCoin=coins.find(c=>c.id===id);if(!drCoin)return;$('#dr').classList.add('on');$('#ov').classList.add('on');drawDr();loadChart()}
+function drawDr(){const c=drCoin;
+  $('#dr').innerHTML=`<div class="dh"><div class="coin">${icon(c)}<span>${c.name} <small>${c.symbol}</small></span></div><button class="ib" id="drx" aria-label="Close">✕</button></div>
+   <div class="big num">${fmt(c.current_price)}</div><div>${pct(c.price_change_percentage_24h_in_currency)} <span style="color:var(--mut);font-size:.85rem">last 24h</span></div>
+   <div class="rng" id="rng">${[[1,'24H'],[7,'7D'],[30,'1M'],[365,'1Y']].map(([d,l])=>`<button data-d="${d}" class="${d===days?'on':''}">${l}</button>`).join('')}</div>
+   <div class="ch" id="ch"><div class="msg" style="padding:90px 0">Loading chart…</div></div>
+   <div class="kv"><div><span>Market cap</span><b class="num">${big(c.market_cap)}</b></div><div><span>24h volume</span><b class="num">${big(c.total_volume)}</b></div>
+    <div><span>24h high</span><b class="num">${fmt(c.high_24h)}</b></div><div><span>24h low</span><b class="num">${fmt(c.low_24h)}</b></div>
+    <div><span>All-time high</span><b class="num">${fmt(c.ath)}</b></div><div><span>From ATH</span><b class="num ${c.ath_change_percentage>=0?'up':'dn'}">${c.ath_change_percentage?.toFixed(1)}%</b></div>
+    <div><span>Circulating supply</span><b class="num">${c.circulating_supply?Math.round(c.circulating_supply).toLocaleString():'—'}</b></div><div><span>Rank</span><b class="num">#${c.market_cap_rank}</b></div></div>
+   <button class="msg" style="width:100%;border:0;background:none;padding:18px 0" id="drw">${watch.includes(c.id)?'★ In your watchlist — tap to remove':'☆ Add to watchlist'}</button>`;
+  $('#drx').onclick=closeDr;$('#rng').onclick=e=>{const b=e.target.closest('button');if(!b)return;days=+b.dataset.d;$('#rng').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));loadChart()};
+  $('#drw').onclick=()=>{toggleWatch(c.id);drawDr();loadChart()}}
+async function loadChart(){const id=drCoin.id,d=days;
+  let pts;try{const r=await fetch(`${API}coins/${id}/market_chart?vs_currency=${cur}&days=${d}`);if(!r.ok)throw 0;pts=(await r.json()).prices}
+  catch(e){const sp=drCoin.sparkline_in_7d?.price||[];pts=sp.map((v,i)=>[Date.now()-(sp.length-i)*36e5,v]);if(!pts.length){$('#ch').innerHTML='<div class="msg">Chart unavailable right now.</div>';return}}
+  if(drCoin.id!==id||d!==days)return;chart(pts)}
+function chart(pts){const W=520,H=240,P=6,v=pts.map(p=>p[1]),mx=Math.max(...v),mn=Math.min(...v),x=i=>P+i/(pts.length-1)*(W-2*P),y=n=>P+(H-2*P)*(1-(n-mn)/(mx-mn||1));
+  const up=v[v.length-1]>=v[0],col=up?'var(--up)':'var(--dn)',d=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join('');
+  $('#ch').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${up?'#0f9d6b':'#e2364b'}" stop-opacity=".25"/><stop offset="1" stop-color="${up?'#0f9d6b':'#e2364b'}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d}L${x(pts.length-1)},${H}L${x(0)},${H}Z" fill="url(#cg)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    <line id="vl" y1="0" y2="${H}" stroke="var(--mut)" stroke-dasharray="3 3" opacity="0" vector-effect="non-scaling-stroke"/><rect width="${W}" height="${H}" fill="transparent" id="hit"/></svg><div class="tip" id="tip"></div>`;
+  const svg=$('#ch svg'),tip=$('#tip'),vl=$('#vl');
+  $('#hit').onpointermove=e=>{const r=svg.getBoundingClientRect(),i=Math.round(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*(pts.length-1)),[t,p]=pts[i];
+    vl.setAttribute('x1',x(i));vl.setAttribute('x2',x(i));vl.setAttribute('opacity',1);tip.style.opacity=1;tip.style.left=x(i)/W*r.width+'px';tip.style.top=y(p)/H*r.height+'px';
+    tip.innerHTML=`<b class="num">${fmt(p)}</b><br>${new Date(t).toLocaleString('en-US',{month:'short',day:'numeric',hour:days<=7?'numeric':undefined})}`};
+  $('#hit').onpointerleave=()=>{tip.style.opacity=0;vl.setAttribute('opacity',0)}}
+function closeDr(){$('#dr').classList.remove('on');$('#ov').classList.remove('on')}
+function toggleWatch(id){watch=watch.includes(id)?watch.filter(x=>x!==id):[...watch,id];try{localStorage.setItem('cw-watch',JSON.stringify(watch))}catch(e){}render()}
+
+$('#tb').addEventListener('click',e=>{const s=e.target.closest('[data-w]');if(s){e.stopPropagation();toggleWatch(s.dataset.w);return}if(e.target.closest('#retry')){load();return}const r=e.target.closest('tr[data-id]');if(r)openCoin(r.dataset.id)});
+$('#mv').addEventListener('click',e=>{const r=e.target.closest('[data-id]');if(r)openCoin(r.dataset.id)});
+$('#ov').onclick=closeDr;addEventListener('keydown',e=>{if(e.key==='Escape')closeDr()});
+document.querySelector('thead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;if(sortK===th.dataset.k)dir*=-1;else{sortK=th.dataset.k;dir=th.dataset.k==='market_cap_rank'||th.dataset.k==='name'?1:-1}if(tab==='gain'||tab==='lose')setTab('all');table()});
+function setTab(t){tab=t;$('#tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setTab(b.dataset.t);table()});
+$('#q').oninput=e=>{q=e.target.value.trim().toLowerCase();table()};
+$('#cur').onchange=e=>{cur=e.target.value;try{localStorage.setItem('cw-cur',cur)}catch(err){}coins=[];skel();load()};
+$('#theme').onclick=()=>{const d=document.documentElement,on=d.dataset.theme!=='dark';d.dataset.theme=on?'dark':'';try{localStorage.setItem('cw-theme',on?'dark':'')}catch(e){}};
+function skel(){$('#tb').innerHTML=Array(10).fill(`<tr class="skel">${Array(9).fill('<td><i></i></td>').join('')}</tr>`).join('')}
+skel();load();setInterval(load,60000);
+</script>
+</body>
+</html>
